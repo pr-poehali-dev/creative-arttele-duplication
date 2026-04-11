@@ -27,12 +27,12 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
     <nav className="fixed top-0 left-0 right-0 z-50 nav-blur">
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--neon-blue)] to-[var(--neon-green)] flex items-center justify-center">
-            <Icon name="Wifi" size={16} className="text-[#0b0e17]" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+            <img src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/eab6cd5f-932d-4520-b6dc-7b7f9fa0ff47.jpg" alt="АртТелеком Юг" className="w-full h-full object-cover" />
           </div>
-          <span className="font-montserrat font-black text-xl tracking-tight">
-            <span style={{ color: "var(--neon-blue)" }}>Связь</span>
-            <span className="text-white">Про</span>
+          <span className="font-montserrat font-black text-lg tracking-tight leading-none">
+            <span style={{ color: "var(--neon-blue)" }}>АртТелеком</span>
+            <span className="text-white"> Юг</span>
           </span>
         </Link>
 
