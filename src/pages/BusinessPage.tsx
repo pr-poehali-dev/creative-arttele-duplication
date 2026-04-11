@@ -232,6 +232,41 @@ export default function BusinessPage() {
         </div>
       </section>
 
+      {/* Выделенный IP */}
+      <section className="py-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="rounded-3xl p-8 border flex flex-col md:flex-row gap-8 items-center" style={{ background: "linear-gradient(120deg, rgba(168,85,247,0.08), rgba(0,212,255,0.05))", borderColor: "rgba(168,85,247,0.25)" }}>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)" }}>
+              <Icon name="Globe" size={32} style={{ color: "#a855f7" }} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2 flex-wrap">
+                <span className="font-montserrat font-black text-xl text-white">Выделенный IP-адрес</span>
+                <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: "rgba(168,85,247,0.2)", color: "#a855f7" }}>Доп. услуга</span>
+              </div>
+              <p className="text-white/50 text-sm leading-relaxed max-w-xl">
+                Статический IP-адрес для вашего бизнеса — незаменим для удалённого доступа к серверам, видеонаблюдения, работы корпоративных сервисов и безопасного VPN. Подключается к любому тарифу.
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1">
+                {["Постоянный IP-адрес", "Удалённый доступ к офису", "Видеонаблюдение онлайн", "Хостинг корпоративных сервисов"].map(f => (
+                  <li key={f} className="flex items-center gap-1.5 text-xs text-white/60">
+                    <Icon name="Check" size={12} style={{ color: "#a855f7" }} className="shrink-0" /> {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="shrink-0 text-center">
+              <div className="text-white/40 text-xs mb-1">Стоимость</div>
+              <div className="font-montserrat font-black text-3xl text-white mb-1">1 000 ₽</div>
+              <div className="text-white/30 text-xs mb-4">/ месяц</div>
+              <Link to="/contacts" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-[#0b0e17] neon-glow-btn" style={{ background: "linear-gradient(135deg, #a855f7, var(--neon-blue))" }}>
+                Подключить <Icon name="ArrowRight" size={14} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-16 px-6">
         <div className="max-w-3xl mx-auto text-center rounded-3xl p-10 border" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,245,122,0.05))", borderColor: "rgba(0,212,255,0.2)" }}>

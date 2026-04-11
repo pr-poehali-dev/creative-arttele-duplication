@@ -30,13 +30,13 @@ const businessTariffs: BusinessTariff[] = [
   },
   {
     name: "Офис",
-    speed: "200",
-    price: "2 490",
+    speed: "100",
+    price: "4000",
     popular: false,
     color: "blue",
     sla: "99.5%",
     features: [
-      "Скорость 200 Мбит/с",
+      "Скорость 100 Мбит/с",
       "Безлимитный трафик",
       "SLA 99.5%",
       "Персональный менеджер",
@@ -47,13 +47,13 @@ const businessTariffs: BusinessTariff[] = [
   },
   {
     name: "Бизнес",
-    speed: "500",
-    price: "3 990",
+    speed: "200",
+    price: "6000",
     popular: true,
     color: "green",
     sla: "99.9%",
     features: [
-      "Скорость 500 Мбит/с",
+      "Скорость 200 Мбит/с",
       "Безлимитный трафик",
       "SLA 99.9%",
       "Выделенный IP-адрес",
