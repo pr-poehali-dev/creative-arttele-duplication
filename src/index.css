@@ -406,3 +406,162 @@
 .accordion-icon {
   transition: transform 0.3s ease;
 }
+
+/* Smoke particles around the sphere */
+@keyframes smokeRise {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3) translateY(0px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.8) translateY(-90px);
+    opacity: 0;
+  }
+}
+
+@keyframes smokeDrift1 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2) translate(-50px, -100px);
+    opacity: 0;
+  }
+}
+@keyframes smokeDrift2 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.25) translate(0px, 0px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.9) translate(40px, -110px);
+    opacity: 0;
+  }
+}
+@keyframes smokeDrift3 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.6) translate(70px, -80px);
+    opacity: 0;
+  }
+}
+@keyframes smokeDrift4 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.15) translate(0px, 0px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5) translate(-65px, -85px);
+    opacity: 0;
+  }
+}
+@keyframes smokeDrift5 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3) translate(0px, 0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.1) translate(10px, -120px);
+    opacity: 0;
+  }
+}
+@keyframes smokeDrift6 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.7) translate(-30px, -105px);
+    opacity: 0;
+  }
+}
+
+.smoke-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(18px);
+}
+.smoke-1 {
+  width: 70px;
+  height: 70px;
+  left: 50%;
+  top: 60%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
+  animation: smokeDrift1 4.2s ease-out infinite;
+  animation-delay: 0s;
+}
+.smoke-2 {
+  width: 80px;
+  height: 80px;
+  left: 50%;
+  top: 55%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.18), transparent 70%);
+  animation: smokeDrift2 3.8s ease-out infinite;
+  animation-delay: 0.6s;
+}
+.smoke-3 {
+  width: 60px;
+  height: 60px;
+  left: 50%;
+  top: 58%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.16),
+    transparent 70%
+  );
+  animation: smokeDrift3 5s ease-out infinite;
+  animation-delay: 1.2s;
+}
+.smoke-4 {
+  width: 75px;
+  height: 75px;
+  left: 50%;
+  top: 62%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.15), transparent 70%);
+  animation: smokeDrift4 4.5s ease-out infinite;
+  animation-delay: 1.8s;
+}
+.smoke-5 {
+  width: 90px;
+  height: 90px;
+  left: 50%;
+  top: 56%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.14), transparent 70%);
+  animation: smokeDrift5 3.5s ease-out infinite;
+  animation-delay: 0.3s;
+}
+.smoke-6 {
+  width: 65px;
+  height: 65px;
+  left: 50%;
+  top: 60%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent 70%);
+  animation: smokeDrift6 4.8s ease-out infinite;
+  animation-delay: 2.4s;
+}
