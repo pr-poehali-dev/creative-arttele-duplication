@@ -262,26 +262,54 @@ export default function VideoSurveillancePage() {
         </div>
       </section>
 
-      {/* Monitoring center image */}
+      {/* Live stream */}
       <section className="py-10 px-6">
-        <div className="max-w-7xl mx-auto relative rounded-3xl overflow-hidden">
-          <img
-            src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/37dc7567-b8f8-40b3-b3d2-cce4ad48ae4b.jpg"
-            alt="Центр мониторинга"
-            className="w-full object-cover"
-            style={{ maxHeight: 420 }}
-          />
-          <div
-            className="absolute inset-0 flex flex-col justify-end p-10"
-            style={{ background: "linear-gradient(to top, rgba(11,14,23,0.95) 0%, rgba(11,14,23,0.4) 60%, transparent 100%)" }}
-          >
-            <p className="text-xs font-bold tracking-widest uppercase mb-2" style={{ color: "var(--neon-green)" }}>
-              Современный подход
-            </p>
-            <h2 className="text-3xl lg:text-4xl font-black text-white max-w-xl">
-              Мониторинг в реальном времени с любого устройства
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold mb-4 tracking-widest uppercase"
+              style={{
+                background: "rgba(239,68,68,0.12)",
+                border: "1px solid rgba(239,68,68,0.35)",
+                color: "#ef4444",
+              }}
+            >
+              <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#ef4444" }} />
+              Live — трансляция в реальном времени
+            </div>
+            <h2 className="text-2xl lg:text-4xl font-black text-white">
+              Смотрите, как работает наша система
             </h2>
           </div>
+
+          <div
+            className="relative rounded-3xl overflow-hidden"
+            style={{
+              border: "1px solid rgba(0,212,255,0.2)",
+              boxShadow: "0 0 60px rgba(0,212,255,0.1)",
+            }}
+          >
+            <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden" }}>
+              <iframe
+                src="https://140868.edgevideo.ru/embed/140868_376967"
+                title="Трансляция видеонаблюдения"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  border: "none",
+                }}
+              />
+            </div>
+          </div>
+
+          <p className="text-center text-white/30 text-xs mt-4">
+            Демонстрационная камера — пример работы системы видеонаблюдения в режиме реального времени
+          </p>
         </div>
       </section>
 
