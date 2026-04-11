@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
+import HlsPlayer from "@/components/HlsPlayer";
 
 const services = [
   {
@@ -99,10 +100,10 @@ const faqs = [
 ];
 
 const cameras = [
-  { label: "Вход • Камера 1", img: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1280&q=80", color: "#00d4ff" },
-  { label: "Парковка • Камера 2", img: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1280&q=80", color: "#00f57a" },
-  { label: "Склад • Камера 3", img: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=1280&q=80", color: "#00d4ff" },
-  { label: "Офис • Камера 4", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1280&q=80", color: "#a855f7" },
+  { label: "Вход • Камера 1", stream: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", color: "#00d4ff" },
+  { label: "Парковка • Камера 2", stream: "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8", color: "#00f57a" },
+  { label: "Склад • Камера 3", stream: "https://test-streams.mux.dev/test_001/stream.m3u8", color: "#00d4ff" },
+  { label: "Офис • Камера 4", stream: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8", color: "#a855f7" },
 ];
 
 export default function VideoSurveillancePage() {
@@ -317,7 +318,7 @@ export default function VideoSurveillancePage() {
                   style={{ aspectRatio: "16/9" }}
                   onClick={() => setFullscreenCam(i)}
                 >
-                  <img src={cam.img} alt={cam.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" style={{ filter: "brightness(0.75) saturate(0.7)" }} />
+                  <HlsPlayer src={cam.stream} className="absolute inset-0 w-full h-full" />
                   {/* scanline overlay */}
                   <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)" }} />
                   {/* hover expand hint */}
@@ -577,12 +578,7 @@ export default function VideoSurveillancePage() {
             </div>
 
             <div className="relative" style={{ aspectRatio: "16/9" }}>
-              <img
-                src={cameras[fullscreenCam].img}
-                alt={cameras[fullscreenCam].label}
-                className="w-full h-full object-cover"
-                style={{ filter: "brightness(0.8) saturate(0.7)" }}
-              />
+              <HlsPlayer src={cameras[fullscreenCam].stream} className="absolute inset-0 w-full h-full" />
               <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px)" }} />
               {/* corner markers */}
               {["top-4 left-4 border-t-2 border-l-2 rounded-tl", "top-4 right-4 border-t-2 border-r-2 rounded-tr", "bottom-4 left-4 border-b-2 border-l-2 rounded-bl", "bottom-4 right-4 border-b-2 border-r-2 rounded-br"].map((cls) => (
@@ -614,7 +610,7 @@ export default function VideoSurveillancePage() {
                   style={{ aspectRatio: "16/9", opacity: i === fullscreenCam ? 1 : 0.45, border: i === fullscreenCam ? `1px solid ${cam.color}` : "1px solid transparent" }}
                   onClick={() => setFullscreenCam(i)}
                 >
-                  <img src={cam.img} alt={cam.label} className="w-full h-full object-cover" style={{ filter: "brightness(0.7) saturate(0.6)" }} />
+                  <HlsPlayer src={cam.stream} className="absolute inset-0 w-full h-full" />
                 </div>
               ))}
             </div>
