@@ -17,18 +17,15 @@ export interface BusinessTariff {
 const businessTariffs: BusinessTariff[] = [
   {
     name: "Старт Бизнес",
-    speed: "100",
-    price: "1 490",
+    speed: "50",
+    price: "2000",
     popular: false,
     color: "blue",
     sla: "99.5%",
     features: [
-      "Скорость 100 Мбит/с",
+      "Скорость 50 Мбит/с",
       "Безлимитный трафик",
-      "SLA 99.5%",
       "Персональный менеджер",
-      "Техподдержка 8/5",
-      "Личный кабинет",
     ],
   },
   {
