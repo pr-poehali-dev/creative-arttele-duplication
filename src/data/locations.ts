@@ -79,21 +79,21 @@ const commonTariffs: LocationTariff[] = [
     speed: "200",
     price: "1300",
     color: "purple",
-    features: ["200 Мбит/с", "Безлимит", "Поддержка 24/7"],
+    features: ["200 Мбит/с", "Безлимит", "Поддержка 24/7", "__social__"],
   },
   {
     name: "Про",
     speed: "300",
     price: "1500",
     color: "purple",
-    features: ["300 Мбит/с", "Безлимит", "Поддержка 24/7"],
+    features: ["300 Мбит/с", "Безлимит", "Поддержка 24/7", "__social__"],
   },
   {
     name: "Максимум",
     speed: "500",
     price: "1700",
     color: "purple",
-    features: ["500 Мбит/с", "Безлимит", "Поддержка 24/7"],
+    features: ["500 Мбит/с", "Безлимит", "Поддержка 24/7", "__social__"],
   },
 ];
 
