@@ -498,7 +498,7 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-10">
             <div className="space-y-4">
               {[
-                { icon: "Phone", label: "Единый номер", val: "8 800 555-77-44", sub: "Бесплатно по России" },
+                { icon: "Phone", label: "Единый номер", val: "+7 902 404-88-50", sub: "Бесплатно по России" },
                 { icon: "Mail", label: "Email", val: "hello@svyazpro.ru", sub: "Ответим в течение 2 часов" },
                 { icon: "MapPin", label: "Головной офис", val: "Москва, ул. Цифровая, 1", sub: "Пн–Пт 9:00–18:00" },
                 { icon: "MessageCircle", label: "Онлайн-чат", val: "В личном кабинете", sub: "24/7 без ожидания" },
@@ -711,7 +711,7 @@ export default function Index() {
                         <span className="text-sm text-white/70">Нет активных заявок</span>
                       </div>
                       <div className="space-y-2">
-                        {[{ icon: "MessageCircle", label: "Онлайн-чат", desc: "Ответим за 2 минуты" }, { icon: "Phone", label: "8 800 555-77-44", desc: "Бесплатно" }, { icon: "Mail", label: "hello@svyazpro.ru", desc: "Ответим за 2 часа" }].map((c, i) => (
+                        {[{ icon: "MessageCircle", label: "Онлайн-чат", desc: "Ответим за 2 минуты" }, { icon: "Phone", label: "+7 902 404-88-50", desc: "Бесплатно" }, { icon: "Mail", label: "hello@svyazpro.ru", desc: "Ответим за 2 часа" }].map((c, i) => (
                           <button key={i} className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/5 hover:border-[rgba(0,212,255,0.3)] transition-all text-left" style={{ background: "rgba(255,255,255,0.03)" }}>
                             <Icon name={c.icon} size={16} style={{ color: "var(--neon-blue)" }} className="shrink-0" />
                             <div>
