@@ -67,7 +67,7 @@ const businessTariffs: BusinessTariff[] = [
   {
     name: "Корпоратив",
     speed: "1000",
-    price: "5 990",
+    price: "По запросу",
     popular: false,
     color: "green",
     sla: "99.9%",
@@ -87,7 +87,7 @@ const businessTariffs: BusinessTariff[] = [
   {
     name: "Премиум Бизнес",
     speed: "2000",
-    price: "9 990",
+    price: "По запросу",
     popular: false,
     color: "purple",
     sla: "99.99%",
