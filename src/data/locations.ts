@@ -42,7 +42,7 @@ const locations: Location[] = [
       { title: "Роутер Wi-Fi 6 в подарок", desc: "При подключении тарифа «Максимум».", badge: "Подарок", color: "blue" },
     ],
     tariffs: [
-      { name: "Старт", speed: "100", price: "399", color: "blue", features: ["100 Мбит/с", "Безлимит", "Поддержка 24/7"] },
+      { name: "Старт", speed: "50", price: "800", color: "blue", features: ["50 Мбит/с", "Безлимит", "Поддержка 24/7"] },
       { name: "Оптима", speed: "300", price: "599", oldPrice: "649", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
       { name: "Максимум", speed: "1000", price: "899", oldPrice: "999", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
     ],
