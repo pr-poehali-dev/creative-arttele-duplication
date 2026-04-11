@@ -5,6 +5,7 @@ import Icon from "@/components/ui/icon";
 const navLinks = [
   { label: "Главная",    href: "/" },
   { label: "Тарифы",     href: "/tariffs" },
+  { label: "Бизнес",     href: "/business" },
   { label: "О компании", href: "/about" },
   { label: "Блог",       href: "/blog" },
   { label: "FAQ",        href: "/faq" },
