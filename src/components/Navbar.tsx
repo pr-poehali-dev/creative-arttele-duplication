@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Блог",       href: "/blog" },
   { label: "FAQ",        href: "/faq" },
   { label: "Контакты",   href: "/contacts" },
+  { label: "Тест скорости", href: "/speedtest" },
 ];
 
 interface NavbarProps {
