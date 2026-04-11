@@ -105,7 +105,7 @@ export default function Index() {
               поколения
             </h1>
             <p className="slide-up-delay-2 text-lg text-white/60 mb-8 max-w-lg leading-relaxed">
-              Гигабитное оптоволокно, ТВ 450+ каналов и защита от угроз — всё в одном пакете. Подключайтесь за 24 часа.
+              Гигабитное подключение по TurboPon, ТВ 450+ каналов и защита от угроз — всё в одном пакете. Подключайтесь за 24 часа.
             </p>
             <div className="slide-up-delay-3 flex flex-col sm:flex-row gap-3 mb-10">
               <button onClick={() => scrollTo("#tariffs")} className="px-6 py-3.5 rounded-xl text-[#0b0e17] font-bold text-base neon-glow-btn" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}>
