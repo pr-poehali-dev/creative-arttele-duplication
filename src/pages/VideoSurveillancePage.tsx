@@ -291,7 +291,7 @@ export default function VideoSurveillancePage() {
           >
             <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden" }}>
               <iframe
-                src="https://140868.edgevideo.ru/embed/140868_376967"
+                src="https://140868.edgevideo.ru/broadcasts/140868_449813"
                 title="Трансляция видеонаблюдения"
                 allow="autoplay; fullscreen"
                 allowFullScreen
