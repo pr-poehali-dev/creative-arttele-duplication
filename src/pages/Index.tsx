@@ -315,6 +315,36 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ─── SPEED TEST BANNER ─── */}
+      <section className="py-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <Link to="/speedtest" className="block group">
+            <div className="relative rounded-3xl overflow-hidden px-8 py-8 md:px-14 md:py-10 flex flex-col md:flex-row items-center justify-between gap-6"
+              style={{ background: "linear-gradient(120deg, rgba(0,212,255,0.08) 0%, rgba(168,85,247,0.08) 50%, rgba(0,245,122,0.08) 100%)", border: "1px solid rgba(0,212,255,0.15)" }}>
+              {/* glow blobs */}
+              <div className="absolute left-0 top-0 w-64 h-64 rounded-full pointer-events-none" style={{ background: "rgba(0,212,255,0.07)", filter: "blur(80px)" }} />
+              <div className="absolute right-0 bottom-0 w-48 h-48 rounded-full pointer-events-none" style={{ background: "rgba(0,245,122,0.07)", filter: "blur(80px)" }} />
+
+              <div className="relative z-10 flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.1))", border: "1px solid rgba(0,212,255,0.25)" }}>
+                  <Icon name="Gauge" size={28} style={{ color: "var(--neon-blue)" }} />
+                </div>
+                <div>
+                  <div className="font-montserrat font-black text-xl md:text-2xl text-white mb-1">Проверь скорость своего интернета</div>
+                  <div className="text-white/45 text-sm">Бесплатный тест — результат за 10 секунд. Пинг, загрузка и отдача.</div>
+                </div>
+              </div>
+
+              <div className="relative z-10 shrink-0 flex items-center gap-3 px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-300 group-hover:scale-105"
+                style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17", boxShadow: "0 0 24px rgba(0,212,255,0.2)" }}>
+                <Icon name="Zap" size={16} />
+                Начать тест
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       {/* ─── COVERAGE ─── */}
       <section id="coverage" className="py-20 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
