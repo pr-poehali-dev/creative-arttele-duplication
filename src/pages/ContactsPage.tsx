@@ -22,18 +22,34 @@ export default function ContactsPage() {
 
           <div className="grid lg:grid-cols-2 gap-10">
             <div className="space-y-4">
-              {contacts.map((c, i) => (
-                <div key={i} className="flex items-center gap-4 glass-card rounded-2xl p-5 border border-white/5 card-hover">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(0,212,255,0.1)", color: "var(--neon-blue)" }}>
-                    <Icon name={c.icon} size={20} />
+              {contacts.map((c, i) => {
+                const inner = (
+                  <>
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: c.link ? "rgba(0,212,255,0.15)" : "rgba(0,212,255,0.1)", color: "var(--neon-blue)" }}>
+                      <Icon name={c.icon} size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-white/40 text-xs mb-0.5">{c.label}</div>
+                      <div className="text-white font-semibold">{c.value}</div>
+                      <div className="text-white/30 text-xs">{c.sub}</div>
+                    </div>
+                    {c.link && (
+                      <div className="shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17" }}>
+                        Написать →
+                      </div>
+                    )}
+                  </>
+                );
+                return c.link ? (
+                  <a key={i} href={c.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 glass-card rounded-2xl p-5 border border-white/10 card-hover cursor-pointer no-underline">
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={i} className="flex items-center gap-4 glass-card rounded-2xl p-5 border border-white/5 card-hover">
+                    {inner}
                   </div>
-                  <div>
-                    <div className="text-white/40 text-xs mb-0.5">{c.label}</div>
-                    <div className="text-white font-semibold">{c.value}</div>
-                    <div className="text-white/30 text-xs">{c.sub}</div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="glass-card rounded-3xl p-8 border border-white/5">
