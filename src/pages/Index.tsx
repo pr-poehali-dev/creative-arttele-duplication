@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import tariffs from "@/data/tariffs";
 
 const HERO_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/9344e7ca-fcbc-4475-8001-83fa179e1412.jpg";
 const CITY_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/8c65a182-986a-4921-8613-7a88e4c04b6f.jpg";
@@ -25,11 +26,7 @@ const services = [
   { icon: "Wifi", title: "Wi-Fi роутер", desc: "Современный роутер Wi-Fi 6 в аренду или подарок при подключении к тарифу Максимум.", tag: "Wi-Fi 6", color: "purple" },
 ];
 
-const tariffs = [
-  { name: "Старт", speed: "100", price: "449", features: ["Скорость 100 Мбит/с", "Безлимитный трафик", "Техподдержка 24/7", "Личный кабинет"], popular: false, color: "blue" },
-  { name: "Оптима", speed: "300", price: "649", features: ["Скорость 300 Мбит/с", "Безлимитный трафик", "Антивирус в подарок", "Техподдержка 24/7", "Личный кабинет", "ТВ 100 каналов"], popular: true, color: "green" },
-  { name: "Максимум", speed: "1000", price: "999", features: ["Скорость 1 Гбит/с", "Безлимитный трафик", "Антивирус + защита", "ТВ 450+ каналов", "Роутер Wi-Fi 6 в подарок", "Приоритетная поддержка", "IP-телефония"], popular: false, color: "purple" },
-];
+
 
 const stats = [
   { num: "14", suffix: "лет", label: "на рынке" },
