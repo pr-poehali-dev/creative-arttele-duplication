@@ -30,6 +30,20 @@ export default function AboutPage() {
             ))}
           </div>
 
+          {/* Chameleon */}
+          <div className="flex justify-center my-8">
+            <div className="relative group flex flex-col items-center gap-3">
+              <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(168,85,247,0.6), rgba(0,212,255,0.3))" }} />
+              <img
+                src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/560d1e88-d4d5-47d8-9e45-2d72e8b3a520.jpg"
+                alt="Хамелеон-астронавт"
+                className="relative w-36 h-36 rounded-3xl object-cover group-hover:scale-105 transition-transform duration-500"
+                style={{ border: "1px solid rgba(168,85,247,0.4)", boxShadow: "0 0 40px rgba(168,85,247,0.2)" }}
+              />
+              <span className="relative text-xs text-white/30 italic">Исследуем возможности вместе</span>
+            </div>
+          </div>
+
           <div className="glass-card rounded-3xl p-8 border border-white/5 mb-10">
             <h2 className="font-montserrat font-bold text-2xl mb-4 text-white">Наша миссия</h2>
             <p className="text-white/60 text-base leading-relaxed">{aboutInfo.mission}</p>

@@ -18,6 +18,23 @@ export default function ContactsPage() {
             </h1>
           </div>
 
+          {/* Chameleon */}
+          <div className="flex justify-center mb-10">
+            <div className="relative group flex items-center gap-4 px-6 py-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="absolute inset-0 rounded-2xl blur-lg opacity-20 group-hover:opacity-40 transition-opacity duration-500" style={{ background: "rgba(0,212,255,0.3)" }} />
+              <img
+                src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/4eec4487-308b-43a1-a156-1645a49d7d79.jpg"
+                alt="Хамелеон-менеджер"
+                className="relative w-14 h-14 rounded-xl object-cover group-hover:scale-110 transition-transform duration-300"
+                style={{ border: "1px solid rgba(0,212,255,0.3)" }}
+              />
+              <div className="relative">
+                <div className="font-semibold text-white text-sm">Наш менеджер ждёт вас</div>
+                <div className="text-white/35 text-xs">Ответим в течение 30 минут</div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-10">
             <div className="space-y-4">
               {contacts.map((c, i) => (

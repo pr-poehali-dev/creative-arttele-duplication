@@ -98,6 +98,19 @@ export default function BusinessPage() {
             </Link>
           </div>
         </div>
+
+        {/* Chameleon */}
+        <div className="flex justify-center mt-12">
+          <div className="relative group">
+            <div className="absolute -inset-4 rounded-full blur-2xl opacity-25 group-hover:opacity-50 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(0,212,255,0.5), rgba(0,245,122,0.3))" }} />
+            <img
+              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/233c7154-d00e-418a-a96e-6489ebdebf02.jpg"
+              alt="Хамелеон в сети"
+              className="relative w-32 h-32 rounded-2xl object-cover group-hover:scale-105 group-hover:-rotate-2 transition-transform duration-500"
+              style={{ border: "1px solid rgba(0,212,255,0.35)", boxShadow: "0 0 40px rgba(0,212,255,0.15)" }}
+            />
+          </div>
+        </div>
       </section>
 
       {/* Solutions */}

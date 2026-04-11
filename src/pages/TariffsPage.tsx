@@ -33,6 +33,19 @@ export default function TariffsPage() {
             <p className="text-white/40 text-base max-w-xl mx-auto">Все тарифы — безлимитный трафик, без скрытых платежей</p>
           </div>
 
+          {/* Chameleon */}
+          <div className="flex justify-center mb-8 -mt-2">
+            <div className="relative group">
+              <div className="absolute inset-0 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(0,212,255,0.5), rgba(0,245,122,0.3))" }} />
+              <img
+                src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/db78b1d0-2c8b-4dfa-a979-f1b165e67dbf.jpg"
+                alt="Хамелеон на роутере"
+                className="relative w-28 h-28 rounded-full object-cover border-2 group-hover:scale-110 transition-transform duration-500"
+                style={{ borderColor: "rgba(0,212,255,0.4)", boxShadow: "0 0 30px rgba(0,212,255,0.2)" }}
+              />
+            </div>
+          </div>
+
           {/* Tab switcher */}
           <div className="flex justify-center mb-12">
             <div className="flex p-1 rounded-2xl gap-1" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>

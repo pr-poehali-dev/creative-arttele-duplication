@@ -19,6 +19,19 @@ export default function FaqPage() {
             <h1 className="font-montserrat font-black text-5xl md:text-6xl">
               Частые<br /><span className="gradient-text-green">вопросы</span>
             </h1>
+
+            {/* Chameleon */}
+            <div className="flex justify-center mt-6">
+              <div className="relative group">
+                <div className="absolute -inset-2 rounded-full blur-xl opacity-35 group-hover:opacity-65 transition-opacity duration-500" style={{ background: "rgba(0,245,122,0.4)" }} />
+                <img
+                  src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/2316df7c-8ee1-4efb-b0ab-79b3c1ca4f17.jpg"
+                  alt="Хамелеон-голограмма"
+                  className="relative w-24 h-24 rounded-full object-cover group-hover:rotate-6 transition-transform duration-500"
+                  style={{ border: "1px solid rgba(0,245,122,0.4)", boxShadow: "0 0 24px rgba(0,245,122,0.2)" }}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="space-y-3">
