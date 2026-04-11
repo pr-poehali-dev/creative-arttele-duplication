@@ -96,7 +96,7 @@ const tvTariffs = [
 
 const tvPromos = [
   { title: "Wink — бесплатно 3 месяца", desc: "При подключении любого пакета Интернет+ТВ — подписка Wink в подарок на 3 месяца.", badge: "Подарок", color: "green" as const },
-  { title: "ТВ-приставка за 1 ₽", desc: "При подключении тарифа «Оптима+ + ТВ» и выше — приставка за символическую цену.", badge: "Акция", color: "blue" as const },
+  { title: "ТВ-приставка в рассрочку 500 ₽/мес", desc: "При подключении тарифа «Оптима+ + ТВ» и выше — приставка в рассрочку на 12 месяцев без переплат.", badge: "Акция", color: "blue" as const },
   { title: "Скидка 15% при оплате на год", desc: "Оплатите пакет на 12 месяцев вперёд и получите скидку 15% на весь период.", badge: "Выгода", color: "purple" as const },
   { title: "Мультирум бесплатно", desc: "При тарифе «Максимум + ТВ» подключите второй телевизор без доплаты.", badge: "Подарок", color: "green" as const },
 ];
@@ -273,11 +273,54 @@ export default function LocationPage() {
                   <Icon name="Tv2" size={32} style={{ color: "#a855f7" }} />
                 </div>
                 <div className="flex-1 text-center md:text-left">
-                  <div className="font-montserrat font-black text-xl text-white mb-1">Wink — стриминг от Ростелекома</div>
+                  <div className="font-montserrat font-black text-xl text-white mb-1">Wink — стриминг от АртТелекома</div>
                   <div className="text-white/50 text-sm">Фильмы, сериалы, мультфильмы, спорт и live-каналы в одном приложении. Доступно на ТВ, смартфоне и планшете.</div>
                 </div>
                 <div className="shrink-0 px-5 py-2 rounded-xl text-xs font-bold" style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)", color: "#a855f7" }}>
                   Включён в пакет
+                </div>
+              </div>
+
+              {/* Стриминг-сервисы */}
+              <div className="mb-10">
+                <h2 className="font-montserrat font-bold text-2xl mb-5 flex items-center gap-2">
+                  <Icon name="Play" size={20} style={{ color: "var(--neon-blue)" }} />
+                  Подключи любимые сервисы
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* иви */}
+                  <div className="rounded-2xl p-5 border flex flex-col gap-3" style={{ background: "rgba(231,29,54,0.08)", borderColor: "rgba(231,29,54,0.25)" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shrink-0" style={{ background: "#E71D36" }}>
+                        иви
+                      </div>
+                      <span className="font-bold text-white text-base">иви</span>
+                    </div>
+                    <p className="text-white/50 text-sm">80 000+ фильмов, сериалов и мультфильмов. Первый месяц — бесплатно при подключении пакета ТВ.</p>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full self-start" style={{ background: "rgba(231,29,54,0.2)", color: "#f87171" }}>Попробовать бесплатно</span>
+                  </div>
+                  {/* Кинопоиск */}
+                  <div className="rounded-2xl p-5 border flex flex-col gap-3" style={{ background: "rgba(255,204,0,0.07)", borderColor: "rgba(255,204,0,0.25)" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-[#1a1a1a] text-xs shrink-0" style={{ background: "#FFCC00" }}>
+                        КП
+                      </div>
+                      <span className="font-bold text-white text-base">Кинопоиск</span>
+                    </div>
+                    <p className="text-white/50 text-sm">Фильмы, сериалы, оригинальные шоу. Эксклюзивный контент и лучшие новинки без рекламы.</p>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full self-start" style={{ background: "rgba(255,204,0,0.2)", color: "#fbbf24" }}>Скидка 20% для абонентов</span>
+                  </div>
+                  {/* Яндекс */}
+                  <div className="rounded-2xl p-5 border flex flex-col gap-3" style={{ background: "rgba(255,90,0,0.07)", borderColor: "rgba(255,90,0,0.25)" }}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-sm shrink-0" style={{ background: "#FF5A00" }}>
+                        Я
+                      </div>
+                      <span className="font-bold text-white text-base">Яндекс Плюс</span>
+                    </div>
+                    <p className="text-white/50 text-sm">Музыка, кино, кешбэк на покупки и доставку. Единая подписка на все сервисы Яндекса.</p>
+                    <span className="text-xs font-bold px-2 py-0.5 rounded-full self-start" style={{ background: "rgba(255,90,0,0.2)", color: "#fb923c" }}>В подарок на 3 месяца</span>
+                  </div>
                 </div>
               </div>
 
