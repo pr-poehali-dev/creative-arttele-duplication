@@ -6,6 +6,7 @@ import PageBackground from "@/components/PageBackground";
 const navLinks = [
   { label: "Главная",    href: "/" },
   { label: "Тарифы",     href: "/tariffs" },
+  { label: "Районы",     href: "/locations" },
   { label: "Бизнес",     href: "/business" },
   { label: "О компании", href: "/about" },
   { label: "Блог",       href: "/blog" },

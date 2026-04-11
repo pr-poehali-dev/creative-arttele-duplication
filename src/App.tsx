@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import TariffsPage from "./pages/TariffsPage";
 import BusinessPage from "./pages/BusinessPage";
+import LocationsListPage from "./pages/LocationsListPage";
+import LocationPage from "./pages/LocationPage";
 import AboutPage from "./pages/AboutPage";
 import BlogPage from "./pages/BlogPage";
 import FaqPage from "./pages/FaqPage";
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/tariffs" element={<TariffsPage />} />
           <Route path="/business" element={<BusinessPage />} />
+          <Route path="/locations" element={<LocationsListPage />} />
+          <Route path="/location/:slug" element={<LocationPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/faq" element={<FaqPage />} />
