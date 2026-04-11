@@ -122,7 +122,14 @@ export default function LocationPage() {
                       </div>
                     )}
                     <div className="mb-3">
-                      <div className="text-white/50 text-xs uppercase tracking-widest mb-1">{t.name}</div>
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <div className="text-white/50 text-xs uppercase tracking-widest">{t.name}</div>
+                        {t.badge && (
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(249,115,22,0.2)", color: "#fb923c" }}>
+                            {t.badge}
+                          </span>
+                        )}
+                      </div>
                       <div className="font-montserrat font-black text-4xl" style={{ color: c.text }}>
                         {t.speed} <span className="text-lg font-semibold text-white/40">Мбит/с</span>
                       </div>

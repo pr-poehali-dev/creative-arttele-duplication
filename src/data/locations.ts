@@ -9,27 +9,98 @@ export interface LocationTariff {
   name: string;
   speed: string;          // Мбит/с
   price: string;          // ₽/мес
-  oldPrice?: string;      // Зачёркнутая старая цена (для акции)
+  oldPrice?: string;
   popular?: boolean;
   color: TariffColor;
   features: string[];
+  badge?: string;         // доп. бейдж (напр. "Только новым")
 }
 
 export interface LocationPromo {
-  title: string;          // Заголовок акции
-  desc: string;           // Описание
-  badge?: string;         // Бейдж ("Акция", "Новинка" и т.д.)
+  title: string;
+  desc: string;
+  badge?: string;
   color: TariffColor;
 }
 
 export interface Location {
-  slug: string;           // URL: /location/oazis
-  name: string;           // Название населённого пункта
-  description: string;    // Короткое описание под заголовком
-  available: boolean;     // false = скоро, без тарифов
+  slug: string;
+  name: string;
+  description: string;
+  available: boolean;
   tariffs: LocationTariff[];
   promos: LocationPromo[];
 }
+
+// Единая линейка тарифов для всех населённых пунктов
+const commonTariffs: LocationTariff[] = [
+  {
+    name: "Социальный",
+    speed: "30",
+    price: "500",
+    color: "blue",
+    badge: "Только новым",
+    features: [
+      "30 Мбит/с",
+      "Безлимит",
+      "3 месяца, затем переход на Оптима+",
+      "Только для новых абонентов",
+    ],
+  },
+  {
+    name: "Старт",
+    speed: "50",
+    price: "800",
+    color: "blue",
+    features: ["50 Мбит/с", "Безлимит", "Поддержка 24/7"],
+  },
+  {
+    name: "Оптима",
+    speed: "100",
+    price: "1000",
+    color: "green",
+    features: ["100 Мбит/с", "Безлимит", "Антивирус", "Поддержка 24/7"],
+  },
+  {
+    name: "Оптима+",
+    speed: "150",
+    price: "1250",
+    color: "green",
+    popular: true,
+    features: [
+      "150 Мбит/с",
+      "Безлимит",
+      "Антивирус",
+      "WhatsApp 💬",
+      "YouTube ▶️",
+      "Telegram ✈️",
+      "Viber 📞",
+      "Instagram 📷",
+      "Threads 🧵",
+    ],
+  },
+  {
+    name: "Комфорт",
+    speed: "200",
+    price: "1300",
+    color: "purple",
+    features: ["200 Мбит/с", "Безлимит", "Антивирус", "Поддержка 24/7"],
+  },
+  {
+    name: "Про",
+    speed: "300",
+    price: "1500",
+    color: "purple",
+    features: ["300 Мбит/с", "Безлимит", "Антивирус+", "ТВ 100 каналов"],
+  },
+  {
+    name: "Максимум",
+    speed: "500",
+    price: "1700",
+    color: "purple",
+    features: ["500 Мбит/с", "Безлимит", "Антивирус+", "ТВ 450+ каналов", "Поддержка 24/7"],
+  },
+];
 
 const locations: Location[] = [
   {
@@ -38,14 +109,10 @@ const locations: Location[] = [
     description: "Подключение к гигабитной оптике. Доступны все тарифы линейки.",
     available: true,
     promos: [
-      { title: "Первый месяц бесплатно", desc: "При подключении тарифа «Оптима» или выше — первый месяц в подарок.", badge: "Акция", color: "green" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
       { title: "Роутер Wi-Fi 6 в подарок", desc: "При подключении тарифа «Максимум».", badge: "Подарок", color: "blue" },
     ],
-    tariffs: [
-      { name: "Старт", speed: "50", price: "800", color: "blue", features: ["50 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "599", oldPrice: "649", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-      { name: "Максимум", speed: "1000", price: "899", oldPrice: "999", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "noviy",
@@ -53,13 +120,10 @@ const locations: Location[] = [
     description: "Высокоскоростной интернет для жителей посёлка Новый.",
     available: true,
     promos: [
-      { title: "Скидка 20% на первые 3 месяца", desc: "Для новых абонентов посёлка Новый при подключении любого тарифа.", badge: "Акция", color: "blue" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Скидка 20% на первые 3 месяца", desc: "Для новых абонентов при подключении любого тарифа.", badge: "Акция", color: "blue" },
     ],
-    tariffs: [
-      { name: "Базовый", speed: "50", price: "279", color: "blue", features: ["50 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Комфорт", speed: "100", price: "379", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус", "ТВ 50 каналов"] },
-      { name: "Оптима", speed: "300", price: "579", color: "purple", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "otradniy",
@@ -67,14 +131,10 @@ const locations: Location[] = [
     description: "Стабильный интернет для Отрадного. Подключение за 24 часа.",
     available: true,
     promos: [
-      { title: "Подключение за 0 ₽", desc: "Бесплатное подключение и прокладка кабеля до квартиры.", badge: "Бесплатно", color: "green" },
-      { title: "ТВ 3 месяца бесплатно", desc: "При подключении тарифа «Оптима» или «Максимум».", badge: "Акция", color: "blue" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Подключение за 0 ₽", desc: "Бесплатное подключение и прокладка кабеля до квартиры.", badge: "Бесплатно", color: "blue" },
     ],
-    tariffs: [
-      { name: "Старт", speed: "100", price: "399", color: "blue", features: ["100 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "629", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-      { name: "Максимум", speed: "1000", price: "949", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "natuhay",
@@ -82,13 +142,10 @@ const locations: Location[] = [
     description: "Оптоволоконный интернет в Натухае. Без ограничений трафика.",
     available: true,
     promos: [
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
       { title: "Скидка 15% пенсионерам", desc: "Постоянная скидка на любой тариф для пенсионеров при предъявлении удостоверения.", badge: "Льгота", color: "purple" },
     ],
-    tariffs: [
-      { name: "Лайт", speed: "30", price: "229", color: "blue", features: ["30 Мбит/с", "Безлимит", "Поддержка"] },
-      { name: "Старт", speed: "100", price: "379", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "599", color: "purple", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "enem",
@@ -96,14 +153,10 @@ const locations: Location[] = [
     description: "Быстрый интернет для жителей Энема. Гигабит уже доступен.",
     available: true,
     promos: [
-      { title: "Два месяца по цене одного", desc: "При оплате на 6 месяцев вперёд — 2 месяца бесплатно.", badge: "Выгода", color: "green" },
-      { title: "Антивирус в подарок на год", desc: "При подключении тарифа «Оптима» или выше.", badge: "Подарок", color: "blue" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Два месяца по цене одного", desc: "При оплате на 6 месяцев вперёд — 2 месяца бесплатно.", badge: "Выгода", color: "blue" },
     ],
-    tariffs: [
-      { name: "Старт", speed: "100", price: "389", color: "blue", features: ["100 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "609", oldPrice: "649", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-      { name: "Максимум", speed: "1000", price: "929", oldPrice: "999", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "enem-dachi",
@@ -111,13 +164,10 @@ const locations: Location[] = [
     description: "Сезонное и круглогодичное подключение для дачного посёлка Энем-дачи.",
     available: true,
     promos: [
-      { title: "Дачный тариф — заморозка на зиму", desc: "Приостановите тариф на зимний период без потери номера и настроек.", badge: "Дачникам", color: "green" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Дачный тариф — заморозка на зиму", desc: "Приостановите тариф на зимний период без потери номера и настроек.", badge: "Дачникам", color: "blue" },
     ],
-    tariffs: [
-      { name: "Дачный", speed: "30", price: "199", color: "blue", features: ["30 Мбит/с", "Безлимит", "Заморозка на зиму"] },
-      { name: "Комфорт", speed: "100", price: "369", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус", "Заморозка на зиму"] },
-      { name: "Оптима", speed: "300", price: "579", color: "purple", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "dachi-otrada",
@@ -125,14 +175,10 @@ const locations: Location[] = [
     description: "Интернет для дачных посёлков Отрада и Пчелка. Один договор — две точки.",
     available: true,
     promos: [
-      { title: "Два участка — одна цена", desc: "Подключите два дачных участка по цене одного тарифа.", badge: "Акция", color: "blue" },
-      { title: "Установка за 1 ₽", desc: "Символическая стоимость подключения при заключении договора на год.", badge: "Выгода", color: "green" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Установка за 1 ₽", desc: "Символическая стоимость подключения при заключении договора на год.", badge: "Выгода", color: "blue" },
     ],
-    tariffs: [
-      { name: "Дачный", speed: "30", price: "199", color: "blue", features: ["30 Мбит/с", "Безлимит", "Заморозка на зиму"] },
-      { name: "Стандарт", speed: "100", price: "359", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус"] },
-      { name: "Комфорт", speed: "200", price: "499", color: "purple", features: ["200 Мбит/с", "Безлимит", "Антивирус", "ТВ 50 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "noviy-sad",
@@ -140,13 +186,10 @@ const locations: Location[] = [
     description: "Оптоволокно в каждый дом посёлка Новый Сад.",
     available: true,
     promos: [
-      { title: "Первый месяц — 1 ₽", desc: "Специальное предложение для новых абонентов Нового Сада.", badge: "Акция", color: "green" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Первый месяц — 1 ₽", desc: "Специальное предложение для новых абонентов Нового Сада.", badge: "Акция", color: "blue" },
     ],
-    tariffs: [
-      { name: "Старт", speed: "100", price: "389", color: "blue", features: ["100 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "599", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-      { name: "Максимум", speed: "1000", price: "939", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "supovskiy",
@@ -154,13 +197,10 @@ const locations: Location[] = [
     description: "Надёжный интернет для посёлка Суповский. Поддержка 24/7.",
     available: true,
     promos: [
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
       { title: "Скидка 10% на годовую оплату", desc: "Оплатите сразу за год и сэкономьте 10%.", badge: "Выгода", color: "blue" },
     ],
-    tariffs: [
-      { name: "Лайт", speed: "30", price: "219", color: "blue", features: ["30 Мбит/с", "Безлимит", "Поддержка"] },
-      { name: "Старт", speed: "100", price: "369", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус"] },
-      { name: "Оптима", speed: "300", price: "579", color: "purple", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "pricepilovka",
@@ -168,31 +208,22 @@ const locations: Location[] = [
     description: "Стабильный интернет в Прицепиловке. Быстрое подключение.",
     available: true,
     promos: [
-      { title: "Бесплатный роутер", desc: "При подключении на срок от 6 месяцев роутер в аренду бесплатно.", badge: "Подарок", color: "green" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "Бесплатный роутер", desc: "При подключении на срок от 6 месяцев роутер в аренду бесплатно.", badge: "Подарок", color: "blue" },
     ],
-    tariffs: [
-      { name: "Базовый", speed: "50", price: "269", color: "blue", features: ["50 Мбит/с", "Безлимит", "Поддержка"] },
-      { name: "Старт", speed: "100", price: "379", popular: true, color: "green", features: ["100 Мбит/с", "Безлимит", "Антивирус", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "589", color: "purple", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-    ],
+    tariffs: commonTariffs,
   },
   {
     slug: "shuvaevskiy",
     name: "Шуваевский",
-    description: "Гигабитный интернет для жителей посёлка Шуваевский.",
+    description: "Оптоволоконный интернет в Шуваевском. Без ограничений.",
     available: true,
     promos: [
-      { title: "Подключись вместе с соседом — скидка 200 ₽", desc: "Приведи соседа — оба получаете скидку 200 ₽ на следующий месяц.", badge: "Реферал", color: "blue" },
-      { title: "Три месяца ТВ бесплатно", desc: "При подключении тарифа «Максимум» — ТВ 450+ каналов на 3 месяца.", badge: "Акция", color: "purple" },
+      { title: "Социальный тариф для новых", desc: "30 Мбит/с за 500 ₽ — первые 3 месяца, затем автоматический переход на Оптима+.", badge: "Акция", color: "green" },
+      { title: "ТВ 3 месяца бесплатно", desc: "При подключении тарифа «Про» или «Максимум».", badge: "Акция", color: "purple" },
     ],
-    tariffs: [
-      { name: "Старт", speed: "100", price: "399", color: "blue", features: ["100 Мбит/с", "Безлимит", "Поддержка 24/7"] },
-      { name: "Оптима", speed: "300", price: "619", popular: true, color: "green", features: ["300 Мбит/с", "Безлимит", "Антивирус", "ТВ 100 каналов"] },
-      { name: "Максимум", speed: "1000", price: "959", color: "purple", features: ["1 Гбит/с", "Безлимит", "Антивирус+", "ТВ 450+", "Роутер Wi-Fi 6"] },
-    ],
+    tariffs: commonTariffs,
   },
-
-  // ─── Добавить населённый пункт — скопируй блок выше ───
 ];
 
 export default locations;
