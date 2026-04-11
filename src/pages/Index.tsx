@@ -1,20 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import tariffs from "@/data/tariffs";
+import Navbar from "@/components/Navbar";
 
 const HERO_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/9344e7ca-fcbc-4475-8001-83fa179e1412.jpg";
 const CITY_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/8c65a182-986a-4921-8613-7a88e4c04b6f.jpg";
 const WORK_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/16177b32-dfe0-4dd3-bfd5-a6620431a2a3.jpg";
 
 const navLinks = [
-  { label: "Главная", href: "#hero" },
   { label: "Услуги", href: "#services" },
   { label: "Тарифы", href: "#tariffs" },
   { label: "Покрытие", href: "#coverage" },
-  { label: "О компании", href: "#about" },
-  { label: "Блог", href: "#blog" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Контакты", href: "#contacts" },
 ];
 
 const services = [
@@ -66,8 +63,6 @@ const coverageCities = [
 ];
 
 export default function Index() {
-  const [activeNav, setActiveNav] = useState("hero");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeTariffTab, setActiveTariffTab] = useState<"home" | "business">("home");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [lkTab, setLkTab] = useState<"dashboard" | "bills" | "support">("dashboard");
@@ -75,86 +70,15 @@ export default function Index() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: "", pass: "" });
 
-  useEffect(() => {
-    const sections = navLinks.map(l => document.getElementById(l.href.replace("#", "")));
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) setActiveNav(entry.target.id);
-        });
-      },
-      { threshold: 0.3 }
-    );
-    sections.forEach(s => s && observer.observe(s));
-    return () => observer.disconnect();
-  }, []);
-
   const scrollTo = (href: string) => {
     const el = document.getElementById(href.replace("#", ""));
     el?.scrollIntoView({ behavior: "smooth" });
-    setMenuOpen(false);
   };
 
   return (
     <div className="min-h-screen mesh-bg noise font-sans text-white">
 
-      {/* ─── NAVBAR ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 nav-blur">
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollTo("#hero")}>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--neon-blue)] to-[var(--neon-green)] flex items-center justify-center">
-              <Icon name="Wifi" size={16} className="text-[#0b0e17]" />
-            </div>
-            <span className="font-montserrat font-black text-xl tracking-tight">
-              <span style={{ color: "var(--neon-blue)" }}>Связь</span>
-              <span className="text-white">Про</span>
-            </span>
-          </div>
-
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map(link => (
-              <button
-                key={link.href}
-                onClick={() => scrollTo(link.href)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeNav === link.href.replace("#", "")
-                    ? "text-[#00d4ff] bg-[rgba(0,212,255,0.1)]"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setLkOpen(true)}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm neon-glow-btn text-[#0b0e17]"
-              style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
-            >
-              <Icon name="User" size={15} />
-              Личный кабинет
-            </button>
-            <button className="lg:hidden text-white/70 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
-              <Icon name={menuOpen ? "X" : "Menu"} size={24} />
-            </button>
-          </div>
-        </div>
-
-        {menuOpen && (
-          <div className="lg:hidden border-t border-white/5 bg-[#0b0e17]/95 px-6 py-4 flex flex-col gap-2">
-            {navLinks.map(link => (
-              <button key={link.href} onClick={() => scrollTo(link.href)} className="text-left px-3 py-2 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all">
-                {link.label}
-              </button>
-            ))}
-            <button onClick={() => { setLkOpen(true); setMenuOpen(false); }} className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[#0b0e17] font-bold text-sm" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}>
-              <Icon name="User" size={15} /> Личный кабинет
-            </button>
-          </div>
-        )}
-      </nav>
+      <Navbar onLkOpen={() => setLkOpen(true)} />
 
       {/* ─── HERO ─── */}
       <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-16">
@@ -426,9 +350,9 @@ export default function Index() {
               </div>
               <h2 className="font-montserrat font-black text-4xl">Полезно<br /><span className="gradient-text-blue">знать</span></h2>
             </div>
-            <button className="hidden md:flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all" style={{ color: "var(--neon-blue)" }}>
+            <Link to="/blog" className="hidden md:flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all" style={{ color: "var(--neon-blue)" }}>
               Все статьи <Icon name="ArrowRight" size={16} />
-            </button>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {blogPosts.map((post, i) => (
