@@ -131,7 +131,7 @@ export default function Index() {
                 <div className="w-52 h-52 rounded-full flex items-center justify-center" style={{ border: "1px solid rgba(0,245,122,0.2)" }}>
                   <div className="w-36 h-36 rounded-full glass-card neon-border-blue flex flex-col items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.1))" }}>
                     <span className="font-montserrat font-black text-5xl gradient-text-blue">2.5G</span>
-                    <span className="text-white/50 text-xs mt-1">бит/с</span>
+                    <span className="text-white/50 text-xs mt-1">Гбит/с</span>
                   </div>
                 </div>
                 {[0, 60, 120, 180, 240, 300].map((deg, i) => (
