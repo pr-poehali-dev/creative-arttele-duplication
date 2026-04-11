@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Icon from "@/components/ui/icon";
+import PageBackground from "@/components/PageBackground";
 
 const navLinks = [
   { label: "Главная",    href: "/" },
@@ -21,6 +22,8 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
   const location = useLocation();
 
   return (
+    <>
+    <PageBackground />
     <nav className="fixed top-0 left-0 right-0 z-50 nav-blur">
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2">
@@ -90,5 +93,6 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
         </div>
       )}
     </nav>
+    </>
   );
 }
