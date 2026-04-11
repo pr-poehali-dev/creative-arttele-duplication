@@ -216,7 +216,7 @@ export default function BusinessPage() {
         <div className="max-w-7xl mx-auto">
           <div className="relative rounded-3xl overflow-hidden" style={{ height: 360 }}>
             <img
-              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/11d8a8fb-3d18-437b-9974-630afa54d81a.jpg"
+              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/1537dc24-a045-470e-9cdc-a91c1847bda9.jpg"
               alt=""
               className="w-full h-full object-cover object-center"
             />
