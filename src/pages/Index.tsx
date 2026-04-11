@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import tariffs from "@/data/tariffs";
 import Navbar from "@/components/Navbar";
+import locations from "@/data/locations";
 
 const HERO_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/9344e7ca-fcbc-4475-8001-83fa179e1412.jpg";
 const CITY_IMG = "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/8c65a182-986a-4921-8613-7a88e4c04b6f.jpg";
@@ -69,6 +70,8 @@ export default function Index() {
   const [lkOpen, setLkOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: "", pass: "" });
+
+  const navigate = useNavigate();
 
   const scrollTo = (href: string) => {
     const el = document.getElementById(href.replace("#", ""));
@@ -159,6 +162,56 @@ export default function Index() {
           </div>
         </div>
         <div className="section-divider" />
+      </section>
+
+      {/* ─── LOCATIONS WIDGET ─── */}
+      <section className="py-16 relative">
+        <div className="absolute inset-0 grid-lines opacity-10 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-3 tracking-wider uppercase" style={{ borderColor: "rgba(0,245,122,0.3)", background: "rgba(0,245,122,0.05)", color: "var(--neon-green)" }}>
+                <Icon name="MapPin" size={12} /> Ваш район
+              </div>
+              <h2 className="font-montserrat font-black text-3xl md:text-4xl">
+                Тарифы и акции<br /><span className="gradient-text-green">для вашего посёлка</span>
+              </h2>
+            </div>
+            <Link to="/locations" className="flex items-center gap-2 text-sm font-semibold shrink-0 hover:gap-3 transition-all" style={{ color: "var(--neon-blue)" }}>
+              Все населённые пункты <Icon name="ArrowRight" size={15} />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {locations.map(loc => (
+              <button
+                key={loc.slug}
+                onClick={() => navigate(`/location/${loc.slug}`)}
+                className="group glass-card rounded-2xl p-4 border border-white/5 text-left flex flex-col gap-2 transition-all duration-200 hover:scale-[1.03]"
+                style={{ cursor: "pointer" }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(0,212,255,0.3)")}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)")}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,212,255,0.08)", color: "var(--neon-blue)" }}>
+                    <Icon name="MapPin" size={14} />
+                  </div>
+                  {loc.promos.length > 0 && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "rgba(0,245,122,0.15)", color: "var(--neon-green)" }}>
+                      акция
+                    </span>
+                  )}
+                </div>
+                <div className="font-semibold text-white text-sm leading-tight group-hover:text-[#00d4ff] transition-colors">
+                  {loc.name}
+                </div>
+                <div className="text-white/30 text-xs">
+                  {loc.tariffs.length} тарифа
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ─── SERVICES ─── */}
