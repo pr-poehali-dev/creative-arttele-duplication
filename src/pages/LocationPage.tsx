@@ -281,6 +281,42 @@ export default function LocationPage() {
                 </div>
               </div>
 
+              {/* ТВ-приставка баннер */}
+              <div className="rounded-3xl overflow-hidden border mb-10 flex flex-col md:flex-row" style={{ borderColor: "rgba(0,212,255,0.2)" }}>
+                <div className="md:w-2/5 shrink-0 relative" style={{ minHeight: 220 }}>
+                  <img
+                    src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/8f97c06a-6144-491e-8485-b4cd5c8ae0c1.jpg"
+                    alt="ТВ-приставка"
+                    className="w-full h-full object-cover"
+                    style={{ minHeight: 220 }}
+                  />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent 60%, rgba(11,14,23,0.9))" }} />
+                </div>
+                <div className="flex-1 p-7 flex flex-col justify-center" style={{ background: "linear-gradient(120deg, rgba(0,212,255,0.06), rgba(11,14,23,0.95))" }}>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-3 self-start" style={{ background: "rgba(0,212,255,0.15)", color: "var(--neon-blue)" }}>
+                    <Icon name="Tv" size={12} /> ТВ-приставка
+                  </div>
+                  <h3 className="font-montserrat font-black text-2xl text-white mb-2">Приставка 4K для вашего ТВ</h3>
+                  <p className="text-white/50 text-sm mb-5 leading-relaxed">Подключи любой телевизор к цифровому ТВ. Поддержка 4K, Wi-Fi, голосового управления и всех стриминговых сервисов.</p>
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <div>
+                      <div className="text-white/40 text-xs mb-0.5">Купить сразу</div>
+                      <div className="font-montserrat font-black text-2xl text-white">6 000 ₽</div>
+                    </div>
+                    <div className="w-px h-10 bg-white/10" />
+                    <div>
+                      <div className="text-white/40 text-xs mb-0.5">Рассрочка на 12 мес</div>
+                      <div className="font-montserrat font-black text-2xl" style={{ color: "var(--neon-blue)" }}>500 ₽<span className="text-sm font-semibold text-white/40"> / мес</span></div>
+                    </div>
+                    <div className="ml-auto">
+                      <div className="px-4 py-2 rounded-xl text-xs font-bold" style={{ background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)", color: "var(--neon-blue)" }}>
+                        При тарифе Оптима+ + ТВ и выше
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Стриминг-сервисы */}
               <div className="mb-10">
                 <h2 className="font-montserrat font-bold text-2xl mb-5 flex items-center gap-2">
