@@ -306,7 +306,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="relative">
-              <img src={WORK_IMG} alt="Команда СвязьПро" className="rounded-3xl w-full object-cover h-[440px]" />
+              <img src={WORK_IMG} alt="Команда АртТелеком Юг" className="rounded-3xl w-full object-cover h-[440px]" />
               <div className="absolute -bottom-6 -right-6 glass-card neon-border-blue rounded-2xl p-5 max-w-[200px]">
                 <div className="font-montserrat font-black text-3xl gradient-text-green">14</div>
                 <div className="text-white/50 text-sm">лет на рынке связи</div>
@@ -319,7 +319,7 @@ export default function Index() {
               <h2 className="font-montserrat font-black text-4xl md:text-5xl mb-6">
                 Мы строим<br /><span className="gradient-text-full">цифровую инфраструктуру</span><br />России
               </h2>
-              <p className="text-white/60 text-base leading-relaxed mb-4">СвязьПро основана в 2012 году. Мы прокладываем оптоволоконные сети и предоставляем услуги связи для домов, бизнеса и государственных учреждений.</p>
+              <p className="text-white/60 text-base leading-relaxed mb-4">АртТелеком Юг основана в 2012 году. Мы прокладываем оптоволоконные сети и предоставляем услуги связи для домов, бизнеса и государственных учреждений юга России.</p>
               <p className="text-white/60 text-base leading-relaxed mb-8">Более 280 000 абонентов доверяют нам свой интернет. Мы инвестируем в собственную инфраструктуру, поэтому гарантируем стабильность и скорость без посредников.</p>
               <div className="grid grid-cols-2 gap-4">
                 {[
@@ -498,7 +498,7 @@ export default function Index() {
           </div>
           <div className="section-divider mb-6" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/20">
-            <span>© 2026 СвязьПро. Все права защищены.</span>
+            <span>© 2026 АртТелеком Юг. Все права защищены.</span>
             <div className="flex gap-6">
               {["Политика конфиденциальности", "Пользовательское соглашение", "Оферта"].map(t => (
                 <a key={t} href="#" className="hover:text-white/50 transition-colors">{t}</a>
@@ -520,7 +520,7 @@ export default function Index() {
                 </div>
                 <div>
                   <div className="font-bold text-white">Личный кабинет</div>
-                  <div className="text-xs text-white/30">СвязьПро</div>
+                  <div className="text-xs text-white/30">АртТелеком Юг</div>
                 </div>
               </div>
               <button onClick={() => setLkOpen(false)} className="text-white/30 hover:text-white transition-colors">
