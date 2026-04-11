@@ -116,7 +116,7 @@ export default function Index() {
               </button>
             </div>
             <div className="slide-up-delay-4 flex gap-8 flex-wrap">
-              {[{ val: "1 Гбит/с", label: "макс. скорость" }, { val: "24 ч", label: "подключение" }, { val: "0 ₽", label: "подключение" }].map((s, i) => (
+              {[{ val: "2.5 Гбит/с", label: "макс. скорость" }, { val: "24 ч", label: "подключение" }, { val: "0 ₽", label: "подключение" }].map((s, i) => (
                 <div key={i}>
                   <div className="font-montserrat font-black text-2xl gradient-text-blue">{s.val}</div>
                   <div className="text-xs text-white/40 mt-0.5">{s.label}</div>

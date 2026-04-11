@@ -74,7 +74,12 @@ export default function TariffsPage() {
                     <div className="mb-4">
                       <div className="text-white/50 text-xs uppercase tracking-widest mb-1">{t.name}</div>
                       <div className="font-montserrat font-black text-4xl" style={{ color: c.text }}>
-                        {t.speed} <span className="text-lg font-semibold text-white/40">Мбит/с</span>
+                        {Number(t.speed) >= 2000
+                          ? <>{(Number(t.speed) / 1000).toFixed(1)} <span className="text-lg font-semibold text-white/40">Гбит/с</span></>
+                          : Number(t.speed) >= 1000
+                            ? <>1 <span className="text-lg font-semibold text-white/40">Гбит/с</span></>
+                            : <>{t.speed} <span className="text-lg font-semibold text-white/40">Мбит/с</span></>
+                        }
                       </div>
                     </div>
                     <div className="mb-6">
