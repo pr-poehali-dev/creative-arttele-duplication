@@ -262,7 +262,7 @@ export default function VideoSurveillancePage() {
         </div>
       </section>
 
-      {/* Live stream */}
+      {/* Camera grid demo */}
       <section className="py-10 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
@@ -275,40 +275,60 @@ export default function VideoSurveillancePage() {
               }}
             >
               <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#ef4444" }} />
-              Live — трансляция в реальном времени
+              Live — мониторинг объектов
             </div>
             <h2 className="text-2xl lg:text-4xl font-black text-white">
-              Смотрите, как работает наша система
+              Пример интерфейса видеонаблюдения
             </h2>
           </div>
 
           <div
-            className="relative rounded-3xl overflow-hidden"
+            className="rounded-3xl overflow-hidden p-4"
             style={{
+              background: "#0a0c14",
               border: "1px solid rgba(0,212,255,0.2)",
               boxShadow: "0 0 60px rgba(0,212,255,0.1)",
             }}
           >
-            <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, overflow: "hidden" }}>
-              <iframe
-                src="https://140868.edgevideo.ru/broadcasts/140868_449813"
-                title="Трансляция видеонаблюдения"
-                allow="autoplay; fullscreen"
-                allowFullScreen
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  border: "none",
-                }}
-              />
+            {/* top bar */}
+            <div className="flex items-center justify-between mb-3 px-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#ef4444" }} />
+                <span className="text-white/50 text-xs font-mono">REC • 4 камеры активны</span>
+              </div>
+              <span className="text-white/30 text-xs font-mono">
+                {new Date().toLocaleDateString("ru-RU")} 24/7
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "Вход • Камера 1", img: "https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=640&q=80", color: "#00d4ff" },
+                { label: "Парковка • Камера 2", img: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=640&q=80", color: "#00f57a" },
+                { label: "Склад • Камера 3", img: "https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=640&q=80", color: "#00d4ff" },
+                { label: "Офис • Камера 4", img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=640&q=80", color: "#a855f7" },
+              ].map((cam) => (
+                <div key={cam.label} className="relative rounded-xl overflow-hidden" style={{ aspectRatio: "16/9" }}>
+                  <img src={cam.img} alt={cam.label} className="w-full h-full object-cover" style={{ filter: "brightness(0.75) saturate(0.7)" }} />
+                  {/* scanline overlay */}
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)" }} />
+                  {/* corner markers */}
+                  <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 rounded-tl" style={{ borderColor: cam.color }} />
+                  <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 rounded-tr" style={{ borderColor: cam.color }} />
+                  <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 rounded-bl" style={{ borderColor: cam.color }} />
+                  <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 rounded-br" style={{ borderColor: cam.color }} />
+                  {/* label */}
+                  <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#ef4444" }} />
+                    <span className="text-white/80 text-xs font-mono">{cam.label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
           <p className="text-center text-white/30 text-xs mt-4">
-            Демонстрационная камера — пример работы системы видеонаблюдения в режиме реального времени
+            Демонстрационный режим — пример интерфейса мониторинга
           </p>
         </div>
       </section>
