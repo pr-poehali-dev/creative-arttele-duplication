@@ -408,95 +408,237 @@
 }
 
 /* Smoke particles around the sphere */
-@keyframes smokeRise {
+@keyframes sd1 {
   0% {
-    transform: translate(-50%, -50%) scale(0.3) translateY(0px);
+    transform: translate(-50%, -50%) scale(0.2) translate(0, 0);
     opacity: 0;
   }
-  20% {
+  15% {
     opacity: 0.55;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.8) translateY(-90px);
+    transform: translate(-50%, -50%) scale(2.2) translate(-55px, -110px);
     opacity: 0;
   }
 }
-
-@keyframes smokeDrift1 {
+@keyframes sd2 {
   0% {
-    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    transform: translate(-50%, -50%) scale(0.25) translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.4) translate(45px, -120px);
+    opacity: 0;
+  }
+}
+@keyframes sd3 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2) translate(80px, -90px);
+    opacity: 0;
+  }
+}
+@keyframes sd4 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.15) translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.8) translate(-75px, -95px);
+    opacity: 0;
+  }
+}
+@keyframes sd5 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3) translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5) translate(10px, -130px);
+    opacity: 0;
+  }
+}
+@keyframes sd6 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.1) translate(-35px, -115px);
+    opacity: 0;
+  }
+}
+@keyframes sd7 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.18) translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.3) translate(100px, -70px);
+    opacity: 0;
+  }
+}
+@keyframes sd8 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.22) translate(0, 0);
     opacity: 0;
   }
   15% {
     opacity: 0.45;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2) translate(-50px, -100px);
+    transform: translate(-50%, -50%) scale(2) translate(-100px, -65px);
     opacity: 0;
   }
 }
-@keyframes smokeDrift2 {
+@keyframes sd9 {
   0% {
-    transform: translate(-50%, -50%) scale(0.25) translate(0px, 0px);
+    transform: translate(-50%, -50%) scale(0.28) translate(0, 0);
     opacity: 0;
   }
-  15% {
+  12% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6) translate(20px, -140px);
+    opacity: 0;
+  }
+}
+@keyframes sd10 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2) translate(0, 0);
+    opacity: 0;
+  }
+  18% {
     opacity: 0.4;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.9) translate(40px, -110px);
+    transform: translate(-50%, -50%) scale(1.9) translate(-60px, -100px);
     opacity: 0;
   }
 }
-@keyframes smokeDrift3 {
+@keyframes sd11 {
   0% {
-    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    transform: translate(-50%, -50%) scale(0.24) translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.2) translate(60px, -125px);
+    opacity: 0;
+  }
+}
+@keyframes sd12 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.16) translate(0, 0);
     opacity: 0;
   }
   20% {
     opacity: 0.35;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.6) translate(70px, -80px);
+    transform: translate(-50%, -50%) scale(1.7) translate(-80px, -80px);
     opacity: 0;
   }
 }
-@keyframes smokeDrift4 {
+@keyframes sd13 {
   0% {
-    transform: translate(-50%, -50%) scale(0.15) translate(0px, 0px);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.3;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.5) translate(-65px, -85px);
-    opacity: 0;
-  }
-}
-@keyframes smokeDrift5 {
-  0% {
-    transform: translate(-50%, -50%) scale(0.3) translate(0px, 0px);
+    transform: translate(-50%, -50%) scale(0.3) translate(0, 0);
     opacity: 0;
   }
   10% {
-    opacity: 0.5;
+    opacity: 0.6;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2.1) translate(10px, -120px);
+    transform: translate(-50%, -50%) scale(2.8) translate(5px, -150px);
     opacity: 0;
   }
 }
-@keyframes smokeDrift6 {
+@keyframes sd14 {
   0% {
-    transform: translate(-50%, -50%) scale(0.2) translate(0px, 0px);
+    transform: translate(-50%, -50%) scale(0.2) translate(0, 0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.3) translate(90px, -105px);
+    opacity: 0;
+  }
+}
+@keyframes sd15 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.22) translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2) translate(-90px, -110px);
+    opacity: 0;
+  }
+}
+@keyframes sd16 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.26) translate(0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.5) translate(30px, -135px);
+    opacity: 0;
+  }
+}
+@keyframes sd17 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.18) translate(0, 0);
     opacity: 0;
   }
   20% {
-    opacity: 0.3;
+    opacity: 0.38;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.7) translate(-30px, -105px);
+    transform: translate(-50%, -50%) scale(1.8) translate(-45px, -120px);
+    opacity: 0;
+  }
+}
+@keyframes sd18 {
+  0% {
+    transform: translate(-50%, -50%) scale(0.32) translate(0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.7) translate(-15px, -145px);
     opacity: 0;
   }
 }
@@ -505,63 +647,170 @@
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(18px);
+  filter: blur(20px);
 }
+
 .smoke-1 {
-  width: 70px;
-  height: 70px;
-  left: 50%;
-  top: 60%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
-  animation: smokeDrift1 4.2s ease-out infinite;
-  animation-delay: 0s;
-}
-.smoke-2 {
   width: 80px;
   height: 80px;
   left: 50%;
+  top: 60%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.28), transparent 70%);
+  animation: sd1 4.2s ease-out infinite 0s;
+}
+.smoke-2 {
+  width: 90px;
+  height: 90px;
+  left: 50%;
   top: 55%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.18), transparent 70%);
-  animation: smokeDrift2 3.8s ease-out infinite;
-  animation-delay: 0.6s;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.24), transparent 70%);
+  animation: sd2 3.8s ease-out infinite 0.4s;
 }
 .smoke-3 {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   left: 50%;
   top: 58%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.16),
+    rgba(168, 85, 247, 0.26),
     transparent 70%
   );
-  animation: smokeDrift3 5s ease-out infinite;
-  animation-delay: 1.2s;
+  animation: sd3 5s ease-out infinite 0.8s;
 }
 .smoke-4 {
+  width: 85px;
+  height: 85px;
+  left: 50%;
+  top: 62%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
+  animation: sd4 4.5s ease-out infinite 1.2s;
+}
+.smoke-5 {
+  width: 100px;
+  height: 100px;
+  left: 50%;
+  top: 56%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.2), transparent 70%);
+  animation: sd5 3.5s ease-out infinite 0.2s;
+}
+.smoke-6 {
   width: 75px;
   height: 75px;
   left: 50%;
-  top: 62%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.15), transparent 70%);
-  animation: smokeDrift4 4.5s ease-out infinite;
-  animation-delay: 1.8s;
+  top: 60%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.28),
+    transparent 70%
+  );
+  animation: sd6 4.8s ease-out infinite 1.6s;
 }
-.smoke-5 {
-  width: 90px;
-  height: 90px;
-  left: 50%;
-  top: 56%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.14), transparent 70%);
-  animation: smokeDrift5 3.5s ease-out infinite;
-  animation-delay: 0.3s;
-}
-.smoke-6 {
+.smoke-7 {
   width: 65px;
   height: 65px;
   left: 50%;
-  top: 60%;
+  top: 57%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.24), transparent 70%);
+  animation: sd7 4s ease-out infinite 2s;
+}
+.smoke-8 {
+  width: 88px;
+  height: 88px;
+  left: 50%;
+  top: 61%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.22), transparent 70%);
+  animation: sd8 4.3s ease-out infinite 0.6s;
+}
+.smoke-9 {
+  width: 110px;
+  height: 110px;
+  left: 50%;
+  top: 54%;
   background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent 70%);
-  animation: smokeDrift6 4.8s ease-out infinite;
-  animation-delay: 2.4s;
+  animation: sd9 3.3s ease-out infinite 0.1s;
+}
+.smoke-10 {
+  width: 72px;
+  height: 72px;
+  left: 50%;
+  top: 63%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent 70%);
+  animation: sd10 5.2s ease-out infinite 1s;
+}
+.smoke-11 {
+  width: 95px;
+  height: 95px;
+  left: 50%;
+  top: 56%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.26), transparent 70%);
+  animation: sd11 3.9s ease-out infinite 2.4s;
+}
+.smoke-12 {
+  width: 60px;
+  height: 60px;
+  left: 50%;
+  top: 59%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.22),
+    transparent 70%
+  );
+  animation: sd12 5.5s ease-out infinite 1.4s;
+}
+.smoke-13 {
+  width: 115px;
+  height: 115px;
+  left: 50%;
+  top: 53%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.18), transparent 70%);
+  animation: sd13 3.1s ease-out infinite 0.5s;
+}
+.smoke-14 {
+  width: 78px;
+  height: 78px;
+  left: 50%;
+  top: 60%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.28), transparent 70%);
+  animation: sd14 4.6s ease-out infinite 1.8s;
+}
+.smoke-15 {
+  width: 92px;
+  height: 92px;
+  left: 50%;
+  top: 57%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.24),
+    transparent 70%
+  );
+  animation: sd15 4.1s ease-out infinite 2.8s;
+}
+.smoke-16 {
+  width: 105px;
+  height: 105px;
+  left: 50%;
+  top: 55%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
+  animation: sd16 3.6s ease-out infinite 0.9s;
+}
+.smoke-17 {
+  width: 68px;
+  height: 68px;
+  left: 50%;
+  top: 62%;
+  background: radial-gradient(circle, rgba(0, 245, 122, 0.2), transparent 70%);
+  animation: sd17 5.1s ease-out infinite 2.2s;
+}
+.smoke-18 {
+  width: 120px;
+  height: 120px;
+  left: 50%;
+  top: 52%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.18),
+    transparent 70%
+  );
+  animation: sd18 3.2s ease-out infinite 3s;
 }

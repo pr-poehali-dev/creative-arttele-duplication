@@ -129,12 +129,9 @@ export default function Index() {
             <div className="float-anim relative">
               <div className="w-72 h-72 rounded-full flex items-center justify-center relative animated-border" style={{ border: "1px solid rgba(0,212,255,0.2)" }}>
                 {/* Smoke particles */}
-                <div className="smoke-particle smoke-1" />
-                <div className="smoke-particle smoke-2" />
-                <div className="smoke-particle smoke-3" />
-                <div className="smoke-particle smoke-4" />
-                <div className="smoke-particle smoke-5" />
-                <div className="smoke-particle smoke-6" />
+                {Array.from({ length: 18 }, (_, i) => (
+                  <div key={i} className={`smoke-particle smoke-${i + 1}`} />
+                ))}
 
                 <div className="w-52 h-52 rounded-full flex items-center justify-center" style={{ border: "1px solid rgba(0,245,122,0.2)" }}>
                   <div className="w-36 h-36 rounded-full glass-card neon-border-blue flex flex-col items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.1))" }}>
