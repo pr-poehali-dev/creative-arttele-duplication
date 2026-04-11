@@ -71,12 +71,7 @@ const commonTariffs: LocationTariff[] = [
       "150 Мбит/с",
       "Безлимит",
       "Антивирус",
-      "WhatsApp 💬",
-      "YouTube ▶️",
-      "Telegram ✈️",
-      "Viber 📞",
-      "Instagram 📷",
-      "Threads 🧵",
+      "__social__",
     ],
   },
   {
