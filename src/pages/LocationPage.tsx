@@ -308,11 +308,12 @@ export default function LocationPage() {
                       <div className="text-white/40 text-xs mb-0.5">Рассрочка на 12 мес</div>
                       <div className="font-montserrat font-black text-2xl" style={{ color: "var(--neon-blue)" }}>500 ₽<span className="text-sm font-semibold text-white/40"> / мес</span></div>
                     </div>
-                    <div className="ml-auto">
-                      <div className="px-4 py-2 rounded-xl text-xs font-bold" style={{ background: "rgba(0,212,255,0.15)", border: "1px solid rgba(0,212,255,0.3)", color: "var(--neon-blue)" }}>
-                        При тарифе Оптима+ + ТВ и выше
-                      </div>
-                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 mt-5 items-center">
+                    <Link to="/contacts" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-[#0b0e17] neon-glow-btn" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}>
+                      Заказать приставку <Icon name="ArrowRight" size={15} />
+                    </Link>
+                    <div className="text-xs text-white/30">При тарифе Оптима+ + ТВ и выше</div>
                   </div>
                 </div>
               </div>
