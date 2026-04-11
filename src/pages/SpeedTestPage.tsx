@@ -6,55 +6,73 @@ import { Link } from "react-router-dom";
 type Phase = "idle" | "ping" | "download" | "upload" | "done";
 interface Results { ping: number | null; download: number | null; upload: number | null; }
 
-// Speedometer — semicircle arc like speedtest.net
-const CX = 160, CY = 160, R = 130;
-const START_ANGLE = 210; // degrees, from bottom-left
-const END_ANGLE = 330;   // total sweep = 300deg (like speedtest.net)
-const SWEEP = 300;
+const CX = 160, CY = 170, R = 130;
+const START_ANGLE = 180; // left
+const SWEEP = 180;       // half circle, left → right
 
 function degToRad(d: number) { return (d * Math.PI) / 180; }
 
 function polarToXY(angleDeg: number, r: number) {
-  const a = degToRad(angleDeg - 90); // -90 so 0deg is top
+  const a = degToRad(angleDeg);
   return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a) };
 }
 
 function arcPath(startDeg: number, endDeg: number, r: number) {
   const s = polarToXY(startDeg, r);
   const e = polarToXY(endDeg, r);
-  const large = endDeg - startDeg > 180 ? 1 : 0;
+  const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
   return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 1 ${e.x} ${e.y}`;
 }
 
-const SCALE_MAX = 1000; // Mbit/s max
+const SCALE_MAX = 1000;
 const UPLOAD_MAX = 400;
 
-const TICK_LABELS = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+// Color interpolation: green → yellow → red by progress
+function progressColor(p: number): string {
+  // 0 = green (#00f57a), 0.5 = yellow (#f5c400), 1 = red (#f53000)
+  const clamp = Math.min(1, Math.max(0, p));
+  let r: number, g: number, b: number;
+  if (clamp < 0.5) {
+    const t = clamp / 0.5;
+    r = Math.round(0 + t * (245 - 0));
+    g = Math.round(245 + t * (196 - 245));
+    b = Math.round(122 + t * (0 - 122));
+  } else {
+    const t = (clamp - 0.5) / 0.5;
+    r = Math.round(245 + t * (245 - 245));
+    g = Math.round(196 + t * (48 - 196));
+    b = Math.round(0);
+  }
+  return `rgb(${r},${g},${b})`;
+}
 
-function Speedometer({ value, max, color, phase }: { value: number; max: number; color: string; phase: Phase }) {
+const DL_LABELS  = [0, 200, 400, 600, 800, 1000];
+const UL_LABELS  = [0, 80, 160, 240, 320, 400];
+
+function Speedometer({ value, max, phase }: { value: number; max: number; phase: Phase }) {
   const progress = Math.min(value / max, 1);
   const fillEnd = START_ANGLE + progress * SWEEP;
-
-  // Needle
   const needleAngle = START_ANGLE + progress * SWEEP;
-  const needleTip = polarToXY(needleAngle, R - 18);
-  const needleBase1 = polarToXY(needleAngle - 90, 10);
-  const needleBase2 = polarToXY(needleAngle + 90, 10);
+  const color = progressColor(progress);
+
+  // Needle: tip points outward along needleAngle
+  const tipR = R - 16;
+  const baseR = 14;
+  const tip = polarToXY(needleAngle, tipR);
+  const base1 = polarToXY(needleAngle - 90, baseR);
+  const base2 = polarToXY(needleAngle + 90, baseR);
+
+  const labels = max === UPLOAD_MAX ? UL_LABELS : DL_LABELS;
 
   return (
-    <svg viewBox="0 0 320 200" width="100%" style={{ maxWidth: 380, display: "block", margin: "0 auto" }}>
+    <svg viewBox="0 0 320 185" width="100%" style={{ maxWidth: 400, display: "block", margin: "0 auto" }}>
       <defs>
-        <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#00d4ff" />
-          <stop offset="50%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#00f57a" />
-        </linearGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="3" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
         <filter id="needleGlow">
-          <feGaussianBlur stdDeviation="2" result="blur" />
+          <feGaussianBlur stdDeviation="2.5" result="blur" />
           <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
@@ -64,94 +82,93 @@ function Speedometer({ value, max, color, phase }: { value: number; max: number;
         d={arcPath(START_ANGLE, START_ANGLE + SWEEP, R)}
         fill="none"
         stroke="rgba(255,255,255,0.07)"
-        strokeWidth={14}
+        strokeWidth={16}
         strokeLinecap="round"
       />
 
       {/* Colored fill arc */}
-      {value > 0 && (
+      {value > 0.5 && (
         <path
           d={arcPath(START_ANGLE, fillEnd, R)}
           fill="none"
           stroke={color}
-          strokeWidth={14}
+          strokeWidth={16}
           strokeLinecap="round"
           filter="url(#glow)"
-          style={{ transition: "all 0.08s linear" }}
+          style={{ transition: "stroke 0.1s linear" }}
         />
       )}
 
       {/* Tick marks & labels */}
-      {TICK_LABELS.map((label) => {
-        const scaledMax = max === UPLOAD_MAX ? UPLOAD_MAX : SCALE_MAX;
-        const frac = label / scaledMax;
-        if (frac > 1) return null;
+      {labels.map((label) => {
+        const frac = label / max;
         const angleDeg = START_ANGLE + frac * SWEEP;
-        const outer = polarToXY(angleDeg, R + 8);
-        const inner = polarToXY(angleDeg, R - 8);
-        const labelPt = polarToXY(angleDeg, R + 22);
-        const isMajor = label % 200 === 0 || label === 0;
+        const outer = polarToXY(angleDeg, R + 9);
+        const inner = polarToXY(angleDeg, R - 9);
+        const labelPt = polarToXY(angleDeg, R + 24);
+        const tickProgress = frac;
+        const tickColor = tickProgress <= progress
+          ? progressColor(tickProgress)
+          : "rgba(255,255,255,0.3)";
+        const displayLabel = max === SCALE_MAX && label >= 1000 ? "1K" : String(label);
         return (
           <g key={label}>
-            <line
-              x1={inner.x} y1={inner.y}
-              x2={outer.x} y2={outer.y}
-              stroke={isMajor ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)"}
-              strokeWidth={isMajor ? 2 : 1}
-            />
-            {isMajor && (
-              <text
-                x={labelPt.x} y={labelPt.y + 4}
-                textAnchor="middle"
-                fontSize="9"
-                fill="rgba(255,255,255,0.45)"
-                fontFamily="monospace"
-              >
-                {label}
-              </text>
-            )}
+            <line x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} stroke={tickColor} strokeWidth={2} />
+            <text x={labelPt.x} y={labelPt.y + 4} textAnchor="middle" fontSize="9"
+              fill={tickProgress <= progress ? progressColor(tickProgress) : "rgba(255,255,255,0.35)"}
+              fontFamily="monospace">
+              {displayLabel}
+            </text>
           </g>
         );
       })}
 
-      {/* Sub-ticks every 50 */}
-      {Array.from({ length: 20 }, (_, i) => i * 50).map((label) => {
-        const scaledMax = max === UPLOAD_MAX ? UPLOAD_MAX : SCALE_MAX;
-        const frac = label / scaledMax;
-        if (frac > 1) return null;
-        if (label % 100 === 0) return null; // already drawn
+      {/* Sub-ticks */}
+      {Array.from({ length: 20 }, (_, i) => i / 20).map((frac, i) => {
+        if (labels.some(l => Math.abs(l / max - frac) < 0.001)) return null;
         const angleDeg = START_ANGLE + frac * SWEEP;
         const outer = polarToXY(angleDeg, R + 4);
         const inner = polarToXY(angleDeg, R - 4);
         return (
-          <line key={`sub-${label}`}
-            x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y}
-            stroke="rgba(255,255,255,0.15)" strokeWidth={1}
-          />
+          <line key={`sub-${i}`} x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y}
+            stroke="rgba(255,255,255,0.12)" strokeWidth={1} />
         );
       })}
 
       {/* Needle */}
       {(phase === "download" || phase === "upload") && (
         <polygon
-          points={`${needleTip.x},${needleTip.y} ${needleBase1.x},${needleBase1.y} ${CX},${CY} ${needleBase2.x},${needleBase2.y}`}
+          points={`${tip.x},${tip.y} ${base1.x},${base1.y} ${CX},${CY} ${base2.x},${base2.y}`}
           fill={color}
-          opacity={0.9}
+          opacity={0.95}
           filter="url(#needleGlow)"
-          style={{ transition: "all 0.08s linear" }}
+          style={{ transition: "fill 0.1s linear" }}
         />
       )}
 
       {/* Center hub */}
-      <circle cx={CX} cy={CY} r={12} fill={phase === "idle" || phase === "done" ? "rgba(255,255,255,0.08)" : color} style={{ transition: "fill 0.3s" }} />
+      <circle cx={CX} cy={CY} r={13}
+        fill={phase === "download" || phase === "upload" ? color : "rgba(255,255,255,0.08)"}
+        style={{ transition: "fill 0.1s" }} />
       <circle cx={CX} cy={CY} r={5} fill="#0b0e17" />
 
-      {/* Center value */}
-      <text x={CX} y={CY - 30} textAnchor="middle" fontSize="32" fontWeight="900" fill={phase === "download" || phase === "upload" ? color : "rgba(255,255,255,0.2)"} fontFamily="Montserrat, sans-serif" style={{ transition: "fill 0.3s" }}>
-        {phase === "download" || phase === "upload" ? Math.round(value) : phase === "idle" ? "—" : ""}
+      {/* Speed value */}
+      <text x={CX} y={CY - 38} textAnchor="middle" fontSize="34" fontWeight="900"
+        fill={phase === "download" || phase === "upload" ? color : "rgba(255,255,255,0.18)"}
+        fontFamily="Montserrat, sans-serif"
+        style={{ transition: "fill 0.1s" }}>
+        {phase === "download" || phase === "upload"
+          ? value >= 1000 ? (value / 1000).toFixed(2) : Math.round(value)
+          : phase === "idle" ? "—" : ""}
       </text>
-      <text x={CX} y={CY - 14} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.35)" fontFamily="sans-serif">
-        {phase === "download" ? "Мбит/с  ↓  загрузка" : phase === "upload" ? "Мбит/с  ↑  отдача" : phase === "ping" ? "измеряю пинг..." : phase === "done" ? "тест завершён" : "готов"}
+
+      {/* Unit + label */}
+      <text x={CX} y={CY - 20} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.35)" fontFamily="sans-serif">
+        {phase === "download"
+          ? (value >= 1000 ? "Гбит/с  ↓  загрузка" : "Мбит/с  ↓  загрузка")
+          : phase === "upload"
+          ? "Мбит/с  ↑  отдача"
+          : phase === "ping" ? "измеряю пинг..." : phase === "done" ? "тест завершён" : "готов"}
       </text>
     </svg>
   );
@@ -231,7 +248,7 @@ export default function SpeedTestPage() {
 
   const isRunning = phase === "ping" || phase === "download" || phase === "upload";
   const gaugeMax = phase === "upload" ? UPLOAD_MAX : SCALE_MAX;
-  const gaugeColor = phase === "upload" ? "#00f57a" : "#00d4ff";
+  const needleColor = progressColor(Math.min(currentValue / gaugeMax, 1));
 
   const quality = (dl: number) => {
     if (dl >= 500) return { text: "Отлично", color: "#00f57a", hint: "подходит для любых задач" };
@@ -256,13 +273,13 @@ export default function SpeedTestPage() {
             <p className="text-white/40 text-sm">Реальная скорость вашего подключения</p>
           </div>
 
-          {/* Speedometer card */}
           <div className="glass-card rounded-3xl border border-white/5 px-6 pt-8 pb-6 flex flex-col items-center">
 
-            {/* Ping indicator top */}
-            <div className="flex items-center gap-2 mb-4 h-6">
+            {/* Ping indicator */}
+            <div className="flex items-center gap-2 mb-2 h-6">
               {results.ping !== null && (
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.3)", color: "#a855f7" }}>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.3)", color: "#a855f7" }}>
                   <Icon name="Activity" size={11} />
                   Пинг: {results.ping} мс
                 </div>
@@ -275,16 +292,16 @@ export default function SpeedTestPage() {
               )}
             </div>
 
-            {/* Speedometer SVG */}
+            {/* Speedometer */}
             <div className="w-full">
-              <Speedometer value={currentValue} max={gaugeMax} color={gaugeColor} phase={phase} />
+              <Speedometer value={currentValue} max={gaugeMax} phase={phase} />
             </div>
 
             {/* Results row */}
-            <div className="grid grid-cols-2 gap-3 w-full mt-2 mb-6">
+            <div className="grid grid-cols-2 gap-3 w-full mt-1 mb-6">
               {[
-                { label: "Загрузка", value: results.download, unit: "Мбит/с", icon: "Download", color: "#00d4ff", active: phase === "download" },
-                { label: "Отдача", value: results.upload, unit: "Мбит/с", icon: "Upload", color: "#00f57a", active: phase === "upload" },
+                { label: "Загрузка", value: results.download, icon: "Download", color: "#00d4ff", active: phase === "download" },
+                { label: "Отдача", value: results.upload, icon: "Upload", color: "#00f57a", active: phase === "upload" },
               ].map((item) => (
                 <div key={item.label} className="rounded-2xl p-4 text-center transition-all duration-300"
                   style={{
@@ -296,8 +313,11 @@ export default function SpeedTestPage() {
                     <span className="text-white/40 text-xs">{item.label}</span>
                   </div>
                   <div className="font-montserrat font-black text-2xl" style={{ color: item.value !== null ? item.color : "rgba(255,255,255,0.15)" }}>
-                    {item.value !== null ? item.value : "—"}
-                    {item.value !== null && <span className="text-sm font-normal ml-1 text-white/40">{item.unit}</span>}
+                    {item.value !== null
+                      ? item.value >= 1000
+                        ? <>{(item.value / 1000).toFixed(2)} <span className="text-sm font-normal text-white/40">Гбит/с</span></>
+                        : <>{item.value} <span className="text-sm font-normal text-white/40">Мбит/с</span></>
+                      : "—"}
                   </div>
                 </div>
               ))}
@@ -305,12 +325,12 @@ export default function SpeedTestPage() {
 
             {/* Quality badge */}
             {phase === "done" && results.download !== null && (
-              <div className="mb-5 px-5 py-2.5 rounded-full text-sm font-semibold" style={{ background: `${quality(results.download).color}18`, border: `1px solid ${quality(results.download).color}44`, color: quality(results.download).color }}>
+              <div className="mb-5 px-5 py-2.5 rounded-full text-sm font-semibold"
+                style={{ background: `${quality(results.download).color}18`, border: `1px solid ${quality(results.download).color}44`, color: quality(results.download).color }}>
                 {quality(results.download).text} — {quality(results.download).hint}
               </div>
             )}
 
-            {/* CTA if slow */}
             {phase === "done" && results.download !== null && results.download < 100 && (
               <Link to="/tariffs" className="mb-4 text-xs text-white/40 hover:text-[#00d4ff] transition-colors underline underline-offset-2">
                 Посмотреть тарифы с высокой скоростью →
