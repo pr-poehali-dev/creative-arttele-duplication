@@ -82,21 +82,7 @@ export default function ContactsPage() {
             </div>
           </div>
 
-          {/* Big chameleon banner */}
-          <div className="relative mt-12 rounded-3xl overflow-hidden" style={{ height: 280 }}>
-            <img
-              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/9c61d1b4-2c05-4f93-bf44-063cecdc5ca1.jpg"
-              alt=""
-              className="w-full h-full object-cover object-top"
-            />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(to left, rgba(11,14,23,0.8) 0%, rgba(11,14,23,0.2) 50%, transparent 100%)" }} />
-            <div className="absolute inset-0 flex items-center justify-end px-10">
-              <div className="text-right">
-                <div className="font-montserrat font-black text-2xl md:text-3xl text-white mb-1">Всегда на связи</div>
-                <p className="text-white/45 text-sm">Ответим быстрее, чем вы ожидаете</p>
-              </div>
-            </div>
-          </div>
+
 
         </div>
       </div>
