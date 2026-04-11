@@ -49,7 +49,7 @@ export default function AboutPage() {
           {/* Big chameleon banner */}
           <div className="relative mb-16 rounded-3xl overflow-hidden" style={{ height: 340 }}>
             <img
-              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/1d865a74-9d25-4a2c-905e-705f951e8393.jpg"
+              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/e3893dc9-77ee-42a5-883c-5a03ed3a655a.jpg"
               alt=""
               className="w-full h-full object-cover object-center"
             />
