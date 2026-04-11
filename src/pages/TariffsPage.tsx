@@ -5,6 +5,15 @@ import Icon from "@/components/ui/icon";
 import tariffs from "@/data/tariffs";
 import businessTariffs from "@/data/business-tariffs";
 
+const SOCIAL_ICONS = [
+  { name: "WhatsApp",  src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg",  bg: "#25D366" },
+  { name: "YouTube",   src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg",   bg: "#FF0000" },
+  { name: "Telegram",  src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg",  bg: "#26A5E4" },
+  { name: "Viber",     src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/viber.svg",     bg: "#7360F2" },
+  { name: "Instagram", src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg", bg: "#E4405F" },
+  { name: "Threads",   src: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/threads.svg",   bg: "#101010" },
+];
+
 type Tab = "home" | "business";
 
 const colorMap = {
@@ -87,12 +96,25 @@ export default function TariffsPage() {
                       <span className="text-white/30 text-sm"> / мес</span>
                     </div>
                     <ul className="space-y-2 flex-1 mb-6">
-                      {t.features.map((f, fi) => (
-                        <li key={fi} className="flex items-center gap-2 text-sm text-white/70">
-                          <Icon name="Check" size={14} style={{ color: c.text }} className="shrink-0" />
-                          {f}
-                        </li>
-                      ))}
+                      {t.features.map((f, fi) =>
+                        f === "__social__" ? (
+                          <li key={fi} className="pt-1">
+                            <div className="text-white/40 text-xs mb-2">Включены без ограничений:</div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {SOCIAL_ICONS.map((s) => (
+                                <div key={s.name} title={s.name} className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: s.bg }}>
+                                  <img src={s.src} alt={s.name} className="w-4 h-4 invert" />
+                                </div>
+                              ))}
+                            </div>
+                          </li>
+                        ) : (
+                          <li key={fi} className="flex items-center gap-2 text-sm text-white/70">
+                            <Icon name="Check" size={14} style={{ color: c.text }} className="shrink-0" />
+                            {f}
+                          </li>
+                        )
+                      )}
                     </ul>
                     <button
                       className="w-full py-3 rounded-xl font-bold text-sm transition-all"
