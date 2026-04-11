@@ -101,7 +101,7 @@ const faqs = [
 
 const cameras = [
   { label: "Вход • Камера 1", stream: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", color: "#00d4ff" },
-  { label: "Парковка • Камера 2", stream: "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8", color: "#00f57a" },
+  { label: "Парковка • Камера 2", iframe: "https://vkvideo.ru/video_ext.php?oid=-105329382&id=456240514&hd=2&autoplay=1", color: "#00f57a" },
   { label: "Склад • Камера 3", stream: "https://test-streams.mux.dev/test_001/stream.m3u8", color: "#00d4ff" },
   { label: "Офис • Камера 4", stream: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8", color: "#a855f7" },
 ];
@@ -318,13 +318,19 @@ export default function VideoSurveillancePage() {
                   style={{ aspectRatio: "16/9" }}
                   onClick={() => setFullscreenCam(i)}
                 >
-                  <HlsPlayer src={cam.stream} className="absolute inset-0 w-full h-full" />
+                  {cam.iframe ? (
+                    <iframe src={cam.iframe} className="absolute inset-0 w-full h-full" style={{ border: "none" }} allow="autoplay; fullscreen" allowFullScreen />
+                  ) : (
+                    <HlsPlayer src={cam.stream!} className="absolute inset-0 w-full h-full" />
+                  )}
                   {/* scanline overlay */}
                   <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px)" }} />
                   {/* hover expand hint */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ background: "rgba(0,0,0,0.35)" }}>
-                    <Icon name="Maximize2" size={28} color="white" />
-                  </div>
+                  {!cam.iframe && (
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ background: "rgba(0,0,0,0.35)" }}>
+                      <Icon name="Maximize2" size={28} color="white" />
+                    </div>
+                  )}
                   {/* corner markers */}
                   <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 rounded-tl" style={{ borderColor: cam.color }} />
                   <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 rounded-tr" style={{ borderColor: cam.color }} />
@@ -578,7 +584,11 @@ export default function VideoSurveillancePage() {
             </div>
 
             <div className="relative" style={{ aspectRatio: "16/9" }}>
-              <HlsPlayer src={cameras[fullscreenCam].stream} className="absolute inset-0 w-full h-full" />
+              {cameras[fullscreenCam].iframe ? (
+                <iframe src={cameras[fullscreenCam].iframe} className="absolute inset-0 w-full h-full" style={{ border: "none" }} allow="autoplay; fullscreen" allowFullScreen />
+              ) : (
+                <HlsPlayer src={cameras[fullscreenCam].stream!} className="absolute inset-0 w-full h-full" />
+              )}
               <div className="absolute inset-0 pointer-events-none" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px)" }} />
               {/* corner markers */}
               {["top-4 left-4 border-t-2 border-l-2 rounded-tl", "top-4 right-4 border-t-2 border-r-2 rounded-tr", "bottom-4 left-4 border-b-2 border-l-2 rounded-bl", "bottom-4 right-4 border-b-2 border-r-2 rounded-br"].map((cls) => (
