@@ -17,7 +17,7 @@ const tariffs: Tariff[] = [
   {
     name: "Лайт",
     speed: "30",
-    price: "249",
+    price: "500",
     popular: false,
     color: "blue",
     features: [
@@ -30,7 +30,7 @@ const tariffs: Tariff[] = [
   {
     name: "Базовый",
     speed: "50",
-    price: "299",
+    price: "800",
     popular: false,
     color: "blue",
     features: [
@@ -43,7 +43,7 @@ const tariffs: Tariff[] = [
   {
     name: "Комфорт",
     speed: "100",
-    price: "399",
+    price: "1000",
     popular: false,
     color: "blue",
     features: [
@@ -57,7 +57,7 @@ const tariffs: Tariff[] = [
   {
     name: "Старт",
     speed: "200",
-    price: "449",
+    price: "1300",
     popular: false,
     color: "green",
     features: [
@@ -71,7 +71,7 @@ const tariffs: Tariff[] = [
   {
     name: "Оптима",
     speed: "300",
-    price: "649",
+    price: "1500",
     popular: true,
     color: "green",
     features: [
@@ -86,7 +86,7 @@ const tariffs: Tariff[] = [
   {
     name: "Премиум",
     speed: "500",
-    price: "799",
+    price: "1700",
     popular: false,
     color: "purple",
     features: [
@@ -101,7 +101,7 @@ const tariffs: Tariff[] = [
   {
     name: "Ультра",
     speed: "600",
-    price: "849",
+    price: "1900",
     popular: false,
     color: "purple",
     features: [
@@ -116,7 +116,7 @@ const tariffs: Tariff[] = [
   {
     name: "Максимум",
     speed: "1000",
-    price: "999",
+    price: "2700",
     popular: false,
     color: "purple",
     features: [
@@ -132,7 +132,7 @@ const tariffs: Tariff[] = [
   {
     name: "Гигабит+",
     speed: "2500",
-    price: "1199",
+    price: "5000",
     popular: false,
     color: "purple",
     features: [
@@ -144,6 +144,7 @@ const tariffs: Tariff[] = [
       "Выделенный IP-адрес",
       "Приоритетная поддержка",
       "IP-телефония",
+      "Только для ИП и ООО",
     ],
   },
 
