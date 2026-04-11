@@ -99,18 +99,7 @@ export default function BusinessPage() {
           </div>
         </div>
 
-        {/* Chameleon */}
-        <div className="flex justify-center mt-12">
-          <div className="relative group">
-            <div className="absolute -inset-4 rounded-full blur-2xl opacity-25 group-hover:opacity-50 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(0,212,255,0.5), rgba(0,245,122,0.3))" }} />
-            <img
-              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/233c7154-d00e-418a-a96e-6489ebdebf02.jpg"
-              alt="Хамелеон в сети"
-              className="relative w-32 h-32 rounded-2xl object-cover group-hover:scale-105 group-hover:-rotate-2 transition-transform duration-500"
-              style={{ border: "1px solid rgba(0,212,255,0.35)", boxShadow: "0 0 40px rgba(0,212,255,0.15)" }}
-            />
-          </div>
-        </div>
+
       </section>
 
       {/* Solutions */}
@@ -218,6 +207,27 @@ export default function BusinessPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Big chameleon banner */}
+      <section className="px-6 pb-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden" style={{ height: 360 }}>
+            <img
+              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/11d8a8fb-3d18-437b-9974-630afa54d81a.jpg"
+              alt=""
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(11,14,23,0.88) 0%, rgba(11,14,23,0.4) 55%, rgba(168,85,247,0.1) 100%)" }} />
+            <div className="absolute inset-0 flex items-center px-10 md:px-16">
+              <div>
+                <div className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "var(--neon-purple, #a855f7)" }}>Бизнес нового уровня</div>
+                <div className="font-montserrat font-black text-3xl md:text-5xl text-white leading-tight mb-4">Ваша сеть —<br />ваши правила</div>
+                <p className="text-white/45 text-base max-w-sm">Индивидуальные решения для бизнеса любого масштаба</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

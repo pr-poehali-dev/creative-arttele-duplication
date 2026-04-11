@@ -33,18 +33,7 @@ export default function TariffsPage() {
             <p className="text-white/40 text-base max-w-xl mx-auto">Все тарифы — безлимитный трафик, без скрытых платежей</p>
           </div>
 
-          {/* Chameleon */}
-          <div className="flex justify-center mb-8 -mt-2">
-            <div className="relative group">
-              <div className="absolute inset-0 rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(0,212,255,0.5), rgba(0,245,122,0.3))" }} />
-              <img
-                src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/db78b1d0-2c8b-4dfa-a979-f1b165e67dbf.jpg"
-                alt="Хамелеон на роутере"
-                className="relative w-28 h-28 rounded-full object-cover border-2 group-hover:scale-110 transition-transform duration-500"
-                style={{ borderColor: "rgba(0,212,255,0.4)", boxShadow: "0 0 30px rgba(0,212,255,0.2)" }}
-              />
-            </div>
-          </div>
+
 
           {/* Tab switcher */}
           <div className="flex justify-center mb-12">
@@ -188,6 +177,23 @@ export default function TariffsPage() {
           )}
 
         </div>
+
+        {/* Big chameleon banner */}
+        <div className="relative mt-16 rounded-3xl overflow-hidden" style={{ height: 320 }}>
+          <img
+            src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/b1c68bce-ae49-41b3-a5ec-fd5402b11d57.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(11,14,23,0.85) 0%, rgba(11,14,23,0.3) 60%, transparent 100%)" }} />
+          <div className="absolute inset-0 flex items-center px-10">
+            <div>
+              <div className="font-montserrat font-black text-3xl md:text-4xl text-white mb-2">Скорость — наша природа</div>
+              <p className="text-white/50 text-base max-w-xs">Подключайтесь сегодня и ощутите разницу</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

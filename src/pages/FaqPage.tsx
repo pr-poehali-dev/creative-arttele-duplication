@@ -20,18 +20,7 @@ export default function FaqPage() {
               Частые<br /><span className="gradient-text-green">вопросы</span>
             </h1>
 
-            {/* Chameleon */}
-            <div className="flex justify-center mt-6">
-              <div className="relative group">
-                <div className="absolute -inset-2 rounded-full blur-xl opacity-35 group-hover:opacity-65 transition-opacity duration-500" style={{ background: "rgba(0,245,122,0.4)" }} />
-                <img
-                  src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/2316df7c-8ee1-4efb-b0ab-79b3c1ca4f17.jpg"
-                  alt="Хамелеон-голограмма"
-                  className="relative w-24 h-24 rounded-full object-cover group-hover:rotate-6 transition-transform duration-500"
-                  style={{ border: "1px solid rgba(0,245,122,0.4)", boxShadow: "0 0 24px rgba(0,245,122,0.2)" }}
-                />
-              </div>
-            </div>
+
           </div>
 
           <div className="space-y-3">
@@ -66,6 +55,21 @@ export default function FaqPage() {
           </div>
 
         </div>
+
+        {/* Big chameleon banner */}
+        <div className="relative mt-16 rounded-3xl overflow-hidden" style={{ height: 300 }}>
+          <img
+            src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/72388478-317c-437c-80c0-732b01eb7287.jpg"
+            alt=""
+            className="w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 20%, rgba(11,14,23,0.9) 100%)" }} />
+          <div className="absolute bottom-0 left-0 right-0 text-center pb-8">
+            <p className="text-white/60 text-sm">Не нашли ответ?</p>
+            <a href="/contacts" className="font-montserrat font-black text-xl text-white hover:text-[#00d4ff] transition-colors">Напишите нам →</a>
+          </div>
+        </div>
+
       </div>
     </div>
   );

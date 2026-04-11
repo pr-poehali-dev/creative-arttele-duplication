@@ -30,19 +30,7 @@ export default function AboutPage() {
             ))}
           </div>
 
-          {/* Chameleon */}
-          <div className="flex justify-center my-8">
-            <div className="relative group flex flex-col items-center gap-3">
-              <div className="absolute inset-0 rounded-3xl blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-500" style={{ background: "radial-gradient(circle, rgba(168,85,247,0.6), rgba(0,212,255,0.3))" }} />
-              <img
-                src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/560d1e88-d4d5-47d8-9e45-2d72e8b3a520.jpg"
-                alt="Хамелеон-астронавт"
-                className="relative w-36 h-36 rounded-3xl object-cover group-hover:scale-105 transition-transform duration-500"
-                style={{ border: "1px solid rgba(168,85,247,0.4)", boxShadow: "0 0 40px rgba(168,85,247,0.2)" }}
-              />
-              <span className="relative text-xs text-white/30 italic">Исследуем возможности вместе</span>
-            </div>
-          </div>
+
 
           <div className="glass-card rounded-3xl p-8 border border-white/5 mb-10">
             <h2 className="font-montserrat font-bold text-2xl mb-4 text-white">Наша миссия</h2>
@@ -56,6 +44,22 @@ export default function AboutPage() {
                 <span className="text-sm text-white/70">{item.text}</span>
               </div>
             ))}
+          </div>
+
+          {/* Big chameleon banner */}
+          <div className="relative mb-16 rounded-3xl overflow-hidden" style={{ height: 340 }}>
+            <img
+              src="https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/eeca0190-e1e8-4319-b8fe-62ecd197636f.jpg"
+              alt=""
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(11,14,23,0.7) 0%, rgba(11,14,23,0.2) 50%, rgba(168,85,247,0.15) 100%)" }} />
+            <div className="absolute inset-0 flex items-center justify-end px-10">
+              <div className="text-right">
+                <div className="font-montserrat font-black text-3xl md:text-4xl text-white mb-2">Исследуем<br />возможности</div>
+                <p className="text-white/45 text-sm max-w-xs ml-auto">АртТелеком Юг — всегда впереди</p>
+              </div>
+            </div>
           </div>
 
           <div>
