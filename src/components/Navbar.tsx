@@ -55,14 +55,16 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={onLkOpen}
+          <a
+            href="https://lk.arttele.ru"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm neon-glow-btn text-[#0b0e17]"
             style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
           >
             <Icon name="User" size={15} />
             Личный кабинет
-          </button>
+          </a>
           <button className="lg:hidden text-white/70 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
             <Icon name={menuOpen ? "X" : "Menu"} size={24} />
           </button>
@@ -85,13 +87,16 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
               {link.label}
             </Link>
           ))}
-          <button
-            onClick={() => { onLkOpen?.(); setMenuOpen(false); }}
+          <a
+            href="https://lk.arttele.ru"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenuOpen(false)}
             className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[#0b0e17] font-bold text-sm"
             style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
           >
             <Icon name="User" size={15} /> Личный кабинет
-          </button>
+          </a>
         </div>
       )}
     </nav>
