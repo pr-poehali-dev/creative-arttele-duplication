@@ -647,169 +647,239 @@
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(20px);
+  filter: blur(28px);
 }
 
 .smoke-1 {
-  width: 80px;
-  height: 80px;
+  width: 110px;
+  height: 110px;
   left: 50%;
   top: 60%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.28), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.75) 0%,
+    rgba(0, 212, 255, 0.3) 40%,
+    transparent 70%
+  );
   animation: sd1 4.2s ease-out infinite 0s;
 }
 .smoke-2 {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   left: 50%;
   top: 55%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.24), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.7) 0%,
+    rgba(0, 245, 122, 0.28) 40%,
+    transparent 70%
+  );
   animation: sd2 3.8s ease-out infinite 0.4s;
 }
 .smoke-3 {
-  width: 70px;
-  height: 70px;
+  width: 100px;
+  height: 100px;
   left: 50%;
   top: 58%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.26),
+    rgba(168, 85, 247, 0.72) 0%,
+    rgba(168, 85, 247, 0.3) 40%,
     transparent 70%
   );
   animation: sd3 5s ease-out infinite 0.8s;
 }
 .smoke-4 {
-  width: 85px;
-  height: 85px;
+  width: 115px;
+  height: 115px;
   left: 50%;
   top: 62%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.65) 0%,
+    rgba(0, 212, 255, 0.25) 40%,
+    transparent 70%
+  );
   animation: sd4 4.5s ease-out infinite 1.2s;
 }
 .smoke-5 {
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
   left: 50%;
   top: 56%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.2), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.68) 0%,
+    rgba(0, 245, 122, 0.26) 40%,
+    transparent 70%
+  );
   animation: sd5 3.5s ease-out infinite 0.2s;
 }
 .smoke-6 {
-  width: 75px;
-  height: 75px;
+  width: 105px;
+  height: 105px;
   left: 50%;
   top: 60%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.28),
+    rgba(168, 85, 247, 0.74) 0%,
+    rgba(168, 85, 247, 0.3) 40%,
     transparent 70%
   );
   animation: sd6 4.8s ease-out infinite 1.6s;
 }
 .smoke-7 {
-  width: 65px;
-  height: 65px;
-  left: 50%;
-  top: 57%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.24), transparent 70%);
-  animation: sd7 4s ease-out infinite 2s;
-}
-.smoke-8 {
-  width: 88px;
-  height: 88px;
-  left: 50%;
-  top: 61%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.22), transparent 70%);
-  animation: sd8 4.3s ease-out infinite 0.6s;
-}
-.smoke-9 {
-  width: 110px;
-  height: 110px;
-  left: 50%;
-  top: 54%;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent 70%);
-  animation: sd9 3.3s ease-out infinite 0.1s;
-}
-.smoke-10 {
-  width: 72px;
-  height: 72px;
-  left: 50%;
-  top: 63%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.2), transparent 70%);
-  animation: sd10 5.2s ease-out infinite 1s;
-}
-.smoke-11 {
   width: 95px;
   height: 95px;
   left: 50%;
+  top: 57%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.7) 0%,
+    rgba(0, 212, 255, 0.28) 40%,
+    transparent 70%
+  );
+  animation: sd7 4s ease-out infinite 2s;
+}
+.smoke-8 {
+  width: 118px;
+  height: 118px;
+  left: 50%;
+  top: 61%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.66) 0%,
+    rgba(0, 245, 122, 0.25) 40%,
+    transparent 70%
+  );
+  animation: sd8 4.3s ease-out infinite 0.6s;
+}
+.smoke-9 {
+  width: 140px;
+  height: 140px;
+  left: 50%;
+  top: 54%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.65) 0%,
+    rgba(168, 85, 247, 0.25) 40%,
+    transparent 70%
+  );
+  animation: sd9 3.3s ease-out infinite 0.1s;
+}
+.smoke-10 {
+  width: 102px;
+  height: 102px;
+  left: 50%;
+  top: 63%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.68) 0%,
+    rgba(0, 212, 255, 0.26) 40%,
+    transparent 70%
+  );
+  animation: sd10 5.2s ease-out infinite 1s;
+}
+.smoke-11 {
+  width: 125px;
+  height: 125px;
+  left: 50%;
   top: 56%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.26), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.72) 0%,
+    rgba(0, 245, 122, 0.28) 40%,
+    transparent 70%
+  );
   animation: sd11 3.9s ease-out infinite 2.4s;
 }
 .smoke-12 {
-  width: 60px;
-  height: 60px;
+  width: 90px;
+  height: 90px;
   left: 50%;
   top: 59%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.22),
+    rgba(168, 85, 247, 0.7) 0%,
+    rgba(168, 85, 247, 0.28) 40%,
     transparent 70%
   );
   animation: sd12 5.5s ease-out infinite 1.4s;
 }
 .smoke-13 {
-  width: 115px;
-  height: 115px;
+  width: 145px;
+  height: 145px;
   left: 50%;
   top: 53%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.18), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.6) 0%,
+    rgba(0, 212, 255, 0.22) 40%,
+    transparent 70%
+  );
   animation: sd13 3.1s ease-out infinite 0.5s;
 }
 .smoke-14 {
-  width: 78px;
-  height: 78px;
+  width: 108px;
+  height: 108px;
   left: 50%;
   top: 60%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.28), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.72) 0%,
+    rgba(0, 245, 122, 0.28) 40%,
+    transparent 70%
+  );
   animation: sd14 4.6s ease-out infinite 1.8s;
 }
 .smoke-15 {
-  width: 92px;
-  height: 92px;
+  width: 122px;
+  height: 122px;
   left: 50%;
   top: 57%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.24),
+    rgba(168, 85, 247, 0.7) 0%,
+    rgba(168, 85, 247, 0.27) 40%,
     transparent 70%
   );
   animation: sd15 4.1s ease-out infinite 2.8s;
 }
 .smoke-16 {
-  width: 105px;
-  height: 105px;
+  width: 135px;
+  height: 135px;
   left: 50%;
   top: 55%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.22), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 212, 255, 0.68) 0%,
+    rgba(0, 212, 255, 0.25) 40%,
+    transparent 70%
+  );
   animation: sd16 3.6s ease-out infinite 0.9s;
 }
 .smoke-17 {
-  width: 68px;
-  height: 68px;
+  width: 98px;
+  height: 98px;
   left: 50%;
   top: 62%;
-  background: radial-gradient(circle, rgba(0, 245, 122, 0.2), transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 245, 122, 0.66) 0%,
+    rgba(0, 245, 122, 0.24) 40%,
+    transparent 70%
+  );
   animation: sd17 5.1s ease-out infinite 2.2s;
 }
 .smoke-18 {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
   left: 50%;
   top: 52%;
   background: radial-gradient(
     circle,
-    rgba(168, 85, 247, 0.18),
+    rgba(168, 85, 247, 0.65) 0%,
+    rgba(168, 85, 247, 0.24) 40%,
     transparent 70%
   );
   animation: sd18 3.2s ease-out infinite 3s;
