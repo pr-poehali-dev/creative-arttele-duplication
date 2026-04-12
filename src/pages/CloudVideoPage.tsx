@@ -168,7 +168,7 @@ export default function CloudVideoPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link to="/video/cabinet"
+              <Link to="/video/login"
                 className="inline-flex items-center justify-center gap-2 px-10 py-4 rounded-2xl font-black text-lg transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17", boxShadow: "0 0 40px rgba(0,212,255,0.35)" }}>
                 <Icon name="Play" size={20} />
@@ -289,7 +289,7 @@ export default function CloudVideoPage() {
               </div>
               <h3 className="text-3xl font-black text-white mb-3">14 дней бесплатно на тарифе Про</h3>
               <p className="text-white/50 mb-6 max-w-xl mx-auto">Подключи до 8 камер, попробуй ИИ-аналитику и архив 30 дней. Без карты. Без обязательств.</p>
-              <Link to="/video/cabinet"
+              <Link to="/video/login"
                 className="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-black text-sm transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, #fbbf24, #f59e0b)", color: "#0b0e17", boxShadow: "0 0 30px rgba(251,191,36,0.3)" }}>
                 <Icon name="Gift" size={16} />
@@ -400,7 +400,7 @@ export default function CloudVideoPage() {
                   ))}
                 </ul>
 
-                <Link to="/video/cabinet"
+                <Link to="/video/login"
                   className="w-full py-3.5 rounded-2xl font-black text-center transition-all hover:scale-[1.02] block"
                   style={plan.popular
                     ? { background: "linear-gradient(135deg, var(--neon-green), var(--neon-blue))", color: "#0b0e17", boxShadow: `0 0 30px ${plan.glow}` }
@@ -446,7 +446,7 @@ export default function CloudVideoPage() {
             <div className="relative">
               <h2 className="text-4xl lg:text-5xl font-black text-white mb-4">Начни прямо сейчас</h2>
               <p className="text-white/40 mb-8 text-lg">14 дней бесплатно. Без карты. Без обязательств.</p>
-              <Link to="/video/cabinet"
+              <Link to="/video/login"
                 className="inline-flex items-center gap-3 px-12 py-5 rounded-2xl font-black text-xl transition-all hover:scale-105"
                 style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17", boxShadow: "0 0 50px rgba(0,212,255,0.3)" }}>
                 <Icon name="Rocket" size={22} />
@@ -462,7 +462,7 @@ export default function CloudVideoPage() {
         © 2026 CloudVideo. Все права защищены. &nbsp;·&nbsp;
         <Link to="/video" className="hover:text-white/40 transition-colors">Установка камер</Link>
         &nbsp;·&nbsp;
-        <Link to="/video/cabinet" className="hover:text-white/40 transition-colors">Личный кабинет</Link>
+        <Link to="/video/login" className="hover:text-white/40 transition-colors">Личный кабинет</Link>
       </div>
     </div>
   );

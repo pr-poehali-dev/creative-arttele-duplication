@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 
 type Tab = "cameras" | "archive" | "alerts" | "billing" | "settings";
@@ -40,9 +40,31 @@ const navItems: { id: Tab; icon: string; label: string }[] = [
 ];
 
 export default function CloudCabinetPage() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("cameras");
-  const [selectedCam, setSelectedCam] = useState<number | null>(null);
   const [fullscreenCam, setFullscreenCam] = useState<(typeof mockCameras)[0] | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; plan: string; is_demo: boolean } | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cv_user");
+    if (!stored) {
+      navigate("/video/login");
+      return;
+    }
+    try {
+      setUser(JSON.parse(stored));
+    } catch {
+      navigate("/video/login");
+    }
+  }, [navigate]);
+
+  function logout() {
+    localStorage.removeItem("cv_token");
+    localStorage.removeItem("cv_user");
+    navigate("/video/login");
+  }
+
+  if (!user) return null;
 
   const onlineCams = mockCameras.filter((c) => c.status === "online").length;
 
@@ -94,15 +116,17 @@ export default function CloudCabinetPage() {
         {/* User */}
         <div className="p-4 m-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm"
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
               style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-purple))", color: "white" }}>
-              ИК
+              {user.name.slice(0, 2).toUpperCase()}
             </div>
-            <div>
-              <p className="text-white text-sm font-bold">Иван К.</p>
-              <p className="text-white/30 text-xs">Тариф Про</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-bold truncate">{user.name}</p>
+              <p className="text-white/30 text-xs">Тариф {user.plan === "pro" ? "Про" : user.plan}</p>
             </div>
-            <Icon name="LogOut" size={15} color="rgba(255,255,255,0.2)" />
+            <button onClick={logout} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
+              <Icon name="LogOut" size={15} color="rgba(255,255,255,0.4)" />
+            </button>
           </div>
         </div>
       </aside>
@@ -142,6 +166,22 @@ export default function CloudCabinetPage() {
             </Link>
           </div>
         </div>
+
+        {/* Demo banner */}
+        {user.is_demo && (
+          <div className="mx-6 mt-4 flex items-center gap-3 px-4 py-3 rounded-2xl"
+            style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.05))", border: "1px solid rgba(251,191,36,0.25)" }}>
+            <Icon name="Info" size={16} color="#fbbf24" />
+            <p className="text-sm flex-1" style={{ color: "rgba(251,191,36,0.85)" }}>
+              <b>Демо-режим</b> — все функции доступны для просмотра. Данные ненастоящие.
+            </p>
+            <Link to="/video/cloud#pricing"
+              className="text-xs font-black px-3 py-1.5 rounded-lg flex-shrink-0"
+              style={{ background: "rgba(251,191,36,0.15)", color: "#fbbf24" }}>
+              Купить тариф
+            </Link>
+          </div>
+        )}
 
         <div className="p-6">
 

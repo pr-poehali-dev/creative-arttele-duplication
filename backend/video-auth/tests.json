@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Demo login",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {"email": "demo@cloudvideo.ru", "password": "demo123"},
+      "expectedStatus": 200,
+      "expectedBody": {"token": "demo_token_cloudvideo"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Wrong password",
+      "method": "POST",
+      "path": "/?action=login",
+      "body": {"email": "demo@cloudvideo.ru", "password": "wrong"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Me with demo token",
+      "method": "GET",
+      "path": "/?action=me",
+      "headers": {"X-Authorization": "Bearer demo_token_cloudvideo"},
+      "expectedStatus": 200,
+      "expectedBody": {"user": {"is_demo": true}},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
