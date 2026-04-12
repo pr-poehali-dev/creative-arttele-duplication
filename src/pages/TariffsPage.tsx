@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
+import PageHero from "@/components/ui/PageHero";
 import tariffs from "@/data/tariffs";
 import businessTariffs from "@/data/business-tariffs";
 
@@ -31,16 +32,14 @@ export default function TariffsPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-7xl mx-auto px-6">
 
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.05)", color: "var(--neon-blue)" }}>
-              <Icon name="Zap" size={12} /> Тарифы
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl mb-4">
-              Выберите<br /><span className="gradient-text-blue">свой тариф</span>
-            </h1>
-            <p className="text-white/40 text-base max-w-xl mx-auto">Все тарифы — безлимитный трафик, без скрытых платежей</p>
-          </div>
+          <PageHero
+            badge="Тарифы"
+            badgeIcon="Zap"
+            title="Выберите"
+            highlight="свой тариф"
+            subtitle="Безлимитный трафик, без скрытых платежей"
+            accent="blue"
+          />
 
 
 

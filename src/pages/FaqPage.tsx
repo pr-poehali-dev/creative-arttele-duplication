@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import PageHero from "@/components/ui/PageHero";
 import Icon from "@/components/ui/icon";
 import faq from "@/data/faq";
 
@@ -12,16 +13,14 @@ export default function FaqPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-3xl mx-auto px-6">
 
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,245,122,0.3)", background: "rgba(0,245,122,0.05)", color: "var(--neon-green)" }}>
-              <Icon name="HelpCircle" size={12} /> FAQ
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl">
-              Частые<br /><span className="gradient-text-green">вопросы</span>
-            </h1>
-
-
-          </div>
+          <PageHero
+            badge="FAQ"
+            badgeIcon="HelpCircle"
+            title="Частые"
+            highlight="вопросы"
+            subtitle="Ответы на самые популярные вопросы наших клиентов"
+            accent="green"
+          />
 
           <div className="space-y-3">
             {faq.map((item, i) => (

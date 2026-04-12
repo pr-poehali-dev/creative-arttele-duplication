@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
+import PageHero from "@/components/ui/PageHero";
 import locations from "@/data/locations";
 
 export default function LocationsListPage() {
@@ -17,18 +18,14 @@ export default function LocationsListPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-5xl mx-auto px-6">
 
-          {/* Header */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.05)", color: "var(--neon-blue)" }}>
-              <Icon name="MapPin" size={12} /> Зона покрытия
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl mb-4">
-              Выберите<br /><span className="gradient-text-blue">ваш район</span>
-            </h1>
-            <p className="text-white/40 text-base max-w-lg mx-auto">
-              Для каждого населённого пункта — свои тарифы и специальные предложения
-            </p>
-          </div>
+          <PageHero
+            badge="Зона покрытия"
+            badgeIcon="MapPin"
+            title="Выберите"
+            highlight="ваш район"
+            subtitle="Для каждого населённого пункта — свои тарифы и специальные предложения"
+            accent="blue"
+          />
 
           {/* Поиск */}
           <div className="max-w-md mx-auto mb-10">

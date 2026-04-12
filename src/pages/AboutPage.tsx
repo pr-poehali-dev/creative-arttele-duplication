@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Icon from "@/components/ui/icon";
+import PageHero from "@/components/ui/PageHero";
 import { aboutInfo, stats, advantages, team } from "@/data/about";
 
 export default function AboutPage() {
@@ -9,15 +9,14 @@ export default function AboutPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-5xl mx-auto px-6">
 
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.05)", color: "var(--neon-blue)" }}>
-              <Icon name="Building2" size={12} /> О компании
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl mb-6">
-              Мы строим<br /><span className="gradient-text-blue">интернет будущего</span>
-            </h1>
-            <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">{aboutInfo.description}</p>
-          </div>
+          <PageHero
+            badge="О компании"
+            badgeIcon="Building2"
+            title="Мы строим"
+            highlight="интернет будущего"
+            subtitle={aboutInfo.description}
+            accent="blue"
+          />
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
             {stats.map((s, i) => (

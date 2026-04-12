@@ -1,5 +1,5 @@
 import Navbar from "@/components/Navbar";
-import Icon from "@/components/ui/icon";
+import PageHero from "@/components/ui/PageHero";
 import blog from "@/data/blog";
 
 export default function BlogPage() {
@@ -9,14 +9,14 @@ export default function BlogPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-7xl mx-auto px-6">
 
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.05)", color: "var(--neon-blue)" }}>
-              <Icon name="BookOpen" size={12} /> Блог
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl">
-              Полезно<br /><span className="gradient-text-blue">знать</span>
-            </h1>
-          </div>
+          <PageHero
+            badge="Блог"
+            badgeIcon="BookOpen"
+            title="Полезно"
+            highlight="знать"
+            subtitle="Советы, новости и полезные материалы о домашнем интернете"
+            accent="blue"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blog.map((post, i) => (

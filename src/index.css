@@ -342,6 +342,13 @@
   background-clip: text;
 }
 
+.gradient-text-purple {
+  background: linear-gradient(135deg, var(--neon-purple), #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .gradient-text-full {
   background: linear-gradient(
     135deg,

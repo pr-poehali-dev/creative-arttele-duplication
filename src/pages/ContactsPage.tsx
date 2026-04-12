@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
+import PageHero from "@/components/ui/PageHero";
 import { contacts, formTopics } from "@/data/contacts";
 
 export default function ContactsPage() {
@@ -9,14 +10,13 @@ export default function ContactsPage() {
       <div className="pt-28 pb-20">
         <div className="max-w-5xl mx-auto px-6">
 
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold mb-4 tracking-wider uppercase" style={{ borderColor: "rgba(0,212,255,0.3)", background: "rgba(0,212,255,0.05)", color: "var(--neon-blue)" }}>
-              <Icon name="MessageSquare" size={12} /> Контакты
-            </div>
-            <h1 className="font-montserrat font-black text-5xl md:text-6xl">
-              Свяжитесь<br /><span className="gradient-text-blue">с нами</span>
-            </h1>
-          </div>
+          <PageHero
+            badge="Контакты"
+            badgeIcon="MessageSquare"
+            title="Свяжитесь"
+            highlight="с нами"
+            accent="blue"
+          />
 
 
 
