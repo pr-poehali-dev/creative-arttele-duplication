@@ -49,8 +49,13 @@ def check_password(plain: str, hashed: str) -> bool:
         return plain == "demo123" and "LQv3c1yqBWVHxkd0" in hashed
 
 
+def hash_password(plain: str) -> str:
+    import bcrypt
+    return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
+
+
 def handler(event: dict, context) -> dict:
-    """Авторизация для облачного кабинета видеонаблюдения. POST /login, GET /me"""
+    """Авторизация и регистрация для облачного кабинета видеонаблюдения."""
     if event.get("httpMethod") == "OPTIONS":
         return {"statusCode": 200, "headers": CORS, "body": ""}
 
@@ -103,5 +108,43 @@ def handler(event: dict, context) -> dict:
         if not user:
             return {"statusCode": 401, "headers": CORS, "body": json.dumps({"error": "Не авторизован"})}
         return {"statusCode": 200, "headers": CORS, "body": json.dumps({"user": user})}
+
+    # ── POST register ──
+    if method == "POST" and action == "register":
+        body = json.loads(event.get("body") or "{}")
+        name = (body.get("name") or "").strip()
+        email = (body.get("email") or "").strip().lower()
+        password = body.get("password") or ""
+
+        if not name or not email or not password:
+            return {"statusCode": 400, "headers": CORS, "body": json.dumps({"error": "Заполните все поля"})}
+        if len(password) < 6:
+            return {"statusCode": 400, "headers": CORS, "body": json.dumps({"error": "Пароль должен быть не менее 6 символов"})}
+        if email == "demo@cloudvideo.ru":
+            return {"statusCode": 400, "headers": CORS, "body": json.dumps({"error": "Этот email недоступен"})}
+
+        pw_hash = hash_password(password)
+        conn = psycopg2.connect(os.environ["DATABASE_URL"])
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                "INSERT INTO cloud_video_users (email, password_hash, name, plan, cameras_limit, storage_days, trial_until) VALUES (%s, %s, %s, 'pro', 8, 30, NOW() + INTERVAL '14 days') RETURNING id",
+                (email, pw_hash, name)
+            )
+            uid = cur.fetchone()[0]
+            conn.commit()
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
+            conn.close()
+            return {"statusCode": 409, "headers": CORS, "body": json.dumps({"error": "Пользователь с таким email уже существует"})}
+        finally:
+            conn.close()
+
+        token = make_token(uid, email)
+        return {"statusCode": 200, "headers": CORS, "body": json.dumps({
+            "token": token,
+            "user": {"id": uid, "email": email, "name": name, "plan": "pro",
+                     "cameras_limit": 8, "storage_days": 30, "is_demo": False}
+        })}
 
     return {"statusCode": 404, "headers": CORS, "body": json.dumps({"error": "Not found"})}

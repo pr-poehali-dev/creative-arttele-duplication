@@ -25,6 +25,14 @@
       "expectedStatus": 200,
       "expectedBody": {"user": {"is_demo": true}},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Register missing fields",
+      "method": "POST",
+      "path": "/?action=register",
+      "body": {"email": "test@test.ru"},
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
     }
   ]
 }
