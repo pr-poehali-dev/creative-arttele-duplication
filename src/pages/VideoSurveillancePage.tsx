@@ -187,6 +187,26 @@ export default function VideoSurveillancePage() {
               </a>
             </div>
 
+            {/* Cloud video banner */}
+            <Link
+              to="/video/cloud"
+              className="mt-6 flex items-center gap-4 p-4 rounded-2xl transition-all hover:-translate-y-0.5 group"
+              style={{
+                background: "linear-gradient(135deg, rgba(0,245,122,0.07), rgba(0,212,255,0.05))",
+                border: "1px solid rgba(0,245,122,0.2)",
+              }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(0,245,122,0.12)" }}>
+                <Icon name="Cloud" size={20} color="var(--neon-green)" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-bold text-sm">Облачное видеонаблюдение</p>
+                <p className="text-white/40 text-xs">Подключи камеры онлайн — без монтажа, от 490 ₽/мес</p>
+              </div>
+              <Icon name="ArrowRight" size={18} color="rgba(0,245,122,0.5)" />
+            </Link>
+
             {/* mini stats */}
             <div className="grid grid-cols-4 gap-4 mt-12">
               {stats.map((s) => (
