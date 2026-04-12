@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Create payment - unauthorized",
+      "method": "POST",
+      "path": "/?action=create",
+      "body": {"plan_id": "pro"},
+      "expectedStatus": 401,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Status - missing inv_id",
+      "method": "GET",
+      "path": "/?action=status",
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Status - not found",
+      "method": "GET",
+      "path": "/?action=status&inv_id=999999",
+      "expectedStatus": 404,
+      "bodyMatcher": "partial"
+    }
+  ]
+}

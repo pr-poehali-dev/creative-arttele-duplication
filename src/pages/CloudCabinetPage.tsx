@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
+
+const PAY_URL = "https://functions.poehali.dev/4e4b7ea0-3d9c-4c7a-9740-e36169ebf4c7";
 
 type Tab = "cameras" | "archive" | "alerts" | "billing" | "settings";
 
@@ -26,9 +28,9 @@ const mockArchive = [
 ];
 
 const plans = [
-  { id: "start", name: "Старт", price: 490, cameras: 2, storage: "7 дней", current: false },
-  { id: "pro", name: "Про", price: 1290, cameras: 8, storage: "30 дней", current: true },
-  { id: "business", name: "Бизнес", price: 3900, cameras: 32, storage: "90 дней", current: false },
+  { id: "start", name: "Старт", price: 490, cameras: 2, storage: "7 дней" },
+  { id: "pro", name: "Про", price: 1290, cameras: 8, storage: "30 дней" },
+  { id: "business", name: "Бизнес", price: 3900, cameras: 32, storage: "90 дней" },
 ];
 
 const navItems: { id: Tab; icon: string; label: string }[] = [
@@ -44,6 +46,8 @@ export default function CloudCabinetPage() {
   const [tab, setTab] = useState<Tab>("cameras");
   const [fullscreenCam, setFullscreenCam] = useState<(typeof mockCameras)[0] | null>(null);
   const [user, setUser] = useState<{ name: string; email: string; plan: string; is_demo: boolean } | null>(null);
+  const [payLoading, setPayLoading] = useState<string | null>(null);
+  const [payError, setPayError] = useState("");
 
   useEffect(() => {
     const stored = localStorage.getItem("cv_user");
@@ -63,6 +67,27 @@ export default function CloudCabinetPage() {
     localStorage.removeItem("cv_user");
     navigate("/video/login");
   }
+
+  const startPayment = useCallback(async (planId: string) => {
+    if (user?.is_demo) { setPayError("В демо-режиме оплата недоступна. Зарегистрируйтесь."); return; }
+    setPayError("");
+    setPayLoading(planId);
+    try {
+      const token = localStorage.getItem("cv_token") || "";
+      const res = await fetch(`${PAY_URL}?action=create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ plan_id: planId }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setPayError(data.error || "Ошибка создания платежа"); return; }
+      window.location.href = data.pay_url;
+    } catch {
+      setPayError("Ошибка соединения. Попробуйте ещё раз.");
+    } finally {
+      setPayLoading(null);
+    }
+  }, [user]);
 
   if (!user) return null;
 
@@ -362,70 +387,80 @@ export default function CloudCabinetPage() {
           {tab === "billing" && (
             <div>
               {/* Current plan */}
-              <div className="mb-8 p-6 rounded-2xl"
-                style={{ background: "linear-gradient(135deg, rgba(0,245,122,0.07), rgba(0,212,255,0.04))", border: "1px solid rgba(0,245,122,0.2)" }}>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-black tracking-widest uppercase px-2 py-1 rounded-full"
-                        style={{ background: "rgba(0,245,122,0.15)", color: "var(--neon-green)" }}>Активный тариф</span>
+              {(() => {
+                const currentPlan = plans.find((p) => p.id === user?.plan) ?? plans[1];
+                return (
+                  <div className="mb-8 p-6 rounded-2xl"
+                    style={{ background: "linear-gradient(135deg, rgba(0,245,122,0.07), rgba(0,212,255,0.04))", border: "1px solid rgba(0,245,122,0.2)" }}>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xs font-black tracking-widest uppercase px-2 py-1 rounded-full"
+                            style={{ background: "rgba(0,245,122,0.15)", color: "var(--neon-green)" }}>Активный тариф</span>
+                        </div>
+                        <h3 className="text-3xl font-black text-white mb-1">{currentPlan.name}</h3>
+                        <p className="text-white/40 text-sm">{currentPlan.cameras} камер · Архив {currentPlan.storage} · {currentPlan.price} ₽/мес</p>
+                      </div>
+                      <button
+                        onClick={() => startPayment(currentPlan.id)}
+                        disabled={!!payLoading}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all hover:scale-105 disabled:opacity-50"
+                        style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17" }}>
+                        {payLoading === currentPlan.id
+                          ? <Icon name="Loader2" size={16} color="#0b0e17" />
+                          : <Icon name="RefreshCw" size={16} color="#0b0e17" />}
+                        Продлить тариф
+                      </button>
                     </div>
-                    <h3 className="text-3xl font-black text-white mb-1">Про</h3>
-                    <p className="text-white/40 text-sm">8 камер · Архив 30 дней · 4K · 1 290 ₽/мес</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-white/30 text-xs mb-1">Следующее списание</p>
-                    <p className="text-white font-bold">1 мая 2026</p>
-                    <p className="text-white/40 text-xs mt-1">Осталось 19 дней</p>
-                  </div>
+                );
+              })()}
+
+              {/* Error */}
+              {payError && (
+                <div className="mb-6 flex items-center gap-2 p-3 rounded-xl"
+                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  <Icon name="AlertCircle" size={15} color="#ef4444" />
+                  <p className="text-red-400 text-sm">{payError}</p>
                 </div>
-              </div>
+              )}
 
               {/* Plans */}
               <h3 className="text-white font-bold mb-4 text-sm">Сменить тариф</h3>
               <div className="grid md:grid-cols-3 gap-4 mb-8">
-                {plans.map((plan) => (
-                  <div key={plan.id} className="rounded-2xl p-5 transition-all"
-                    style={{
-                      background: plan.current ? "rgba(0,212,255,0.05)" : "rgba(255,255,255,0.02)",
-                      border: `1px solid ${plan.current ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.06)"}`,
-                    }}>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-black text-white">{plan.name}</span>
-                      {plan.current && <span className="text-xs px-2 py-1 rounded-full font-bold" style={{ background: "rgba(0,212,255,0.1)", color: "var(--neon-blue)" }}>Текущий</span>}
+                {plans.map((plan) => {
+                  const isCurrent = plan.id === user?.plan;
+                  return (
+                    <div key={plan.id} className="rounded-2xl p-5 transition-all"
+                      style={{
+                        background: isCurrent ? "rgba(0,212,255,0.05)" : "rgba(255,255,255,0.02)",
+                        border: `1px solid ${isCurrent ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.06)"}`,
+                      }}>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="font-black text-white">{plan.name}</span>
+                        {isCurrent && <span className="text-xs px-2 py-1 rounded-full font-bold" style={{ background: "rgba(0,212,255,0.1)", color: "var(--neon-blue)" }}>Текущий</span>}
+                      </div>
+                      <p className="text-2xl font-black text-white mb-1">{plan.price} ₽<span className="text-white/30 text-sm font-normal">/мес</span></p>
+                      <p className="text-white/35 text-xs mb-4">{plan.cameras} камер · {plan.storage}</p>
+                      <button
+                        onClick={() => !isCurrent && startPayment(plan.id)}
+                        disabled={isCurrent || !!payLoading}
+                        className="w-full py-2 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:cursor-default"
+                        style={isCurrent
+                          ? { background: "rgba(0,212,255,0.08)", color: "var(--neon-blue)" }
+                          : { background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17" }}>
+                        {payLoading === plan.id && <Icon name="Loader2" size={14} color="#0b0e17" />}
+                        {isCurrent ? "Активен" : "Оплатить"}
+                      </button>
                     </div>
-                    <p className="text-2xl font-black text-white mb-1">{plan.price} ₽<span className="text-white/30 text-sm font-normal">/мес</span></p>
-                    <p className="text-white/35 text-xs mb-4">{plan.cameras} камеры · {plan.storage}</p>
-                    <button className="w-full py-2 rounded-xl text-sm font-bold transition-all"
-                      style={plan.current
-                        ? { background: "rgba(0,212,255,0.08)", color: "var(--neon-blue)", cursor: "default" }
-                        : { border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)" }}>
-                      {plan.current ? "Активен" : "Выбрать"}
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
-              {/* Payment history */}
-              <h3 className="text-white font-bold mb-4 text-sm">История платежей</h3>
-              <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
-                {[
-                  { date: "1 апр 2026", amount: "1 290 ₽", status: "ok", desc: "Тариф Про" },
-                  { date: "1 мар 2026", amount: "1 290 ₽", status: "ok", desc: "Тариф Про" },
-                  { date: "1 фев 2026", amount: "1 290 ₽", status: "ok", desc: "Тариф Про" },
-                ].map((row, i) => (
-                  <div key={i} className="flex items-center justify-between px-5 py-4"
-                    style={{ borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none", background: i % 2 === 0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
-                    <div>
-                      <p className="text-white text-sm font-bold">{row.desc}</p>
-                      <p className="text-white/30 text-xs">{row.date}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-white font-bold">{row.amount}</span>
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(0,245,122,0.1)", color: "var(--neon-green)" }}>Оплачено</span>
-                    </div>
-                  </div>
-                ))}
+              {/* Robokassa badge */}
+              <div className="flex items-center gap-2 mb-6 text-white/20 text-xs">
+                <Icon name="ShieldCheck" size={14} color="rgba(255,255,255,0.2)" />
+                Оплата через Robokassa — Visa, Mastercard, МИР, СБП, ЮMoney
               </div>
             </div>
           )}
