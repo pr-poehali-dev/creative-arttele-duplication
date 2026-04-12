@@ -100,7 +100,7 @@ const faqs = [
 ];
 
 const cameras = [
-  { label: "Вход • Камера 1", stream: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", color: "#00d4ff" },
+  { label: "Вход • Камера 1", iframe: "https://vkvideo.ru/video_ext.php?oid=-104158648&id=456239679&hash=", color: "#00d4ff" },
   { label: "Парковка • Камера 2", iframe: "https://vkvideo.ru/video_ext.php?oid=-105329382&id=456240514&hd=2&autoplay=1", color: "#00f57a" },
   { label: "Склад • Камера 3", stream: "https://test-streams.mux.dev/test_001/stream.m3u8", color: "#00d4ff" },
   { label: "Офис • Камера 4", stream: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8", color: "#a855f7" },
