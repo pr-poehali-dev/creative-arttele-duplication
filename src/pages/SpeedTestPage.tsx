@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
 import { Link } from "react-router-dom";
+
+const SPEED_TEST_URL = "https://functions.poehali.dev/d0fffefe-ed43-400a-a5b8-d5b58e48fc2d";
 
 type Phase = "idle" | "ping" | "download" | "upload" | "done";
 interface Results { ping: number | null; download: number | null; upload: number | null; }
@@ -174,40 +176,31 @@ function Speedometer({ value, max, phase }: { value: number; max: number; phase:
   );
 }
 
-function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
-function oscillate(target: number, elapsed: number, duration: number) {
-  const base = easeInOutCubic(Math.min(elapsed / duration, 1)) * target;
-  const noise = Math.sin(elapsed / 180) * target * 0.04 + Math.sin(elapsed / 70) * target * 0.02;
-  return Math.max(0, base + noise);
-}
 
 export default function SpeedTestPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [results, setResults] = useState<Results>({ ping: null, download: null, upload: null });
   const [currentValue, setCurrentValue] = useState(0);
   const animRef = useRef<number | null>(null);
-  const startTimeRef = useRef(0);
-  const targetRef = useRef(0);
-  const durationRef = useRef(0);
-  const phaseRef = useRef<Phase>("idle");
+  const abortRef = useRef<AbortController | null>(null);
+  const currentValueRef = useRef(0);
 
-  const DOWNLOAD_DURATION = 5500;
-  const UPLOAD_DURATION = 4000;
-
-  function startAnimate(target: number, duration: number, onDone: () => void) {
-    targetRef.current = target;
-    durationRef.current = duration;
-    startTimeRef.current = performance.now();
+  function animateTo(target: number, duration: number, onDone: () => void) {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    const start = performance.now();
+    const from = currentValueRef.current;
     function tick(now: number) {
-      const elapsed = now - startTimeRef.current;
-      const val = oscillate(target, elapsed, duration);
+      const elapsed = now - start;
+      const t = Math.min(elapsed / duration, 1);
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const noise = Math.sin(elapsed / 180) * target * 0.03 + Math.sin(elapsed / 70) * target * 0.015;
+      const val = Math.max(0, from + (target - from) * ease + (t < 1 ? noise : 0));
+      currentValueRef.current = val;
       setCurrentValue(val);
-      if (elapsed < duration) {
+      if (t < 1) {
         animRef.current = requestAnimationFrame(tick);
       } else {
+        currentValueRef.current = target;
         setCurrentValue(target);
         onDone();
       }
@@ -215,36 +208,113 @@ export default function SpeedTestPage() {
     animRef.current = requestAnimationFrame(tick);
   }
 
-  function runTest() {
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    setResults({ ping: null, download: null, upload: null });
-    setCurrentValue(0);
-    phaseRef.current = "ping";
-    setPhase("ping");
-
-    const pingVal = Math.floor(Math.random() * 14) + 5;
-    setTimeout(() => {
-      setResults(r => ({ ...r, ping: pingVal }));
-      phaseRef.current = "download";
-      setPhase("download");
-      setCurrentValue(0);
-      const dlVal = parseFloat((Math.random() * 700 + 200).toFixed(1));
-      startAnimate(dlVal, DOWNLOAD_DURATION, () => {
-        setResults(r => ({ ...r, download: dlVal }));
-        setCurrentValue(0);
-        phaseRef.current = "upload";
-        setPhase("upload");
-        const ulVal = parseFloat((Math.random() * 250 + 80).toFixed(1));
-        startAnimate(ulVal, UPLOAD_DURATION, () => {
-          setResults(r => ({ ...r, upload: ulVal }));
-          phaseRef.current = "done";
-          setPhase("done");
-        });
-      });
-    }, 1600);
+  async function measurePing(): Promise<number> {
+    const times: number[] = [];
+    for (let i = 0; i < 4; i++) {
+      const t0 = performance.now();
+      await fetch(`${SPEED_TEST_URL}/?action=ping&_=${Date.now()}`, { cache: "no-store" });
+      times.push(performance.now() - t0);
+    }
+    times.sort((a, b) => a - b);
+    return Math.round(times.slice(1, 3).reduce((s, v) => s + v, 0) / 2);
   }
 
-  useEffect(() => () => { if (animRef.current) cancelAnimationFrame(animRef.current); }, []);
+  async function measureDownload(): Promise<number> {
+    // Качаем 8 МБ и меряем реальную скорость
+    const SIZE_MB = 8;
+    const t0 = performance.now();
+    const res = await fetch(`${SPEED_TEST_URL}/?action=download&size=${SIZE_MB}&_=${Date.now()}`, {
+      cache: "no-store",
+      signal: abortRef.current?.signal,
+    });
+    const blob = await res.blob();
+    const elapsed = (performance.now() - t0) / 1000; // секунды
+    const bits = blob.size * 8;
+    const mbps = (bits / elapsed) / 1_000_000;
+    return parseFloat(mbps.toFixed(1));
+  }
+
+  async function measureUpload(): Promise<number> {
+    // Генерируем 4 МБ данных и отправляем POST
+    const SIZE_MB = 4;
+    const data = new Uint8Array(SIZE_MB * 1024 * 1024);
+    crypto.getRandomValues(data.slice(0, Math.min(65536, data.length)));
+    // Заполняем остальное простым паттерном
+    for (let i = 65536; i < data.length; i++) data[i] = i % 256;
+
+    const t0 = performance.now();
+    await fetch(`${SPEED_TEST_URL}/?action=upload&_=${Date.now()}`, {
+      method: "POST",
+      body: data,
+      cache: "no-store",
+      signal: abortRef.current?.signal,
+    });
+    const elapsed = (performance.now() - t0) / 1000;
+    const bits = data.length * 8;
+    const mbps = (bits / elapsed) / 1_000_000;
+    return parseFloat(mbps.toFixed(1));
+  }
+
+  const runTest = useCallback(async () => {
+    if (abortRef.current) abortRef.current.abort();
+    abortRef.current = new AbortController();
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+
+    setResults({ ping: null, download: null, upload: null });
+    currentValueRef.current = 0;
+    setCurrentValue(0);
+    setPhase("ping");
+
+    try {
+      // 1. Ping
+      const pingVal = await measurePing();
+      setResults(r => ({ ...r, ping: pingVal }));
+
+      // 2. Download
+      setPhase("download");
+      currentValueRef.current = 0;
+      setCurrentValue(0);
+
+      // Запускаем анимацию "ожидания" пока качается
+      let dlVal = 0;
+      const dlPromise = measureDownload().then(v => { dlVal = v; });
+
+      // Анимируем стрелку до ~70% предполагаемой скорости, пока ждём результат
+      await new Promise<void>(resolve => {
+        animateTo(300, 3000, resolve);
+      });
+      await dlPromise;
+
+      // Финальная анимация к реальному значению
+      await new Promise<void>(resolve => animateTo(dlVal, 600, resolve));
+      setResults(r => ({ ...r, download: dlVal }));
+
+      // 3. Upload
+      setPhase("upload");
+      currentValueRef.current = 0;
+      setCurrentValue(0);
+
+      let ulVal = 0;
+      const ulPromise = measureUpload().then(v => { ulVal = v; });
+
+      await new Promise<void>(resolve => {
+        animateTo(80, 2500, resolve);
+      });
+      await ulPromise;
+
+      await new Promise<void>(resolve => animateTo(ulVal, 600, resolve));
+      setResults(r => ({ ...r, upload: ulVal }));
+
+      setPhase("done");
+    } catch {
+      setPhase("done");
+    }
+  }, []);
+
+  useEffect(() => () => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    if (abortRef.current) abortRef.current.abort();
+  }, []);
 
   const isRunning = phase === "ping" || phase === "download" || phase === "upload";
   const gaugeMax = phase === "upload" ? UPLOAD_MAX : SCALE_MAX;

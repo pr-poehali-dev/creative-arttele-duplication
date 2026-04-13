@@ -1,0 +1,26 @@
+{
+  "tests": [
+    {
+      "name": "Ping action",
+      "method": "GET",
+      "path": "/?action=ping",
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Download 1MB",
+      "method": "GET",
+      "path": "/?action=download&size=1",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Upload data",
+      "method": "POST",
+      "path": "/?action=upload",
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
