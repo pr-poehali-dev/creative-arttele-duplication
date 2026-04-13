@@ -115,15 +115,16 @@ export default function TariffsPage() {
                         )
                       )}
                     </ul>
-                    <button
-                      className="w-full py-3 rounded-xl font-bold text-sm transition-all"
+                    <Link
+                      to="/contacts"
+                      className="w-full py-3 rounded-xl font-bold text-sm transition-all text-center block"
                       style={t.popular
                         ? { background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))", color: "#0b0e17" }
                         : { border: `1px solid ${c.border}`, color: c.text, background: "transparent" }
                       }
                     >
                       Подключить
-                    </button>
+                    </Link>
                   </div>
                 );
               })}

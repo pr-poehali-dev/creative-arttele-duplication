@@ -308,10 +308,10 @@ export default function Index() {
                       </li>
                     ))}
                   </ul>
-                  <button className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${t.popular ? "text-[#0b0e17] neon-glow-btn" : "border border-white/15 text-white hover:border-[rgba(0,212,255,0.4)] hover:bg-[rgba(0,212,255,0.05)]"}`}
+                  <Link to="/contacts" className={`w-full py-3 rounded-xl font-bold text-sm transition-all text-center block ${t.popular ? "text-[#0b0e17] neon-glow-btn" : "border border-white/15 text-white hover:border-[rgba(0,212,255,0.4)] hover:bg-[rgba(0,212,255,0.05)]"}`}
                     style={t.popular ? { background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" } : {}}>
                     Подключить
-                  </button>
+                  </Link>
                 </div>
               );
             })}
