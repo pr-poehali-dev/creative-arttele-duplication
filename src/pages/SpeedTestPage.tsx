@@ -7,6 +7,7 @@ const SPEED_TEST_URL = "https://functions.poehali.dev/d0fffefe-ed43-400a-a5b8-d5
 
 type Phase = "idle" | "ping" | "download" | "upload" | "done";
 interface Results { ping: number | null; download: number | null; upload: number | null; }
+interface HistoryEntry { ping: number; download: number; upload: number; time: string; }
 
 const CX = 160, CY = 170, R = 130;
 const START_ANGLE = 180; // left
@@ -181,6 +182,9 @@ export default function SpeedTestPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [results, setResults] = useState<Results>({ ping: null, download: null, upload: null });
   const [currentValue, setCurrentValue] = useState(0);
+  const [history, setHistory] = useState<HistoryEntry[]>(() => {
+    try { return JSON.parse(localStorage.getItem("speedtest_history") || "[]"); } catch { return []; }
+  });
   const animRef = useRef<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const currentValueRef = useRef(0);
@@ -220,26 +224,25 @@ export default function SpeedTestPage() {
   }
 
   async function measureDownload(): Promise<number> {
-    // Качаем 8 МБ и меряем реальную скорость
-    const SIZE_MB = 8;
+    // 16 МБ — ~5 секунд на типовом канале
+    const SIZE_MB = 16;
     const t0 = performance.now();
     const res = await fetch(`${SPEED_TEST_URL}/?action=download&size=${SIZE_MB}&_=${Date.now()}`, {
       cache: "no-store",
       signal: abortRef.current?.signal,
     });
     const blob = await res.blob();
-    const elapsed = (performance.now() - t0) / 1000; // секунды
+    const elapsed = (performance.now() - t0) / 1000;
     const bits = blob.size * 8;
     const mbps = (bits / elapsed) / 1_000_000;
     return parseFloat(mbps.toFixed(1));
   }
 
   async function measureUpload(): Promise<number> {
-    // Генерируем 4 МБ данных и отправляем POST
-    const SIZE_MB = 4;
+    // 8 МБ — ~5 секунд на типовом канале
+    const SIZE_MB = 8;
     const data = new Uint8Array(SIZE_MB * 1024 * 1024);
     crypto.getRandomValues(data.slice(0, Math.min(65536, data.length)));
-    // Заполняем остальное простым паттерном
     for (let i = 65536; i < data.length; i++) data[i] = i % 256;
 
     const t0 = performance.now();
@@ -279,9 +282,9 @@ export default function SpeedTestPage() {
       let dlVal = 0;
       const dlPromise = measureDownload().then(v => { dlVal = v; });
 
-      // Анимируем стрелку до ~70% предполагаемой скорости, пока ждём результат
+      // Анимируем стрелку пока качается (~4.5 сек), потом ждём реальный результат
       await new Promise<void>(resolve => {
-        animateTo(300, 3000, resolve);
+        animateTo(300, 4500, resolve);
       });
       await dlPromise;
 
@@ -298,12 +301,25 @@ export default function SpeedTestPage() {
       const ulPromise = measureUpload().then(v => { ulVal = v; });
 
       await new Promise<void>(resolve => {
-        animateTo(80, 2500, resolve);
+        animateTo(80, 4500, resolve);
       });
       await ulPromise;
 
       await new Promise<void>(resolve => animateTo(ulVal, 600, resolve));
       setResults(r => ({ ...r, upload: ulVal }));
+
+      // Сохраняем в историю
+      const entry: HistoryEntry = {
+        ping: pingVal,
+        download: dlVal,
+        upload: ulVal,
+        time: new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" }),
+      };
+      setHistory(prev => {
+        const next = [entry, ...prev].slice(0, 10);
+        try { localStorage.setItem("speedtest_history", JSON.stringify(next)); } catch (_) { /* ignore */ }
+        return next;
+      });
 
       setPhase("done");
     } catch {
@@ -439,6 +455,60 @@ export default function SpeedTestPage() {
               </div>
             ))}
           </div>
+
+          {/* История замеров */}
+          {history.length > 0 && (
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-white/50 text-sm font-semibold">
+                  <Icon name="History" size={14} />
+                  История замеров
+                </div>
+                <button
+                  onClick={() => {
+                    setHistory([]);
+                    try { localStorage.removeItem("speedtest_history"); } catch (_) { /* ignore */ }
+                  }}
+                  className="text-xs text-white/25 hover:text-white/50 transition-colors"
+                >
+                  Очистить
+                </button>
+              </div>
+
+              <div className="glass-card rounded-2xl border border-white/5 overflow-hidden">
+                {/* Шапка */}
+                <div className="grid grid-cols-4 px-4 py-2 border-b border-white/5">
+                  {["Время", "↓ Загрузка", "↑ Отдача", "Пинг"].map(h => (
+                    <div key={h} className="text-white/25 text-xs text-center">{h}</div>
+                  ))}
+                </div>
+
+                {history.map((row, i) => {
+                  const q = quality(row.download);
+                  return (
+                    <div key={i}
+                      className="grid grid-cols-4 px-4 py-3 items-center transition-colors hover:bg-white/[0.02]"
+                      style={{ borderBottom: i < history.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                      <div className="text-white/35 text-xs text-center">{row.time}</div>
+                      <div className="text-center">
+                        <span className="font-montserrat font-bold text-sm" style={{ color: q.color }}>
+                          {row.download >= 1000 ? (row.download / 1000).toFixed(1) + " Гбит/с" : row.download + " Мбит/с"}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <span className="font-montserrat font-bold text-sm text-[#00f57a]">
+                          {row.upload} Мбит/с
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs font-semibold" style={{ color: "#a855f7" }}>{row.ping} мс</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
         </div>
       </div>
