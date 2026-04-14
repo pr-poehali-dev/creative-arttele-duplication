@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
 
@@ -9,6 +9,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,34 +20,10 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "https://lk.arttele.ru/login.php";
-    form.target = "_blank";
-
-    const loginInput = document.createElement("input");
-    loginInput.type = "hidden";
-    loginInput.name = "login";
-    loginInput.value = login;
-    form.appendChild(loginInput);
-
-    const passInput = document.createElement("input");
-    passInput.type = "hidden";
-    passInput.name = "pass";
-    passInput.value = password;
-    form.appendChild(passInput);
-
-    const goInput = document.createElement("input");
-    goInput.type = "hidden";
-    goInput.name = "go";
-    goInput.value = "1";
-    form.appendChild(goInput);
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
-
-    setTimeout(() => setIsLoading(false), 1500);
+    setTimeout(() => {
+      localStorage.setItem("lk_user", JSON.stringify({ login, name: "Иванов И.А.", contract: "12345" }));
+      navigate("/dashboard");
+    }, 800);
   };
 
   return (

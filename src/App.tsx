@@ -18,6 +18,7 @@ import CloudVideoPage from "./pages/CloudVideoPage";
 import CloudCabinetPage from "./pages/CloudCabinetPage";
 import CloudLoginPage from "./pages/CloudLoginPage";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/video/cabinet" element={<CloudCabinetPage />} />
           <Route path="/video/login" element={<CloudLoginPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
