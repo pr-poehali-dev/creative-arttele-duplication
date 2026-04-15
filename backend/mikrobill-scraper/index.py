@@ -32,6 +32,8 @@ def handler(event, context):
         return handle_payments(event, cors)
     elif action == 'ping':
         return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'status': 'ok'})}
+    elif action == 'probe':
+        return handle_probe(event, cors)
     else:
         return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Unknown action'})}
 
@@ -305,3 +307,85 @@ def parse_traffic_page(html):
                     traffic.append(entry)
 
     return traffic[:30]
+
+
+def handle_probe(event, cors):
+    import os
+    api_login = os.environ.get('MIKROBILL_API_LOGIN', 'LK/180888')
+    api_pass = os.environ.get('MIKROBILL_API_PASS', 'ArtTel180888Art!')
+
+    base = "https://lk.arttele.ru/kassa"
+    results = {}
+
+    session = requests.Session()
+    login_resp = session.post(
+        base + '/index.php',
+        data={'chaiserlogin': api_login, 'chaiserpassword': api_pass},
+        timeout=10,
+    )
+    results['login'] = {
+        'status': login_resp.status_code,
+        'url': login_resp.url,
+        'body_len': len(login_resp.text),
+    }
+
+    from bs4 import BeautifulSoup as BS
+    soup = BS(login_resp.text, 'html.parser')
+    title = soup.title.text.strip() if soup.title else ''
+    results['login']['title'] = title
+
+    links = [a.get('href') for a in soup.find_all('a', href=True)][:50]
+    results['login']['links'] = links
+
+    forms = []
+    for form in soup.find_all('form'):
+        inputs = [{'name': i.get('name'), 'type': i.get('type')} for i in form.find_all('input') if i.get('name')]
+        selects = [{'name': s.get('name'), 'options': [o.get_text(strip=True) for o in s.find_all('option')][:5]} for s in form.find_all('select') if s.get('name')]
+        forms.append({'action': form.get('action'), 'method': form.get('method'), 'inputs': inputs, 'selects': selects})
+    results['login']['forms'] = forms
+
+    nav_text = ''
+    for nav in soup.find_all(['nav', 'ul', 'div'], class_=re.compile(r'menu|nav|sidebar', re.I)):
+        nav_text += nav.get_text(' ', strip=True)[:300] + '\n'
+    if nav_text:
+        results['login']['nav'] = nav_text[:1000]
+
+    if 'chaiserlogin' not in login_resp.text:
+        search_urls = [
+            'index.php?do=search&login=89184606969',
+            'index.php?do=users',
+            'index.php?do=user_info&login=89184606969',
+            'index.php?do=abonent&login=89184606969',
+        ]
+        for su in search_urls:
+            try:
+                r = session.get(base + '/' + su, timeout=10)
+                s2 = BS(r.text, 'html.parser')
+                tables = s2.find_all('table')
+                table_data = []
+                for t in tables[:2]:
+                    rows = []
+                    for tr in t.find_all('tr')[:10]:
+                        cells = [td.get_text(strip=True) for td in tr.find_all(['td', 'th'])]
+                        rows.append(cells)
+                    table_data.append(rows)
+                results[su] = {
+                    'status': r.status_code,
+                    'title': s2.title.text.strip() if s2.title else '',
+                    'tables': table_data,
+                    'body_len': len(r.text),
+                }
+            except Exception as e:
+                results[su] = {'error': str(e)}
+
+        try:
+            r = session.get(base + '/api.php?action=get_user&login=89184606969', timeout=10)
+            results['api_after_login'] = {
+                'status': r.status_code,
+                'body_len': len(r.text),
+                'body_preview': r.text[:500],
+            }
+        except Exception as e:
+            results['api_after_login'] = {'error': str(e)}
+
+    return {'statusCode': 200, 'headers': cors, 'body': json.dumps(results, ensure_ascii=False)}
