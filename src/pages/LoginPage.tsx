@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
+import funcUrls from "../../backend/func2url.json";
 
 export default function LoginPage() {
   const [login, setLogin] = useState("");
@@ -11,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!login || !password) {
       setError("Введите логин и пароль");
@@ -20,10 +21,27 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      localStorage.setItem("lk_user", JSON.stringify({ login, name: "Иванов И.А.", contract: "12345" }));
+    try {
+      const resp = await fetch(funcUrls["mikrobill-scraper"] + "?action=auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login, password }),
+      });
+      const data = await resp.json();
+
+      if (!resp.ok || !data.success) {
+        setError(data.error || "Ошибка авторизации");
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("lk_user", JSON.stringify(data.user));
+      localStorage.setItem("lk_creds", btoa(unescape(encodeURIComponent(JSON.stringify({ login, password })))));
       navigate("/dashboard");
-    }, 800);
+    } catch {
+      setError("Ошибка подключения к серверу");
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Ping endpoint",
+      "method": "GET",
+      "path": "/?action=ping",
+      "expectedStatus": 200,
+      "expectedBody": {"status": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Auth missing fields",
+      "method": "POST",
+      "path": "/?action=auth",
+      "body": "{}",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Unknown action",
+      "method": "GET",
+      "path": "/?action=unknown",
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
+import funcUrls from "../../backend/func2url.json";
 
 type TabKey = "main" | "balance" | "tariff" | "stats" | "tickets" | "settings";
 
@@ -18,35 +19,28 @@ const menuItems: { key: TabKey | "logout"; label: string; icon: string }[] = [
   { key: "logout", label: "Выход", icon: "LogOut" },
 ];
 
-const payments = [
-  { date: "01.04.2026", amount: "+650.00 ₽", method: "Банковская карта", status: "Успешно" },
-  { date: "01.03.2026", amount: "+650.00 ₽", method: "Банковская карта", status: "Успешно" },
-  { date: "15.02.2026", amount: "+200.00 ₽", method: "Обещанный платёж", status: "Погашен" },
-  { date: "01.02.2026", amount: "+650.00 ₽", method: "СБП", status: "Успешно" },
-  { date: "01.01.2026", amount: "+650.00 ₽", method: "Банковская карта", status: "Успешно" },
-];
-
-const trafficData = [
-  { date: "07.04.2026", incoming: "12.4 ГБ", outgoing: "3.1 ГБ" },
-  { date: "08.04.2026", incoming: "8.7 ГБ", outgoing: "2.3 ГБ" },
-  { date: "09.04.2026", incoming: "15.2 ГБ", outgoing: "4.8 ГБ" },
-  { date: "10.04.2026", incoming: "6.1 ГБ", outgoing: "1.9 ГБ" },
-  { date: "11.04.2026", incoming: "22.8 ГБ", outgoing: "7.2 ГБ" },
-  { date: "12.04.2026", incoming: "18.3 ГБ", outgoing: "5.6 ГБ" },
-  { date: "13.04.2026", incoming: "9.5 ГБ", outgoing: "2.7 ГБ" },
-];
-
 const tickets = [
   { id: "TK-20241", topic: "Низкая скорость интернета", date: "10.04.2026", status: "В работе" },
   { id: "TK-20198", topic: "Перенос точки подключения", date: "28.03.2026", status: "Решена" },
   { id: "TK-20187", topic: "Настройка роутера", date: "15.03.2026", status: "Решена" },
 ];
 
-const tariffs = [
-  { name: "Старт 100", speed: "100 Мбит/с", price: 390, active: false },
-  { name: "Турбо 500", speed: "500 Мбит/с", price: 650, active: true },
-  { name: "Максимум 1000", speed: "1 Гбит/с", price: 990, active: false },
-];
+interface UserData {
+  login: string;
+  name: string;
+  balance: string;
+  tariff: string;
+  speed: string;
+  status: string;
+  account: string;
+  address: string;
+  phone: string;
+  email: string;
+  credit: string;
+  ip: string;
+  payments?: { date?: string; amount?: string; comment?: string }[];
+  traffic?: { date?: string; incoming?: string; outgoing?: string }[];
+}
 
 function GlassCard({
   children,
@@ -152,7 +146,20 @@ function InputField({
   );
 }
 
-function TabMain() {
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Icon name="Loader2" size={32} className="animate-spin text-[#00d4ff]" />
+    </div>
+  );
+}
+
+function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
+  if (loading) return <LoadingSpinner />;
+
+  const balance = user.balance || "0.00";
+  const isBlocked = user.status?.toLowerCase().includes("блок");
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -166,7 +173,7 @@ function TabMain() {
             </div>
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
-          <p className="text-3xl font-bold text-white font-montserrat mb-3">450.00 ₽</p>
+          <p className="text-3xl font-bold text-white font-montserrat mb-3">{balance} ₽</p>
           <NeonButton variant="blue" className="w-full text-xs py-2">
             <Icon name="Plus" size={14} />
             Пополнить баланс
@@ -183,8 +190,8 @@ function TabMain() {
             </div>
             <span className="text-white/50 text-sm">Тариф</span>
           </div>
-          <p className="text-xl font-bold text-white font-montserrat">Турбо 500</p>
-          <p className="text-white/40 text-sm mt-1">500 Мбит/с / 650 ₽/мес</p>
+          <p className="text-xl font-bold text-white font-montserrat">{user.tariff || "—"}</p>
+          <p className="text-white/40 text-sm mt-1">{user.speed || ""}</p>
           <NeonButton variant="outline" className="w-full text-xs py-2 mt-3">
             <Icon name="ArrowRightLeft" size={14} />
             Сменить тариф
@@ -195,17 +202,24 @@ function TabMain() {
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(0, 245, 122, 0.12)", border: "1px solid rgba(0, 245, 122, 0.2)" }}
+              style={{
+                background: isBlocked ? "rgba(239, 68, 68, 0.12)" : "rgba(0, 245, 122, 0.12)",
+                border: isBlocked ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(0, 245, 122, 0.2)",
+              }}
             >
-              <Icon name="CheckCircle" size={20} style={{ color: "var(--neon-green)" }} />
+              <Icon
+                name={isBlocked ? "XCircle" : "CheckCircle"}
+                size={20}
+                style={{ color: isBlocked ? "#ef4444" : "var(--neon-green)" }}
+              />
             </div>
             <span className="text-white/50 text-sm">Статус</span>
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#00f57a] animate-pulse" />
-            <p className="text-lg font-bold text-white">Активен</p>
+            <span className={`w-2.5 h-2.5 rounded-full ${isBlocked ? "bg-red-500" : "bg-[#00f57a] animate-pulse"}`} />
+            <p className="text-lg font-bold text-white">{user.status || "—"}</p>
           </div>
-          <p className="text-white/40 text-sm">Подключён с 15.03.2023</p>
+          {user.ip && <p className="text-white/40 text-sm">IP: {user.ip}</p>}
         </GlassCard>
 
         <GlassCard className="p-5 card-hover">
@@ -214,12 +228,12 @@ function TabMain() {
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "rgba(168, 85, 247, 0.12)", border: "1px solid rgba(168, 85, 247, 0.2)" }}
             >
-              <Icon name="CalendarClock" size={20} style={{ color: "var(--neon-purple)" }} />
+              <Icon name="CreditCard" size={20} style={{ color: "var(--neon-purple)" }} />
             </div>
-            <span className="text-white/50 text-sm">Следующее списание</span>
+            <span className="text-white/50 text-sm">Кредит</span>
           </div>
-          <p className="text-xl font-bold text-white font-montserrat">01.05.2026</p>
-          <p className="text-white/40 text-sm mt-1">650 ₽</p>
+          <p className="text-xl font-bold text-white font-montserrat">{user.credit || "0.00"} ₽</p>
+          {user.account && <p className="text-white/40 text-sm mt-1">Договор: {user.account}</p>}
         </GlassCard>
       </div>
 
@@ -285,7 +299,12 @@ function TabMain() {
   );
 }
 
-function TabBalance() {
+function TabBalance({ user, payments, loading }: { user: UserData; payments: UserData["payments"]; loading: boolean }) {
+  if (loading) return <LoadingSpinner />;
+
+  const balance = user.balance || "0.00";
+  const payList = payments || [];
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -293,7 +312,7 @@ function TabBalance() {
           <div>
             <p className="text-white/50 text-sm mb-1">Текущий баланс</p>
             <p className="text-5xl font-bold font-montserrat" style={{ color: "var(--neon-blue)" }}>
-              450.00 ₽
+              {balance} ₽
             </p>
           </div>
           <div className="flex gap-3">
@@ -311,50 +330,44 @@ function TabBalance() {
 
       <GlassCard className="p-6">
         <h3 className="text-lg font-bold text-white font-montserrat mb-4">Последние платежи</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <th className="text-left text-white/40 font-medium pb-3 pr-4">Дата</th>
-                <th className="text-left text-white/40 font-medium pb-3 pr-4">Сумма</th>
-                <th className="text-left text-white/40 font-medium pb-3 pr-4 hidden sm:table-cell">Способ</th>
-                <th className="text-left text-white/40 font-medium pb-3">Статус</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((p, i) => (
-                <tr
-                  key={i}
-                  className="border-b last:border-b-0"
-                  style={{ borderColor: "rgba(255,255,255,0.04)" }}
-                >
-                  <td className="py-3 pr-4 text-white/70">{p.date}</td>
-                  <td className="py-3 pr-4 font-semibold" style={{ color: "var(--neon-green)" }}>
-                    {p.amount}
-                  </td>
-                  <td className="py-3 pr-4 text-white/50 hidden sm:table-cell">{p.method}</td>
-                  <td className="py-3">
-                    <span
-                      className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                      style={{
-                        background: "rgba(0, 245, 122, 0.1)",
-                        color: "var(--neon-green)",
-                      }}
-                    >
-                      {p.status}
-                    </span>
-                  </td>
+        {payList.length === 0 ? (
+          <p className="text-white/40 text-sm">Нет данных о платежах</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <th className="text-left text-white/40 font-medium pb-3 pr-4">Дата</th>
+                  <th className="text-left text-white/40 font-medium pb-3 pr-4">Сумма</th>
+                  <th className="text-left text-white/40 font-medium pb-3 hidden sm:table-cell">Комментарий</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {payList.map((p, i) => (
+                  <tr
+                    key={i}
+                    className="border-b last:border-b-0"
+                    style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                  >
+                    <td className="py-3 pr-4 text-white/70">{p.date || "—"}</td>
+                    <td className="py-3 pr-4 font-semibold" style={{ color: "var(--neon-green)" }}>
+                      {p.amount ? `${p.amount} ₽` : "—"}
+                    </td>
+                    <td className="py-3 text-white/50 hidden sm:table-cell">{p.comment || ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </GlassCard>
     </div>
   );
 }
 
-function TabTariff() {
+function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
+  if (loading) return <LoadingSpinner />;
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -367,116 +380,66 @@ function TabTariff() {
             <Icon name="Wifi" size={24} style={{ color: "var(--neon-green)" }} />
           </div>
           <div>
-            <p className="text-xl font-bold text-white">Турбо 500</p>
-            <p className="text-white/40 text-sm">500 Мбит/с / 650 ₽/мес</p>
+            <p className="text-xl font-bold text-white">{user.tariff || "—"}</p>
+            <p className="text-white/40 text-sm">{user.speed || ""}</p>
           </div>
         </div>
       </GlassCard>
 
-      <div>
-        <h3 className="text-lg font-bold text-white font-montserrat mb-4">Доступные тарифы</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {tariffs.map((t) => (
-            <GlassCard
-              key={t.name}
-              className={`p-6 relative overflow-hidden transition-all duration-300 ${
-                t.active ? "" : "card-hover"
-              }`}
-              style={
-                t.active
-                  ? {
-                      background: "linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,245,122,0.06))",
-                      border: "1px solid rgba(0, 212, 255, 0.35)",
-                      boxShadow: "0 0 40px rgba(0, 212, 255, 0.08)",
-                    }
-                  : undefined
-              }
-            >
-              {t.active && (
-                <div
-                  className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold"
-                  style={{
-                    background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))",
-                    color: "#0b0e17",
-                  }}
-                >
-                  Текущий
-                </div>
-              )}
-              <div className="mb-4">
-                <p className="text-xl font-bold text-white font-montserrat">{t.name}</p>
-                <p className="text-white/40 text-sm mt-1">{t.speed}</p>
-              </div>
-              <p className="text-3xl font-bold font-montserrat mb-1" style={{ color: t.active ? "var(--neon-blue)" : "white" }}>
-                {t.price} ₽
-              </p>
-              <p className="text-white/40 text-sm mb-5">в месяц</p>
-              {t.active ? (
-                <div className="flex items-center gap-2 text-sm" style={{ color: "var(--neon-green)" }}>
-                  <Icon name="CheckCircle" size={16} />
-                  Подключён
-                </div>
-              ) : (
-                <NeonButton variant="outline" className="w-full">
-                  Подключить
-                </NeonButton>
-              )}
-            </GlassCard>
-          ))}
-        </div>
-      </div>
+      {user.address && (
+        <GlassCard className="p-6">
+          <h3 className="text-lg font-bold text-white font-montserrat mb-3">Адрес подключения</h3>
+          <p className="text-white/70">{user.address}</p>
+        </GlassCard>
+      )}
     </div>
   );
 }
 
-function TabStats() {
-  const totalIn = "93.0 ГБ";
-  const totalOut = "27.6 ГБ";
+function TabStats({ traffic, loading }: { traffic: UserData["traffic"]; loading: boolean }) {
+  if (loading) return <LoadingSpinner />;
+
+  const trafficList = traffic || [];
 
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
         <h3 className="text-lg font-bold text-white font-montserrat mb-4 flex items-center gap-2">
           <Icon name="BarChart3" size={20} style={{ color: "var(--neon-blue)" }} />
-          Трафик за последние 7 дней
+          Статистика трафика
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <th className="text-left text-white/40 font-medium pb-3 pr-4">Дата</th>
-                <th className="text-left text-white/40 font-medium pb-3 pr-4">Входящий</th>
-                <th className="text-left text-white/40 font-medium pb-3">Исходящий</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trafficData.map((row, i) => (
-                <tr
-                  key={i}
-                  className="border-b last:border-b-0"
-                  style={{ borderColor: "rgba(255,255,255,0.04)" }}
-                >
-                  <td className="py-3 pr-4 text-white/70">{row.date}</td>
-                  <td className="py-3 pr-4 font-semibold" style={{ color: "var(--neon-blue)" }}>
-                    {row.incoming}
-                  </td>
-                  <td className="py-3 font-semibold" style={{ color: "var(--neon-green)" }}>
-                    {row.outgoing}
-                  </td>
+        {trafficList.length === 0 ? (
+          <p className="text-white/40 text-sm">Нет данных о трафике</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <th className="text-left text-white/40 font-medium pb-3 pr-4">Дата</th>
+                  <th className="text-left text-white/40 font-medium pb-3 pr-4">Входящий</th>
+                  <th className="text-left text-white/40 font-medium pb-3">Исходящий</th>
                 </tr>
-              ))}
-              <tr className="border-t-2" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
-                <td className="py-3 pr-4 text-white font-bold">Итого</td>
-                <td className="py-3 pr-4 font-bold" style={{ color: "var(--neon-blue)" }}>
-                  {totalIn}
-                </td>
-                <td className="py-3 font-bold" style={{ color: "var(--neon-green)" }}>
-                  {totalOut}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {trafficList.map((row, i) => (
+                  <tr
+                    key={i}
+                    className="border-b last:border-b-0"
+                    style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                  >
+                    <td className="py-3 pr-4 text-white/70">{row.date || "—"}</td>
+                    <td className="py-3 pr-4 font-semibold" style={{ color: "var(--neon-blue)" }}>
+                      {row.incoming || "—"}
+                    </td>
+                    <td className="py-3 font-semibold" style={{ color: "var(--neon-green)" }}>
+                      {row.outgoing || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </GlassCard>
     </div>
   );
@@ -571,12 +534,12 @@ function TabTickets() {
   );
 }
 
-function TabSettings() {
+function TabSettings({ user }: { user: UserData }) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
-  const [phone, setPhone] = useState("+7 (900) 123-45-67");
-  const [email, setEmail] = useState("ivanov@mail.ru");
+  const [phone, setPhone] = useState(user.phone || "");
+  const [email, setEmail] = useState(user.email || "");
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -651,9 +614,51 @@ function TabSettings() {
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabKey>("main");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const credsStr = localStorage.getItem("lk_creds");
+    if (!credsStr) {
+      navigate("/login");
+      return;
+    }
+
+    let creds: { login: string; password: string };
+    try {
+      creds = JSON.parse(decodeURIComponent(escape(atob(credsStr))));
+    } catch {
+      navigate("/login");
+      return;
+    }
+
+    const url = funcUrls["mikrobill-scraper"];
+    fetch(`${url}?action=user_info&login=${encodeURIComponent(creds.login)}&password=${encodeURIComponent(creds.password)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setUserData(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, [navigate]);
+
+  const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":""}');
+
+  const handleLogout = () => {
+    localStorage.removeItem("lk_user");
+    localStorage.removeItem("lk_creds");
+    navigate("/login");
+  };
 
   const handleMenuClick = (key: TabKey | "logout") => {
-    if (key === "logout") return;
+    if (key === "logout") {
+      handleLogout();
+      return;
+    }
     setActiveTab(key);
     setSidebarOpen(false);
   };
@@ -699,8 +704,8 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
-            <p className="text-white text-sm font-semibold">Иванов И.А.</p>
-            <p className="text-white/40 text-xs">Договор №12345</p>
+            <p className="text-white text-sm font-semibold">{user.name || "Абонент"}</p>
+            <p className="text-white/40 text-xs">{user.account ? `Договор №${user.account}` : user.login}</p>
           </div>
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center"
@@ -708,13 +713,13 @@ export default function DashboardPage() {
           >
             <Icon name="User" size={18} style={{ color: "var(--neon-blue)" }} />
           </div>
-          <Link
-            to="/login"
+          <button
+            onClick={handleLogout}
             className="hidden sm:flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm transition-colors"
           >
             <Icon name="LogOut" size={16} />
             <span>Выйти</span>
-          </Link>
+          </button>
         </div>
       </header>
 
@@ -739,15 +744,15 @@ export default function DashboardPage() {
           {menuItems.map((item) => {
             if (item.key === "logout") {
               return (
-                <Link
+                <button
                   key={item.key}
-                  to="/login"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 text-white/40 hover:text-white/70 hover:bg-white/[0.03] mt-4 border-t pt-5"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 text-white/40 hover:text-white/70 hover:bg-white/[0.03] mt-4 border-t pt-5"
                   style={{ borderColor: "rgba(255,255,255,0.06)" }}
                 >
                   <Icon name={item.icon} size={20} />
                   <span>{item.label}</span>
-                </Link>
+                </button>
               );
             }
 
@@ -792,8 +797,8 @@ export default function DashboardPage() {
               <Icon name="User" size={16} style={{ color: "var(--neon-blue)" }} />
             </div>
             <div className="min-w-0">
-              <p className="text-white text-sm font-semibold truncate">Иванов И.А.</p>
-              <p className="text-white/40 text-xs truncate">Договор №12345</p>
+              <p className="text-white text-sm font-semibold truncate">{user.name || "Абонент"}</p>
+              <p className="text-white/40 text-xs truncate">{user.account ? `Договор №${user.account}` : user.login}</p>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-white/30 text-xs">
@@ -819,12 +824,12 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {activeTab === "main" && <TabMain />}
-          {activeTab === "balance" && <TabBalance />}
-          {activeTab === "tariff" && <TabTariff />}
-          {activeTab === "stats" && <TabStats />}
+          {activeTab === "main" && <TabMain user={user} loading={loading} />}
+          {activeTab === "balance" && <TabBalance user={user} payments={userData?.payments} loading={loading} />}
+          {activeTab === "tariff" && <TabTariff user={user} loading={loading} />}
+          {activeTab === "stats" && <TabStats traffic={userData?.traffic} loading={loading} />}
           {activeTab === "tickets" && <TabTickets />}
-          {activeTab === "settings" && <TabSettings />}
+          {activeTab === "settings" && <TabSettings user={user} />}
         </div>
       </main>
     </div>
