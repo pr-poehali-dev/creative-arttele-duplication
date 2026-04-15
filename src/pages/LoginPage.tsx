@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
+import funcUrls from "../../backend/func2url.json";
+
+const PROXY_URL = funcUrls["mikrobill-proxy"];
 
 export default function LoginPage() {
   const [login, setLogin] = useState("");
@@ -11,7 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!login || !password) {
       setError("Введите логин и пароль");
@@ -20,10 +23,38 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      localStorage.setItem("lk_user", JSON.stringify({ login, name: "Иванов И.А.", contract: "12345" }));
+    try {
+      const resp = await fetch(`${PROXY_URL}?action=auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ login, password }),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        setError(data.error || "Неверный логин или пароль");
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("lk_token", data.token);
+      localStorage.setItem(
+        "lk_user",
+        JSON.stringify({
+          login: data.user?.login || login,
+          name: data.user?.fio || login,
+          contract: data.user?.account || "",
+          deposit: data.user?.deposit || 0,
+          credit: data.user?.credit || 0,
+          blocked: data.user?.blocked || 0,
+        })
+      );
       navigate("/dashboard");
-    }, 800);
+    } catch {
+      setError("Ошибка подключения к серверу");
+      setIsLoading(false);
+    }
   };
 
   return (
