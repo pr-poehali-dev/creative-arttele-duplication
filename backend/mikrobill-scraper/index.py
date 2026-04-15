@@ -41,23 +41,26 @@ def login_session(login, password):
     print(f"[LOGIN] Attempting login with: '{login}'")
     resp = session.post(
         f"{LK_URL}/login.php",
-        data={'login': login, 'pass': password},
+        data={'login': login, 'pass': password, 'go': ''},
         timeout=15,
+        allow_redirects=False,
     )
+    print(f"[LOGIN] Step1: status={resp.status_code}, location={resp.headers.get('Location', 'none')}")
+
+    if resp.status_code in (301, 302):
+        redirect_url = resp.headers.get('Location', '')
+        resp = session.post(
+            redirect_url,
+            data={'login': login, 'pass': password, 'go': ''},
+            timeout=15,
+        )
+
     resp.encoding = 'utf-8'
+    title_match = re.search(r'<title>(.*?)</title>', resp.text)
+    title = title_match.group(1) if title_match else ''
+    print(f"[LOGIN] Final title: '{title}', url: {resp.url}")
 
-    title = ''
-    import re as _re
-    title_match = _re.search(r'<title>(.*?)</title>', resp.text)
-    if title_match:
-        title = title_match.group(1)
-    print(f"[LOGIN] Response title: '{title}', status: {resp.status_code}, url: {resp.url}")
-
-    has_auth = 'Авторизация' in resp.text
-    has_pass = 'name="pass"' in resp.text
-    print(f"[LOGIN] has_auth={has_auth}, has_pass={has_pass}")
-
-    if has_auth and has_pass:
+    if 'name="pass"' in resp.text:
         return None, None
 
     return session, resp.text
