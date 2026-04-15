@@ -228,12 +228,16 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "rgba(168, 85, 247, 0.12)", border: "1px solid rgba(168, 85, 247, 0.2)" }}
             >
-              <Icon name="CreditCard" size={20} style={{ color: "var(--neon-purple)" }} />
+              <Icon name="CalendarClock" size={20} style={{ color: "var(--neon-purple)" }} />
             </div>
-            <span className="text-white/50 text-sm">Кредит</span>
+            <span className="text-white/50 text-sm">Следующее списание</span>
           </div>
-          <p className="text-xl font-bold text-white font-montserrat">{user.credit || "0.00"} ₽</p>
-          {user.account && <p className="text-white/40 text-sm mt-1">Договор: {user.account}</p>}
+          <p className="text-xl font-bold text-white font-montserrat">01.05.2026</p>
+          {user.credit ? (
+            <p className="text-white/40 text-sm mt-1">Кредит: {user.credit} ₽</p>
+          ) : (
+            <p className="text-white/40 text-sm mt-1">{user.account ? `Договор: ${user.account}` : ""}</p>
+          )}
         </GlassCard>
       </div>
 
@@ -368,6 +372,12 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
 function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
   if (loading) return <LoadingSpinner />;
 
+  const tariffs = [
+    { name: "Старт 100", speed: "100 Мбит/с", price: 390 },
+    { name: "Турбо 500", speed: "500 Мбит/с", price: 650 },
+    { name: "Максимум 1000", speed: "1 Гбит/с", price: 990 },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -392,6 +402,60 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
           <p className="text-white/70">{user.address}</p>
         </GlassCard>
       )}
+
+      <div>
+        <h3 className="text-lg font-bold text-white font-montserrat mb-4">Доступные тарифы</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {tariffs.map((t) => {
+            const isActive = user.tariff?.toLowerCase().includes(t.name.split(" ")[0].toLowerCase());
+            return (
+              <GlassCard
+                key={t.name}
+                className={`p-6 relative overflow-hidden transition-all duration-300 ${isActive ? "" : "card-hover"}`}
+                style={
+                  isActive
+                    ? {
+                        background: "linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,245,122,0.06))",
+                        border: "1px solid rgba(0, 212, 255, 0.35)",
+                        boxShadow: "0 0 40px rgba(0, 212, 255, 0.08)",
+                      }
+                    : undefined
+                }
+              >
+                {isActive && (
+                  <div
+                    className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold"
+                    style={{
+                      background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))",
+                      color: "#0b0e17",
+                    }}
+                  >
+                    Текущий
+                  </div>
+                )}
+                <div className="mb-4">
+                  <p className="text-xl font-bold text-white font-montserrat">{t.name}</p>
+                  <p className="text-white/40 text-sm mt-1">{t.speed}</p>
+                </div>
+                <p className="text-3xl font-bold font-montserrat mb-1" style={{ color: isActive ? "var(--neon-blue)" : "white" }}>
+                  {t.price} ₽
+                </p>
+                <p className="text-white/40 text-sm mb-5">в месяц</p>
+                {isActive ? (
+                  <div className="flex items-center gap-2 text-sm" style={{ color: "var(--neon-green)" }}>
+                    <Icon name="CheckCircle" size={16} />
+                    Подключён
+                  </div>
+                ) : (
+                  <NeonButton variant="outline" className="w-full">
+                    Подключить
+                  </NeonButton>
+                )}
+              </GlassCard>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
