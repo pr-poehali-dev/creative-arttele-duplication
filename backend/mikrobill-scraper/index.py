@@ -1,13 +1,15 @@
 import json
+import re
 import requests
 from bs4 import BeautifulSoup
-import re
 
-LK_URL = "http://lk.arttele.ru"
+KASSA_URL = "https://lk.arttele.ru/kassa"
+KASSA_LOGIN = "LK/180888"
+KASSA_PASS = "ArtTel180888Art!"
 
 
 def handler(event, context):
-    """Парсер личного кабинета MikroBill"""
+    """API личного кабинета АртТелеком через MikroBill"""
     if event.get('httpMethod') == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -28,44 +30,129 @@ def handler(event, context):
         return handle_auth(event, cors)
     elif action == 'user_info':
         return handle_user_info(event, cors)
-    elif action == 'payments':
-        return handle_payments(event, cors)
     elif action == 'ping':
         return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'status': 'ok'})}
-    elif action == 'probe':
-        return handle_probe(event, cors)
     else:
         return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Unknown action'})}
 
 
-def login_session(login, password):
-    session = requests.Session()
-    print(f"[LOGIN] Attempting login with: '{login}'")
-    resp = session.post(
-        f"{LK_URL}/login.php",
-        data={'login': login, 'pass': password, 'go': ''},
-        timeout=15,
-        allow_redirects=False,
+def kassa_session():
+    s = requests.Session()
+    s.post(
+        KASSA_URL + '/index.php',
+        data={'chaiserlogin': KASSA_LOGIN, 'chaiserpassword': KASSA_PASS},
+        timeout=10,
     )
-    print(f"[LOGIN] Step1: status={resp.status_code}, location={resp.headers.get('Location', 'none')}")
+    return s
 
-    if resp.status_code in (301, 302):
-        redirect_url = resp.headers.get('Location', '')
-        resp = session.post(
-            redirect_url,
-            data={'login': login, 'pass': password, 'go': ''},
-            timeout=15,
-        )
 
-    resp.encoding = 'utf-8'
-    title_match = re.search(r'<title>(.*?)</title>', resp.text)
-    title = title_match.group(1) if title_match else ''
-    print(f"[LOGIN] Final title: '{title}', url: {resp.url}")
+def kassa_find_user(session, login):
+    r = session.get(
+        KASSA_URL + '/api.php?action=finduser2&value=' + requests.utils.quote(login),
+        timeout=10,
+    )
+    r.encoding = 'utf-8'
+    text = r.text.strip()
+    if not text or '||' not in text:
+        return None
+    parts = text.split('||')
+    return {
+        'uid': parts[0] if len(parts) > 0 else '',
+        'name': parts[1] if len(parts) > 1 else '',
+        'tariff': parts[2] if len(parts) > 2 else '',
+        'balance': parts[3] if len(parts) > 3 else '',
+        'ip': parts[4] if len(parts) > 4 else '',
+        'active': parts[5] if len(parts) > 5 else '',
+    }
 
-    if 'name="pass"' in resp.text:
-        return None, None
 
-    return session, resp.text
+def kassa_get_user_info(session, login):
+    r = session.get(
+        KASSA_URL + '/api.php?action=GET_USER_INFO&value=' + requests.utils.quote(login) + '&value2=1',
+        timeout=10,
+    )
+    r.encoding = 'utf-8'
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    data = {}
+    for tr in soup.find_all('tr'):
+        tds = tr.find_all('td')
+        i = 0
+        while i < len(tds) - 1:
+            label = tds[i].get_text(strip=True).rstrip(':').lower()
+            value = tds[i + 1].get_text(strip=True)
+            if label and value:
+                data[label] = value
+            i += 2
+
+    return data
+
+
+def kassa_get_payments(session, login):
+    r = session.get(
+        KASSA_URL + '/usrstat.php?client=' + requests.utils.quote(login),
+        timeout=10,
+    )
+    r.encoding = 'utf-8'
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    payments = []
+    for table in soup.find_all('table'):
+        header_row = table.find('tr')
+        if not header_row:
+            continue
+        headers = [th.get_text(strip=True).lower() for th in header_row.find_all(['th', 'td'])]
+        if not any('дата' in h or 'сумма' in h or 'платеж' in h or 'оплат' in h for h in headers):
+            continue
+        for tr in table.find_all('tr')[1:]:
+            cells = [td.get_text(strip=True) for td in tr.find_all('td')]
+            if len(cells) >= 2:
+                payment = {}
+                for j, cell in enumerate(cells):
+                    date_match = re.search(r'\d{2}[./]\d{2}[./]\d{2,4}', cell)
+                    sum_match = re.search(r'(-?\+?\d+[.,]?\d*)', cell)
+                    if date_match and 'date' not in payment:
+                        payment['date'] = date_match.group(0)
+                    elif sum_match and 'amount' not in payment and j > 0:
+                        payment['amount'] = sum_match.group(1).replace(',', '.')
+                    elif cell and 'comment' not in payment and not date_match:
+                        payment['comment'] = cell
+                if payment.get('date') or payment.get('amount'):
+                    payments.append(payment)
+
+    return payments[:50]
+
+
+def build_user_data(login, found, info):
+    speed = ''
+    tariff = found.get('tariff', '') or info.get('тариф', '')
+    speed_match = re.search(r'(\d+)', tariff)
+    if speed_match:
+        speed = speed_match.group(1) + ' Мбит/с'
+
+    is_active = found.get('active', '') == '1'
+
+    balance_raw = found.get('balance', '') or info.get('баланс', '')
+    balance = re.search(r'(-?\d+[.,]?\d*)', balance_raw)
+    balance_val = balance.group(1).replace(',', '.') if balance else '0'
+
+    return {
+        'login': login,
+        'name': info.get('фио', found.get('name', '')),
+        'balance': balance_val,
+        'tariff': tariff,
+        'speed': speed,
+        'status': 'Активен' if is_active else 'Заблокирован',
+        'account': info.get('договор', ''),
+        'address': info.get('адрес', ''),
+        'phone': info.get('телефон', ''),
+        'email': info.get('e-mail', ''),
+        'ip': found.get('ip', '') or info.get('ip', ''),
+        'mac': info.get('mac', ''),
+        'group': info.get('группа', ''),
+        'credit': info.get('обещ. плат.', ''),
+        'work_until': info.get('работает до', ''),
+    }
 
 
 def handle_auth(event, cors):
@@ -74,279 +161,75 @@ def handle_auth(event, cors):
     except Exception:
         body = {}
 
-    login = body.get('login', '')
-    password = body.get('password', '')
+    login = body.get('login', '').strip()
+    password = body.get('password', '').strip()
 
     if not login or not password:
         return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Введите логин и пароль'})}
 
-    session, html = login_session(login, password)
-    if not session:
+    session = kassa_session()
+
+    found = kassa_find_user(session, login)
+    if not found:
+        return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Абонент не найден'})}
+
+    lk_session = requests.Session()
+    lk_resp = lk_session.post(
+        'http://lk.arttele.ru/login.php',
+        data={'login': login, 'pass': password, 'go': ''},
+        allow_redirects=False,
+        timeout=15,
+    )
+    if lk_resp.status_code in (301, 302):
+        redirect_url = lk_resp.headers.get('Location', '')
+        lk_resp = lk_session.post(
+            redirect_url,
+            data={'login': login, 'pass': password, 'go': ''},
+            timeout=15,
+        )
+    lk_resp.encoding = 'utf-8'
+    if 'name="pass"' in lk_resp.text:
         return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Неверный логин или пароль'})}
 
-    data = parse_main_page(html)
-    data['login'] = login
+    info = kassa_get_user_info(session, login)
+    user = build_user_data(login, found, info)
 
-    return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'success': True, 'user': data}, ensure_ascii=False)}
+    return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'success': True, 'user': user}, ensure_ascii=False)}
 
 
 def handle_user_info(event, cors):
     params = event.get('queryStringParameters') or {}
-    login = params.get('login', '')
-    password = params.get('password', '')
+    login = params.get('login', '').strip()
+    password = params.get('password', '').strip()
 
     if not login or not password:
         return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Missing credentials'})}
 
-    session, html = login_session(login, password)
-    if not session:
-        return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Auth failed'})}
-
-    data = parse_main_page(html)
-    data['login'] = login
-
-    try:
-        pay_resp = session.get(f"{LK_URL}/index.php?pay", timeout=10)
-        pay_resp.encoding = 'utf-8'
-        data['payments'] = parse_payments_page(pay_resp.text)
-    except Exception:
-        data['payments'] = []
-
-    try:
-        stat_resp = session.get(f"{LK_URL}/index.php?stat", timeout=10)
-        stat_resp.encoding = 'utf-8'
-        data['traffic'] = parse_traffic_page(stat_resp.text)
-    except Exception:
-        data['traffic'] = []
-
-    return {'statusCode': 200, 'headers': cors, 'body': json.dumps(data, ensure_ascii=False)}
-
-
-def handle_payments(event, cors):
-    params = event.get('queryStringParameters') or {}
-    login = params.get('login', '')
-    password = params.get('password', '')
-
-    if not login or not password:
-        return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Missing credentials'})}
-
-    session, html = login_session(login, password)
-    if not session:
-        return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Auth failed'})}
-
-    try:
-        pay_resp = session.get(f"{LK_URL}/index.php?pay", timeout=10)
-        pay_resp.encoding = 'utf-8'
-        payments = parse_payments_page(pay_resp.text)
-    except Exception:
-        payments = []
-
-    return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'payments': payments}, ensure_ascii=False)}
-
-
-def parse_main_page(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    data = {
-        'name': '',
-        'balance': '',
-        'tariff': '',
-        'speed': '',
-        'status': '',
-        'account': '',
-        'address': '',
-        'phone': '',
-        'email': '',
-        'credit': '',
-        'ip': '',
-    }
-
-    text = soup.get_text(' ', strip=True)
-
-    for tr in soup.find_all('tr'):
-        tds = tr.find_all(['td', 'th'])
-        if len(tds) >= 2:
-            label = tds[0].get_text(strip=True).lower()
-            value = tds[1].get_text(strip=True)
-
-            if any(w in label for w in ['баланс', 'депозит', 'deposit']):
-                bal = re.search(r'(-?\d+[.,]\d{2})', value)
-                if bal:
-                    data['balance'] = bal.group(1).replace(',', '.')
-            elif any(w in label for w in ['тариф', 'tarif']):
-                data['tariff'] = value
-            elif any(w in label for w in ['фио', 'абонент', 'имя', 'name']):
-                data['name'] = value
-            elif any(w in label for w in ['договор', 'аккаунт', 'account', 'лицевой', '№']):
-                data['account'] = value
-            elif any(w in label for w in ['статус', 'status']):
-                data['status'] = value
-            elif any(w in label for w in ['адрес', 'address']):
-                data['address'] = value
-            elif any(w in label for w in ['скорость', 'speed']):
-                data['speed'] = value
-            elif any(w in label for w in ['телефон', 'phone']):
-                data['phone'] = value
-            elif any(w in label for w in ['кредит', 'credit']):
-                data['credit'] = value
-            elif 'ip' == label.strip():
-                data['ip'] = value
-
-    for div in soup.find_all('div', class_=re.compile(r'item|row|field|info|param|line', re.I)):
-        div_text = div.get_text(' ', strip=True)
-        for key, patterns in [
-            ('balance', ['баланс', 'депозит']),
-            ('tariff', ['тариф']),
-            ('name', ['фио', 'абонент']),
-            ('account', ['договор', 'аккаунт', 'лицевой']),
-            ('status', ['статус']),
-            ('address', ['адрес']),
-            ('speed', ['скорость']),
-            ('phone', ['телефон']),
-        ]:
-            if any(p in div_text.lower() for p in patterns):
-                parts = re.split(r'[:\s]{2,}', div_text, maxsplit=1)
-                if len(parts) == 2 and not data[key]:
-                    data[key] = parts[1].strip()
-
-    if not data['balance']:
-        bal_match = re.search(r'(?:Баланс|Депозит|Счёт|Счет)[:\s]*(-?\d+[.,]\d{2})', text, re.I)
-        if bal_match:
-            data['balance'] = bal_match.group(1).replace(',', '.')
-
-    if not data['tariff']:
-        tarif_match = re.search(r'(?:Тариф|Тарифный план)[:\s]*([^\n\r]+?)(?:\s{2,}|$)', text)
-        if tarif_match:
-            data['tariff'] = tarif_match.group(1).strip()
-
-    if not data['speed']:
-        speed_match = re.search(r'(\d+)\s*(?:Мбит|мбит|Mbps|Mbit)', text)
-        if speed_match:
-            data['speed'] = speed_match.group(1) + ' Мбит/с'
-
-    if not data['status']:
-        if re.search(r'(?:Активен|Активный|Active)', text, re.I):
-            data['status'] = 'Активен'
-        elif re.search(r'(?:Заблокирован|Blocked|Блокировка)', text, re.I):
-            data['status'] = 'Заблокирован'
-
-    if not data['name']:
-        fio_match = re.search(r'(?:ФИО|Абонент)[:\s]*([А-ЯЁа-яё\s\.\-]+?)(?:\s{2,}|\n|$)', text)
-        if fio_match:
-            data['name'] = fio_match.group(1).strip()
-
-    if not data['account']:
-        acc_match = re.search(r'(?:Договор|Аккаунт|Лицевой счёт|Лицевой счет)[:\s]*(\S+)', text)
-        if acc_match:
-            data['account'] = acc_match.group(1).strip()
-
-    if not data['ip']:
-        ip_match = re.search(r'(?:IP)[:\s]*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', text)
-        if ip_match:
-            data['ip'] = ip_match.group(1)
-
-    if not data['email']:
-        email_match = re.search(r'[\w\.\-]+@[\w\.\-]+\.\w+', text)
-        if email_match:
-            data['email'] = email_match.group(0)
-
-    return data
-
-
-def parse_payments_page(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    payments = []
-
-    for table in soup.find_all('table'):
-        rows = table.find_all('tr')
-        for row in rows[1:]:
-            tds = row.find_all('td')
-            if len(tds) >= 2:
-                payment = {}
-                for td in tds:
-                    val = td.get_text(strip=True)
-                    date_match = re.search(r'\d{2}[./]\d{2}[./]\d{2,4}', val)
-                    sum_match = re.search(r'(-?\+?\d+[.,]\d{2})', val)
-
-                    if date_match and 'date' not in payment:
-                        payment['date'] = date_match.group(0)
-                    elif sum_match and 'amount' not in payment:
-                        payment['amount'] = sum_match.group(1).replace(',', '.')
-                    elif val and 'comment' not in payment and not date_match and not sum_match:
-                        payment['comment'] = val
-
-                if payment.get('date') or payment.get('amount'):
-                    payments.append(payment)
-
-    return payments[:50]
-
-
-def parse_traffic_page(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    traffic = []
-
-    for table in soup.find_all('table'):
-        rows = table.find_all('tr')
-        for row in rows[1:]:
-            tds = row.find_all('td')
-            if len(tds) >= 2:
-                entry = {}
-                for td in tds:
-                    val = td.get_text(strip=True)
-                    date_match = re.search(r'\d{2}[./]\d{2}[./]\d{2,4}', val)
-                    size_match = re.search(r'([\d.,]+)\s*(ГБ|МБ|GB|MB|КБ|KB)', val, re.I)
-
-                    if date_match and 'date' not in entry:
-                        entry['date'] = date_match.group(0)
-                    elif size_match:
-                        if 'incoming' not in entry:
-                            entry['incoming'] = val
-                        elif 'outgoing' not in entry:
-                            entry['outgoing'] = val
-
-                if entry.get('date'):
-                    traffic.append(entry)
-
-    return traffic[:30]
-
-
-def kassa_session():
-    s = requests.Session()
-    s.post(
-        'https://lk.arttele.ru/kassa/index.php',
-        data={'chaiserlogin': 'LK/180888', 'chaiserpassword': 'ArtTel180888Art!'},
-        timeout=10,
+    lk_session = requests.Session()
+    lk_resp = lk_session.post(
+        'http://lk.arttele.ru/login.php',
+        data={'login': login, 'pass': password, 'go': ''},
+        allow_redirects=False,
+        timeout=15,
     )
-    return s
+    if lk_resp.status_code in (301, 302):
+        redirect_url = lk_resp.headers.get('Location', '')
+        lk_resp = lk_session.post(
+            redirect_url,
+            data={'login': login, 'pass': password, 'go': ''},
+            timeout=15,
+        )
+    lk_resp.encoding = 'utf-8'
+    if 'name="pass"' in lk_resp.text:
+        return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Auth failed'})}
 
-
-def handle_probe(event, cors):
-    base = "https://lk.arttele.ru/kassa"
-    results = {}
     session = kassa_session()
+    found = kassa_find_user(session, login)
+    if not found:
+        return {'statusCode': 404, 'headers': cors, 'body': json.dumps({'error': 'User not found'})}
 
-    r = session.get(base + '/api.php?api2&stock', timeout=10)
-    j = json.loads(r.text)
-    stock = j.get('stock', {})
-    results['stock_keys'] = list(stock.keys())
+    info = kassa_get_user_info(session, login)
+    user = build_user_data(login, found, info)
+    user['payments'] = kassa_get_payments(session, login)
 
-    for k, v in stock.items():
-        if isinstance(v, list) and len(v) > 0:
-            results[f'stock.{k}'] = {'count': len(v), 'first_item': v[0] if len(str(v[0])) < 500 else str(v[0])[:500]}
-        elif isinstance(v, dict):
-            results[f'stock.{k}'] = {'keys': list(v.keys())[:20], 'preview': str(v)[:300]}
-        else:
-            results[f'stock.{k}'] = str(v)[:200]
-
-    r2 = session.get(base + '/api.php?api2&stock&search=89184606969', timeout=10)
-    j2 = json.loads(r2.text)
-    stock2 = j2.get('stock', {})
-    results['search_result_keys'] = list(stock2.keys())
-    results['search_val'] = stock2.get('search', '')
-    for k, v in stock2.items():
-        if isinstance(v, list) and len(v) > 0:
-            results[f'search.{k}'] = {'count': len(v), 'first_item': v[0] if len(str(v[0])) < 500 else str(v[0])[:500]}
-
-    r3 = session.get(base + '/api.php?api2&tree', timeout=10)
-    results['tree'] = r3.json()
-
-    return {'statusCode': 200, 'headers': cors, 'body': json.dumps(results, ensure_ascii=False)}
+    return {'statusCode': 200, 'headers': cors, 'body': json.dumps(user, ensure_ascii=False)}
