@@ -851,6 +851,37 @@ export default function DashboardPage() {
     <div className="min-h-screen relative" style={{ background: "var(--dark-bg)" }}>
       <PageBackground />
 
+      <div className="fixed inset-0 -z-[5] overflow-hidden pointer-events-none">
+        <div
+          className="absolute w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.07]"
+          style={{
+            background: "var(--neon-blue)",
+            top: "10%",
+            left: "-5%",
+            animation: "dashPulse1 8s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute w-[500px] h-[500px] rounded-full blur-[140px] opacity-[0.06]"
+          style={{
+            background: "var(--neon-green)",
+            bottom: "5%",
+            right: "-5%",
+            animation: "dashPulse2 10s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute w-[400px] h-[400px] rounded-full blur-[120px] opacity-[0.04]"
+          style={{
+            background: "var(--neon-purple)",
+            top: "50%",
+            left: "40%",
+            transform: "translate(-50%, -50%)",
+            animation: "dashPulse3 12s ease-in-out infinite",
+          }}
+        />
+      </div>
+
       <header
         className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-4 md:px-6 backdrop-blur-xl"
         style={{
