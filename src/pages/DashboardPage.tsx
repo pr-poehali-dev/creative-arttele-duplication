@@ -164,13 +164,11 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
   const balance = user.balance || "0.00";
   const isBlocked = user.status?.toLowerCase().includes("блок");
 
-  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
-
   const quickActions = [
-    { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: openMikrobill },
+    { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: () => onChangeTab("balance") },
     { icon: "Headphones", label: "Тех. поддержка", color: "var(--neon-green)", action: () => onChangeTab("tickets") },
     { icon: "ArrowRightLeft", label: "Сменить тариф", color: "var(--neon-purple)", action: () => onChangeTab("tariff") },
-    { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b", action: openMikrobill },
+    { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b", action: () => onChangeTab("balance") },
   ];
 
   return (
@@ -187,7 +185,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
           <p className="text-3xl font-bold text-white font-montserrat mb-3">{balance} ₽</p>
-          <NeonButton variant="blue" className="w-full text-xs py-2" onClick={openMikrobill}>
+          <NeonButton variant="blue" className="w-full text-xs py-2" onClick={() => onChangeTab("balance")}>
             <Icon name="Plus" size={14} />
             Пополнить баланс
           </NeonButton>
@@ -319,8 +317,6 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
   const balance = user.balance || "0.00";
   const payList = payments || [];
 
-  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
-
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -332,11 +328,11 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
             </p>
           </div>
           <div className="flex gap-3">
-            <NeonButton variant="blue" onClick={openMikrobill}>
+            <NeonButton variant="blue" onClick={() => toast.info("Для пополнения баланса позвоните: 8-800-444-24-90 или оплатите через терминал по номеру договора " + (user.account || ""))}>
               <Icon name="Plus" size={16} />
               Пополнить баланс
             </NeonButton>
-            <NeonButton variant="outline" onClick={openMikrobill}>
+            <NeonButton variant="outline" onClick={() => toast.info("Для подключения обещанного платежа позвоните: 8-800-444-24-90")}>
               <Icon name="HandCoins" size={16} />
               Обещанный платёж
             </NeonButton>
@@ -383,8 +379,6 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
 
 function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
   if (loading) return <LoadingSpinner />;
-
-  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
 
   const tariffs = [
     { name: "Старт 100", speed: "100 Мбит/с", price: 390 },
@@ -464,7 +458,7 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
                     Подключён
                   </div>
                 ) : (
-                  <NeonButton variant="outline" className="w-full" onClick={openMikrobill}>
+                  <NeonButton variant="outline" className="w-full" onClick={() => toast.info("Для смены тарифа позвоните: 8-800-444-24-90")}>
                     Подключить
                   </NeonButton>
                 )}
