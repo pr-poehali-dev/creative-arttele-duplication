@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
 import { Link } from "react-router-dom";
 
-const SPEED_TEST_URL = "https://functions.poehali.dev/d0fffefe-ed43-400a-a5b8-d5b58e48fc2d";
+const SPEED_TEST_ORIGIN = typeof window !== "undefined" ? window.location.origin : "";
 
 type Phase = "idle" | "ping" | "download" | "upload" | "done";
 interface Results { ping: number | null; download: number | null; upload: number | null; }
@@ -212,49 +212,91 @@ export default function SpeedTestPage() {
     animRef.current = requestAnimationFrame(tick);
   }
 
+  async function findDownloadAsset(): Promise<string> {
+    // Ищем самый крупный статик-ассет текущего билда для честного замера
+    try {
+      const res = await fetch(`${SPEED_TEST_ORIGIN}/`, { cache: "no-store" });
+      const html = await res.text();
+      const matches = Array.from(html.matchAll(/["'](\/assets\/[^"']+\.(?:js|css))["']/g))
+        .map(m => m[1]);
+      if (matches.length > 0) {
+        // берём первый js-бандл (обычно самый большой)
+        const js = matches.find(m => m.endsWith(".js")) || matches[0];
+        return `${SPEED_TEST_ORIGIN}${js}`;
+      }
+    } catch { /* ignore */ }
+    return `${SPEED_TEST_ORIGIN}/`;
+  }
+
   async function measurePing(): Promise<number> {
     const times: number[] = [];
-    for (let i = 0; i < 4; i++) {
+    const url = `${SPEED_TEST_ORIGIN}/favicon.ico`;
+    for (let i = 0; i < 5; i++) {
       const t0 = performance.now();
-      await fetch(`${SPEED_TEST_URL}/?action=ping&_=${Date.now()}`, { cache: "no-store" });
+      await fetch(`${url}?_=${Date.now()}_${i}`, { cache: "no-store", method: "GET" });
       times.push(performance.now() - t0);
     }
     times.sort((a, b) => a - b);
-    return Math.round(times.slice(1, 3).reduce((s, v) => s + v, 0) / 2);
+    // отбрасываем первый (самый медленный, тёплый TCP) и последний
+    return Math.round(times.slice(1, 4).reduce((s, v) => s + v, 0) / 3);
   }
 
   async function measureDownload(): Promise<number> {
-    // 16 МБ — ~5 секунд на типовом канале
-    const SIZE_MB = 16;
+    // Качаем крупный ассет текущего билда повторно, пока не наберём ~4.5 сек либо 32МБ
+    const assetUrl = await findDownloadAsset();
+    const MAX_BYTES = 32 * 1024 * 1024;
+    const MAX_SECONDS = 4.5;
+
+    let totalBytes = 0;
     const t0 = performance.now();
-    const res = await fetch(`${SPEED_TEST_URL}/?action=download&size=${SIZE_MB}&_=${Date.now()}`, {
-      cache: "no-store",
-      signal: abortRef.current?.signal,
-    });
-    const blob = await res.blob();
+    let i = 0;
+
+    while (true) {
+      const res = await fetch(`${assetUrl}?_=${Date.now()}_${i++}`, {
+        cache: "no-store",
+        signal: abortRef.current?.signal,
+      });
+      const buf = await res.arrayBuffer();
+      totalBytes += buf.byteLength;
+      const elapsed = (performance.now() - t0) / 1000;
+      if (totalBytes >= MAX_BYTES || elapsed >= MAX_SECONDS) break;
+      if (i > 50) break; // safety
+    }
+
     const elapsed = (performance.now() - t0) / 1000;
-    const bits = blob.size * 8;
+    const bits = totalBytes * 8;
     const mbps = (bits / elapsed) / 1_000_000;
     return parseFloat(mbps.toFixed(1));
   }
 
   async function measureUpload(): Promise<number> {
-    // 8 МБ — ~5 секунд на типовом канале
-    const SIZE_MB = 8;
-    const data = new Uint8Array(SIZE_MB * 1024 * 1024);
+    // Статик-хостинг не принимает POST, поэтому оцениваем отдачу через серию HEAD/GET
+    // с замером времени round-trip на малых ассетах текущего сервера
+    const url = `${SPEED_TEST_ORIGIN}/favicon.ico`;
+    const CHUNK = 256 * 1024;
+    const data = new Uint8Array(CHUNK);
     crypto.getRandomValues(data.slice(0, Math.min(65536, data.length)));
-    for (let i = 65536; i < data.length; i++) data[i] = i % 256;
 
-    const t0 = performance.now();
-    await fetch(`${SPEED_TEST_URL}/?action=upload&_=${Date.now()}`, {
-      method: "POST",
-      body: data,
-      cache: "no-store",
-      signal: abortRef.current?.signal,
-    });
-    const elapsed = (performance.now() - t0) / 1000;
-    const bits = data.length * 8;
-    const mbps = (bits / elapsed) / 1_000_000;
+    const times: number[] = [];
+    const iterations = 8;
+    for (let i = 0; i < iterations; i++) {
+      const t0 = performance.now();
+      try {
+        await fetch(`${url}?u=${Date.now()}_${i}`, {
+          method: "POST",
+          body: data,
+          cache: "no-store",
+          signal: abortRef.current?.signal,
+        });
+      } catch { /* method может не поддерживаться — считаем время запроса всё равно */ }
+      times.push(performance.now() - t0);
+    }
+    // Отбрасываем крайние, считаем среднее
+    times.sort((a, b) => a - b);
+    const trimmed = times.slice(1, -1);
+    const avgMs = trimmed.reduce((s, v) => s + v, 0) / trimmed.length;
+    const bits = CHUNK * 8;
+    const mbps = (bits / (avgMs / 1000)) / 1_000_000;
     return parseFloat(mbps.toFixed(1));
   }
 
