@@ -29,7 +29,15 @@ interface AiChatPanelProps {
   showTicketButton?: boolean;
 }
 
-const TICKET_TOPICS = [
+const TICKET_TOPICS_SITE = [
+  "Заявка на подключение",
+  "Вопрос по тарифам",
+  "Видеонаблюдение",
+  "Бизнес-подключение",
+  "Другое",
+];
+
+const TICKET_TOPICS_DASHBOARD = [
   "Ремонт / нет интернета",
   "Низкая скорость",
   "Настройка оборудования",
@@ -55,7 +63,8 @@ export default function AiChatPanel({
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [sending, setSending] = useState(false);
-  const [formTopic, setFormTopic] = useState(TICKET_TOPICS[0]);
+  const topicList = mode === "dashboard" ? TICKET_TOPICS_DASHBOARD : TICKET_TOPICS_SITE;
+  const [formTopic, setFormTopic] = useState(topicList[0]);
   const [formName, setFormName] = useState(context?.name || "");
   const [formPhone, setFormPhone] = useState(context?.phone || "");
   const [formMessage, setFormMessage] = useState("");
@@ -218,7 +227,7 @@ export default function AiChatPanel({
                 onChange={e => setFormTopic(e.target.value)}
                 className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-white/30"
               >
-                {TICKET_TOPICS.map(t => (
+                {topicList.map(t => (
                   <option key={t} value={t} style={{ background: "#1a1f2e" }}>{t}</option>
                 ))}
               </select>
@@ -292,18 +301,33 @@ export default function AiChatPanel({
             <Icon name="Wrench" size={12} />
             Оформить заявку
           </button>
-          <button
-            onClick={() => { setFormTopic("Ремонт / нет интернета"); setShowForm(true); }}
-            className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
-            style={{
-              background: "rgba(239,68,68,0.1)",
-              border: "1px solid rgba(239,68,68,0.3)",
-              color: "#ef4444",
-            }}
-          >
-            <Icon name="AlertTriangle" size={12} />
-            Нет интернета
-          </button>
+          {mode === "dashboard" ? (
+            <button
+              onClick={() => { setFormTopic("Ремонт / нет интернета"); setShowForm(true); }}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+              style={{
+                background: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.3)",
+                color: "#ef4444",
+              }}
+            >
+              <Icon name="AlertTriangle" size={12} />
+              Нет интернета
+            </button>
+          ) : (
+            <button
+              onClick={() => { setFormTopic("Заявка на подключение"); setShowForm(true); }}
+              className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+              style={{
+                background: "rgba(0,212,255,0.1)",
+                border: "1px solid rgba(0,212,255,0.3)",
+                color: "var(--neon-blue)",
+              }}
+            >
+              <Icon name="Zap" size={12} />
+              Подключить интернет
+            </button>
+          )}
         </div>
       )}
 
