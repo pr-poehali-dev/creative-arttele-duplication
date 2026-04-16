@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
+import AiChatPanel from "@/components/AiChatPanel";
 import { toast } from "sonner";
 import funcUrls from "../../backend/func2url.json";
 
-type TabKey = "main" | "balance" | "tariff" | "stats" | "tickets" | "settings";
+type TabKey = "main" | "balance" | "tariff" | "stats" | "tickets" | "assistant" | "settings";
 
 const LOGO_URL =
   "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/eab6cd5f-932d-4520-b6dc-7b7f9fa0ff47.jpg";
@@ -16,6 +17,7 @@ const menuItems: { key: TabKey | "logout"; label: string; icon: string }[] = [
   { key: "tariff", label: "Мой тариф", icon: "Wifi" },
   { key: "stats", label: "Статистика", icon: "BarChart3" },
   { key: "tickets", label: "Заявки", icon: "MessageSquare" },
+  { key: "assistant", label: "ИИ-помощник", icon: "Sparkles" },
   { key: "settings", label: "Настройки", icon: "Settings" },
   { key: "logout", label: "Выход", icon: "LogOut" },
 ];
@@ -844,6 +846,7 @@ export default function DashboardPage() {
     tariff: "Мой тариф",
     stats: "Статистика",
     tickets: "Заявки",
+    assistant: "ИИ-помощник",
     settings: "Настройки",
   };
 
@@ -1029,6 +1032,7 @@ export default function DashboardPage() {
               {activeTab === "tariff" && "Управление тарифным планом"}
               {activeTab === "stats" && "Статистика использования интернета"}
               {activeTab === "tickets" && "Обращения в техническую поддержку"}
+              {activeTab === "assistant" && "Персональный ИИ-помощник — ответит на любой вопрос по вашему тарифу, балансу, оплате"}
               {activeTab === "settings" && "Настройки учётной записи"}
             </p>
           </div>
@@ -1038,6 +1042,34 @@ export default function DashboardPage() {
           {activeTab === "tariff" && <TabTariff user={user} loading={loading} />}
           {activeTab === "stats" && <TabStats traffic={userData?.traffic} loading={loading} />}
           {activeTab === "tickets" && <TabTickets />}
+          {activeTab === "assistant" && (
+            <div
+              className="rounded-2xl overflow-hidden animate-fade-in"
+              style={{
+                background: "rgba(17, 24, 39, 0.6)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                height: "calc(100vh - 220px)",
+                minHeight: "480px",
+              }}
+            >
+              <AiChatPanel
+                mode="dashboard"
+                context={{
+                  name: user.name,
+                  login: user.login,
+                  tariff: user.tariff,
+                  speed: user.speed,
+                  balance: user.balance,
+                  status: user.status,
+                  address: user.address,
+                  work_until: user.work_until,
+                }}
+                greeting={`Здравствуйте, ${user.name || "абонент"}! Я ваш персональный помощник АртТелеком Юг. Вижу ваш тариф «${user.tariff || "—"}», баланс ${user.balance || "—"} ₽. Задайте любой вопрос — про оплату, скорость, смену тарифа или неполадки.`}
+                placeholder="Например: почему не работает интернет?"
+                accentColor="var(--neon-green)"
+              />
+            </div>
+          )}
           {activeTab === "settings" && <TabSettings user={user} />}
         </div>
       </main>
