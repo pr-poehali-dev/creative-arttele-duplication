@@ -450,10 +450,16 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
 function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
   if (loading) return <LoadingSpinner />;
 
-  const tariffs = [
-    { name: "Старт 100", speed: "100 Мбит/с", price: 390 },
-    { name: "Турбо 500", speed: "500 Мбит/с", price: 650 },
-    { name: "Максимум 1000", speed: "1 Гбит/с", price: 990 },
+  const tariffs: { name: string; speed: string; price: number; popular?: boolean }[] = [
+    { name: "Лайт", speed: "30 Мбит/с", price: 500 },
+    { name: "Базовый", speed: "50 Мбит/с", price: 800 },
+    { name: "Комфорт", speed: "100 Мбит/с", price: 1000 },
+    { name: "Старт", speed: "200 Мбит/с", price: 1300 },
+    { name: "Оптима", speed: "300 Мбит/с", price: 1500, popular: true },
+    { name: "Премиум", speed: "500 Мбит/с", price: 1700 },
+    { name: "Ультра", speed: "600 Мбит/с", price: 1900 },
+    { name: "Максимум", speed: "1 Гбит/с", price: 2700 },
+    { name: "Гигабит+", speed: "2.5 Гбит/с", price: 5000 },
   ];
 
   return (
@@ -486,9 +492,9 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
 
       <div>
         <h3 className="text-lg font-bold text-white font-montserrat mb-4">Доступные тарифы</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tariffs.map((t) => {
-            const isActive = user.tariff?.toLowerCase().includes(t.name.split(" ")[0].toLowerCase());
+            const isActive = user.tariff?.toLowerCase().includes(t.name.toLowerCase());
             return (
               <GlassCard
                 key={t.name}
@@ -514,6 +520,17 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
                     Текущий
                   </div>
                 )}
+                {!isActive && t.popular && (
+                  <div
+                    className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold"
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b, #ef4444)",
+                      color: "#fff",
+                    }}
+                  >
+                    Популярный
+                  </div>
+                )}
                 <div className="mb-4">
                   <p className="text-xl font-bold text-white font-montserrat">{t.name}</p>
                   <p className="text-white/40 text-sm mt-1">{t.speed}</p>
@@ -528,7 +545,7 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
                     Подключён
                   </div>
                 ) : (
-                  <NeonButton variant="outline" className="w-full" onClick={() => toast.info("Для смены тарифа позвоните: 8-800-444-24-90")}>
+                  <NeonButton variant="outline" className="w-full" onClick={() => toast.info("Для смены тарифа позвоните: +7 (902) 404-88-50")}>
                     Подключить
                   </NeonButton>
                 )}
