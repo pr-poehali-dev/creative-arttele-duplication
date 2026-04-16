@@ -301,33 +301,6 @@ export default function AiChatPanel({
             <Icon name="Wrench" size={12} />
             Оформить заявку
           </button>
-          {mode === "dashboard" ? (
-            <button
-              onClick={() => { setFormTopic("Ремонт / нет интернета"); setShowForm(true); }}
-              className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
-              style={{
-                background: "rgba(239,68,68,0.1)",
-                border: "1px solid rgba(239,68,68,0.3)",
-                color: "#ef4444",
-              }}
-            >
-              <Icon name="AlertTriangle" size={12} />
-              Нет интернета
-            </button>
-          ) : (
-            <button
-              onClick={() => { setFormTopic("Заявка на подключение"); setShowForm(true); }}
-              className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
-              style={{
-                background: "rgba(0,212,255,0.1)",
-                border: "1px solid rgba(0,212,255,0.3)",
-                color: "var(--neon-blue)",
-              }}
-            >
-              <Icon name="Zap" size={12} />
-              Подключить интернет
-            </button>
-          )}
         </div>
       )}
 
