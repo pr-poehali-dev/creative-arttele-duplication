@@ -78,7 +78,9 @@ def call_vsegpt(messages: list, max_tokens: int = 500) -> str:
 def send_telegram(text: str) -> None:
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    print(f"[TG] token_present={bool(token)}, chat_id={chat_id!r}")
     if not token or not chat_id:
+        print("[TG] Пропускаю — нет токена или chat_id")
         return
     req = urllib.request.Request(
         f"https://api.telegram.org/bot{token}/sendMessage",
@@ -92,9 +94,18 @@ def send_telegram(text: str) -> None:
         method="POST",
     )
     try:
-        urllib.request.urlopen(req, timeout=10).read()
-    except Exception:
-        pass
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            body = resp.read().decode("utf-8", errors="ignore")
+        print(f"[TG] OK: {body[:200]}")
+    except urllib.error.HTTPError as e:
+        err_body = ""
+        try:
+            err_body = e.read().decode("utf-8", errors="ignore")
+        except Exception:
+            pass
+        print(f"[TG] HTTPError {e.code}: {err_body[:500]}")
+    except Exception as e:
+        print(f"[TG] Exception: {type(e).__name__}: {str(e)[:300]}")
 
 
 CORS = {
@@ -171,6 +182,7 @@ def handle_ticket(body: dict) -> dict:
     smtp_user = os.environ.get("SMTP_USER")
     smtp_pass = os.environ.get("SMTP_PASS")
     email_to = os.environ.get("EMAIL_TO") or os.environ.get("NOTIFICATION_EMAIL")
+    print(f"[EMAIL] smtp_user={bool(smtp_user)}, smtp_pass={bool(smtp_pass)}, email_to={email_to!r}")
 
     if smtp_user and smtp_pass and email_to:
         smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
@@ -200,8 +212,9 @@ def handle_ticket(body: dict) -> dict:
                 server.starttls()
                 server.login(smtp_user, smtp_pass)
                 server.sendmail(smtp_user, email_to, msg.as_string())
-        except Exception:
-            pass
+            print("[EMAIL] Письмо отправлено")
+        except Exception as e:
+            print(f"[EMAIL] Ошибка: {type(e).__name__}: {str(e)[:300]}")
 
     return {
         "statusCode": 200,
