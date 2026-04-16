@@ -1,18 +1,42 @@
 import { useState, useRef, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import { toast } from "sonner";
 import funcUrls from "../../backend/func2url.json";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
 
+interface UserCtx {
+  name?: string;
+  login?: string;
+  phone?: string;
+  tariff?: string;
+  speed?: string;
+  balance?: string;
+  status?: string;
+  address?: string;
+  work_until?: string;
+  [k: string]: unknown;
+}
+
 interface AiChatPanelProps {
   mode: "site" | "dashboard";
-  context?: Record<string, unknown>;
+  context?: UserCtx;
   greeting: string;
   placeholder?: string;
   accentColor?: string;
   className?: string;
   inputClassName?: string;
+  showTicketButton?: boolean;
 }
+
+const TICKET_TOPICS = [
+  "Ремонт / нет интернета",
+  "Низкая скорость",
+  "Настройка оборудования",
+  "Смена тарифа",
+  "Финансовый вопрос",
+  "Другое",
+];
 
 export default function AiChatPanel({
   mode,
@@ -22,17 +46,24 @@ export default function AiChatPanel({
   accentColor = "var(--neon-blue)",
   className = "",
   inputClassName = "",
+  showTicketButton = false,
 }: AiChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", content: greeting },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [formTopic, setFormTopic] = useState(TICKET_TOPICS[0]);
+  const [formName, setFormName] = useState(context?.name || "");
+  const [formPhone, setFormPhone] = useState(context?.phone || "");
+  const [formMessage, setFormMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, showForm]);
 
   const send = async () => {
     const text = input.trim();
@@ -63,6 +94,61 @@ export default function AiChatPanel({
     }
   };
 
+  const submitTicket = async () => {
+    if (!formName.trim() || !formPhone.trim()) {
+      toast.error("Укажите имя и телефон");
+      return;
+    }
+    setSending(true);
+    try {
+      const url = (funcUrls as Record<string, string>)["send-contact"];
+      const ctxLines = context
+        ? [
+            context.login ? `Логин: ${context.login}` : "",
+            context.tariff ? `Тариф: ${context.tariff}` : "",
+            context.address ? `Адрес: ${context.address}` : "",
+            context.balance ? `Баланс: ${context.balance} ₽` : "",
+            context.status ? `Статус: ${context.status}` : "",
+          ].filter(Boolean).join("\n")
+        : "";
+      const fullMessage = ctxLines
+        ? `${formMessage}\n\n— Данные абонента —\n${ctxLines}`
+        : formMessage;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "ticket",
+          name: formName.trim(),
+          phone: formPhone.trim(),
+          topic: formTopic,
+          message: fullMessage,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        toast.success("Заявка отправлена! Свяжемся в течение 15 минут");
+        const confirmText = data.reply
+          ? data.reply
+          : `Спасибо, ${formName}! Заявка по теме «${formTopic}» принята. Менеджер свяжется с вами в течение 15 минут по номеру ${formPhone}.`;
+        setMessages(prev => [
+          ...prev,
+          { role: "user", content: `📝 Оформил заявку: ${formTopic}${formMessage ? `\n${formMessage}` : ""}` },
+          { role: "assistant", content: confirmText },
+        ]);
+        setShowForm(false);
+        setFormMessage("");
+      } else {
+        toast.error(data.error || "Не удалось отправить заявку");
+      }
+    } catch {
+      toast.error("Ошибка сети. Попробуйте ещё раз");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const onKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -77,9 +163,7 @@ export default function AiChatPanel({
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                m.role === "user"
-                  ? "text-[#0b0e17] font-medium"
-                  : "text-white/90"
+                m.role === "user" ? "text-[#0b0e17] font-medium" : "text-white/90"
               }`}
               style={
                 m.role === "user"
@@ -105,7 +189,123 @@ export default function AiChatPanel({
             </div>
           </div>
         )}
+
+        {showForm && (
+          <div
+            className="rounded-2xl p-4 space-y-3 animate-fade-in"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="font-semibold text-white text-sm flex items-center gap-2">
+                <Icon name="FileText" size={16} style={{ color: accentColor }} />
+                Новая заявка
+              </div>
+              <button
+                onClick={() => setShowForm(false)}
+                className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/50"
+              >
+                <Icon name="X" size={14} />
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Тема</label>
+              <select
+                value={formTopic}
+                onChange={e => setFormTopic(e.target.value)}
+                className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white focus:outline-none focus:border-white/30"
+              >
+                {TICKET_TOPICS.map(t => (
+                  <option key={t} value={t} style={{ background: "#1a1f2e" }}>{t}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-white/50 mb-1.5">Имя</label>
+                <input
+                  value={formName}
+                  onChange={e => setFormName(e.target.value)}
+                  placeholder="Ваше имя"
+                  className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-white/50 mb-1.5">Телефон</label>
+                <input
+                  value={formPhone}
+                  onChange={e => setFormPhone(e.target.value)}
+                  placeholder="+7 ___ ___ __ __"
+                  className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Описание проблемы</label>
+              <textarea
+                value={formMessage}
+                onChange={e => setFormMessage(e.target.value)}
+                placeholder="Опишите проблему или пожелание..."
+                rows={3}
+                className="w-full resize-none rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+            </div>
+
+            <button
+              onClick={submitTicket}
+              disabled={sending}
+              className="w-full py-2.5 rounded-xl text-sm font-semibold text-[#0b0e17] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              style={{ background: accentColor }}
+            >
+              {sending ? (
+                <>
+                  <Icon name="Loader2" size={14} className="animate-spin" />
+                  Отправка...
+                </>
+              ) : (
+                <>
+                  <Icon name="Send" size={14} />
+                  Отправить заявку
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
+      {showTicketButton && !showForm && (
+        <div className="px-3 pt-2 pb-1 flex gap-2 flex-wrap">
+          <button
+            onClick={() => setShowForm(true)}
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+            style={{
+              background: "rgba(0,245,122,0.1)",
+              border: "1px solid rgba(0,245,122,0.3)",
+              color: "var(--neon-green)",
+            }}
+          >
+            <Icon name="Wrench" size={12} />
+            Оформить заявку
+          </button>
+          <button
+            onClick={() => { setFormTopic("Ремонт / нет интернета"); setShowForm(true); }}
+            className="text-xs px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:scale-105"
+            style={{
+              background: "rgba(239,68,68,0.1)",
+              border: "1px solid rgba(239,68,68,0.3)",
+              color: "#ef4444",
+            }}
+          >
+            <Icon name="AlertTriangle" size={12} />
+            Нет интернета
+          </button>
+        </div>
+      )}
 
       <div className="p-3 border-t border-white/10 flex gap-2 items-end">
         <textarea

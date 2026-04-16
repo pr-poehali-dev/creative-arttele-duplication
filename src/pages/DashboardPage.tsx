@@ -17,7 +17,7 @@ const menuItems: { key: TabKey | "logout"; label: string; icon: string }[] = [
   { key: "tariff", label: "Мой тариф", icon: "Wifi" },
   { key: "stats", label: "Статистика", icon: "BarChart3" },
   { key: "tickets", label: "Заявки", icon: "MessageSquare" },
-  { key: "assistant", label: "ИИ-помощник", icon: "Sparkles" },
+  { key: "assistant", label: "Чат с сотрудником", icon: "MessageCircle" },
   { key: "settings", label: "Настройки", icon: "Settings" },
   { key: "logout", label: "Выход", icon: "LogOut" },
 ];
@@ -846,7 +846,7 @@ export default function DashboardPage() {
     tariff: "Мой тариф",
     stats: "Статистика",
     tickets: "Заявки",
-    assistant: "ИИ-помощник",
+    assistant: "Чат с сотрудником",
     settings: "Настройки",
   };
 
@@ -1032,7 +1032,7 @@ export default function DashboardPage() {
               {activeTab === "tariff" && "Управление тарифным планом"}
               {activeTab === "stats" && "Статистика использования интернета"}
               {activeTab === "tickets" && "Обращения в техническую поддержку"}
-              {activeTab === "assistant" && "Персональный ИИ-помощник — ответит на любой вопрос по вашему тарифу, балансу, оплате"}
+              {activeTab === "assistant" && "Задайте вопрос или оформите заявку на ремонт — сотрудник примет её в работу"}
               {activeTab === "settings" && "Настройки учётной записи"}
             </p>
           </div>
@@ -1057,6 +1057,7 @@ export default function DashboardPage() {
                 context={{
                   name: user.name,
                   login: user.login,
+                  phone: user.phone,
                   tariff: user.tariff,
                   speed: user.speed,
                   balance: user.balance,
@@ -1064,9 +1065,10 @@ export default function DashboardPage() {
                   address: user.address,
                   work_until: user.work_until,
                 }}
-                greeting={`Здравствуйте, ${user.name || "абонент"}! Я ваш персональный помощник АртТелеком Юг. Вижу ваш тариф «${user.tariff || "—"}», баланс ${user.balance || "—"} ₽. Задайте любой вопрос — про оплату, скорость, смену тарифа или неполадки.`}
-                placeholder="Например: почему не работает интернет?"
+                greeting={`Здравствуйте, ${user.name || "абонент"}! На связи сотрудник АртТелеком Юг. Вижу ваш тариф «${user.tariff || "—"}», баланс ${user.balance || "—"} ₽. Задайте вопрос или нажмите «Оформить заявку», если нужен ремонт или другая помощь.`}
+                placeholder="Задайте вопрос сотруднику..."
                 accentColor="var(--neon-green)"
+                showTicketButton
               />
             </div>
           )}
