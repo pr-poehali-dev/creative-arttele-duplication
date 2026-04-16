@@ -2,6 +2,7 @@ import json
 import os
 import smtplib
 import urllib.request
+import urllib.error
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -36,7 +37,9 @@ SYSTEM_PROMPTS = {
 def call_vsegpt(messages: list, max_tokens: int = 500) -> str:
     api_key = os.environ.get("VSEGPT_API_KEY")
     if not api_key:
+        print("[AI] VSEGPT_API_KEY отсутствует")
         return ""
+    print(f"[AI] Ключ найден, длина={len(api_key)}, префикс={api_key[:10]}")
     payload = {
         "model": "openai/gpt-4o-mini",
         "messages": messages,
@@ -54,9 +57,21 @@ def call_vsegpt(messages: list, max_tokens: int = 500) -> str:
     )
     try:
         with urllib.request.urlopen(req, timeout=25) as resp:
-            result = json.loads(resp.read().decode("utf-8"))
-        return result["choices"][0]["message"]["content"].strip()
-    except Exception:
+            raw = resp.read().decode("utf-8")
+            result = json.loads(raw)
+        content = result["choices"][0]["message"]["content"].strip()
+        print(f"[AI] Ответ получен, длина={len(content)}")
+        return content
+    except urllib.error.HTTPError as e:
+        body_text = ""
+        try:
+            body_text = e.read().decode("utf-8", errors="ignore")
+        except Exception:
+            pass
+        print(f"[AI] HTTPError {e.code}: {body_text[:500]}")
+        return ""
+    except Exception as e:
+        print(f"[AI] Exception: {type(e).__name__}: {str(e)[:300]}")
         return ""
 
 
