@@ -35,9 +35,9 @@ SYSTEM_PROMPTS = {
 
 
 def call_vsegpt(messages: list, max_tokens: int = 500) -> str:
-    api_key = os.environ.get("VSEGPT_API_KEY")
+    api_key = os.environ.get("GPT_API") or os.environ.get("VSEGPT_API_KEY")
     if not api_key:
-        print("[AI] VSEGPT_API_KEY отсутствует")
+        print("[AI] GPT_API / VSEGPT_API_KEY отсутствует")
         return ""
     print(f"[AI] Ключ найден, длина={len(api_key)}, префикс={api_key[:10]}")
     payload = {
