@@ -44,7 +44,7 @@ export default function ChatWidget() {
               <Icon name="Sparkles" size={18} className="text-[#0b0e17]" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-semibold text-white text-sm">ИИ-консультант СвязьПро</div>
+              <div className="font-semibold text-white text-sm">Консультант АртТелеком Юг</div>
               <div className="text-xs text-white/50 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--neon-green)] animate-pulse" />
                 На связи
@@ -62,7 +62,7 @@ export default function ChatWidget() {
           <div className="flex-1 min-h-0">
             <AiChatPanel
               mode="site"
-              greeting="Здравствуйте! Я ИИ-консультант СвязьПро 👋 Помогу подобрать тариф, расскажу об услугах и оформлю заявку на подключение. Что вас интересует?"
+              greeting="Здравствуйте! Я консультант АртТелеком Юг 👋 Помогу подобрать тариф, расскажу об услугах и оформлю заявку на подключение. Что вас интересует?"
               placeholder="Спросите о тарифах, подключении..."
             />
           </div>
