@@ -851,32 +851,35 @@ export default function DashboardPage() {
     <div className="min-h-screen relative" style={{ background: "var(--dark-bg)" }}>
       <PageBackground />
 
-      <div className="fixed inset-0 -z-[5] overflow-hidden pointer-events-none">
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.07]"
+          className="absolute w-[700px] h-[700px] rounded-full blur-[180px]"
           style={{
             background: "var(--neon-blue)",
             top: "10%",
-            left: "-5%",
+            left: "-10%",
+            opacity: 0.15,
             animation: "dashPulse1 8s ease-in-out infinite",
           }}
         />
         <div
-          className="absolute w-[500px] h-[500px] rounded-full blur-[140px] opacity-[0.06]"
+          className="absolute w-[600px] h-[600px] rounded-full blur-[160px]"
           style={{
             background: "var(--neon-green)",
-            bottom: "5%",
-            right: "-5%",
+            bottom: "0%",
+            right: "-10%",
+            opacity: 0.12,
             animation: "dashPulse2 10s ease-in-out infinite",
           }}
         />
         <div
-          className="absolute w-[400px] h-[400px] rounded-full blur-[120px] opacity-[0.04]"
+          className="absolute w-[500px] h-[500px] rounded-full blur-[140px]"
           style={{
             background: "var(--neon-purple)",
             top: "50%",
             left: "40%",
             transform: "translate(-50%, -50%)",
+            opacity: 0.08,
             animation: "dashPulse3 12s ease-in-out infinite",
           }}
         />
