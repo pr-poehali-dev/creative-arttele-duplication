@@ -704,11 +704,11 @@ function TabSettings({ user }: { user: UserData }) {
   const [email, setEmail] = useState(user.email || "");
 
   const handleChangePassword = () => {
-    toast.info("Для изменения пароля обратитесь в поддержку: 8-800-444-24-90");
+    toast.info("Для изменения пароля обратитесь в поддержку: +7 (902) 404-88-50");
   };
 
   const handleSaveContacts = () => {
-    toast.info("Для изменения контактных данных обратитесь в поддержку: 8-800-444-24-90");
+    toast.info("Для изменения контактных данных обратитесь в поддержку: +7 (902) 404-88-50");
   };
 
   return (

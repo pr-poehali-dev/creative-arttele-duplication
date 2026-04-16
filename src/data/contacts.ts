@@ -16,7 +16,7 @@ export const contacts: ContactItem[] = [
   { icon: "Mail",          label: "Email",           value: "art888018@mail.ru",       sub: "Дополнительная почта" },
   { icon: "Send",          label: "Telegram",        value: "@ArtTelecom",             sub: "Написать в Telegram", link: "https://t.me/ArtTelecom" },
   { icon: "MapPin",        label: "Головной офис",   value: "Москва, ул. Цифровая, 1", sub: "Пн–Пт 9:00–18:00" },
-  { icon: "MessageCircle", label: "Онлайн-чат",      value: "В личном кабинете",     sub: "24/7 без ожидания", link: "https://lk.arttele.ru" },
+  { icon: "MessageCircle", label: "Онлайн-чат",      value: "В личном кабинете",     sub: "24/7 без ожидания", link: "/dashboard" },
 ];
 
 export const formTopics = [
