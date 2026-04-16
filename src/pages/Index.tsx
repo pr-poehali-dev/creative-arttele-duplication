@@ -81,7 +81,7 @@ export default function Index() {
   return (
     <div className="min-h-screen mesh-bg noise font-sans text-white">
 
-      <Navbar onLkOpen={() => setLkOpen(true)} />
+      <Navbar />
 
       {/* ─── HERO ─── */}
       <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-16">

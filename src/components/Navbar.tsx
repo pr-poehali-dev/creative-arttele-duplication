@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
@@ -17,13 +17,27 @@ const navLinks = [
   { label: "Облачное видео", href: "/video/cloud" },
 ];
 
-interface NavbarProps {
-  onLkOpen?: () => void;
-}
-
-export default function Navbar({ onLkOpen }: NavbarProps) {
+export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
   const location = useLocation();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("lk_user");
+      if (raw) {
+        const user = JSON.parse(raw);
+        if (user && user.name) {
+          setIsLoggedIn(true);
+          setUserName(user.name);
+        }
+      }
+    } catch {
+      setIsLoggedIn(false);
+      setUserName("");
+    }
+  }, [location.pathname]);
 
   return (
     <>
@@ -57,14 +71,27 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm neon-glow-btn text-[#0b0e17]"
-            style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
-          >
-            <Icon name="User" size={15} />
-            Личный кабинет
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              to="/dashboard"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm neon-glow-btn text-[#0b0e17]"
+              style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
+            >
+              <div className="w-5 h-5 rounded-full bg-[#0b0e17]/20 flex items-center justify-center text-[10px] font-black uppercase shrink-0">
+                {userName.charAt(0)}
+              </div>
+              <span className="max-w-[120px] truncate">{userName}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm neon-glow-btn text-[#0b0e17]"
+              style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
+            >
+              <Icon name="User" size={15} />
+              Личный кабинет
+            </Link>
+          )}
           <button className="lg:hidden text-white/70 hover:text-white" onClick={() => setMenuOpen(!menuOpen)}>
             <Icon name={menuOpen ? "X" : "Menu"} size={24} />
           </button>
@@ -87,14 +114,28 @@ export default function Navbar({ onLkOpen }: NavbarProps) {
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/login"
-            onClick={() => setMenuOpen(false)}
-            className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[#0b0e17] font-bold text-sm"
-            style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
-          >
-            <Icon name="User" size={15} /> Личный кабинет
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              to="/dashboard"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[#0b0e17] font-bold text-sm"
+              style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
+            >
+              <div className="w-5 h-5 rounded-full bg-[#0b0e17]/20 flex items-center justify-center text-[10px] font-black uppercase shrink-0">
+                {userName.charAt(0)}
+              </div>
+              <span className="max-w-[120px] truncate">{userName}</span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMenuOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-[#0b0e17] font-bold text-sm"
+              style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}
+            >
+              <Icon name="User" size={15} /> Личный кабинет
+            </Link>
+          )}
         </div>
       )}
     </nav>

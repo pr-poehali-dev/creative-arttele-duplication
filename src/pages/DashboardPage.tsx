@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
+import { toast } from "sonner";
 import funcUrls from "../../backend/func2url.json";
 
 type TabKey = "main" | "balance" | "tariff" | "stats" | "tickets" | "settings";
@@ -38,6 +39,9 @@ interface UserData {
   email: string;
   credit: string;
   ip: string;
+  mac: string;
+  group: string;
+  work_until: string;
   payments?: { date?: string; amount?: string; comment?: string }[];
   traffic?: { date?: string; incoming?: string; outgoing?: string }[];
 }
@@ -154,11 +158,20 @@ function LoadingSpinner() {
   );
 }
 
-function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
+function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: boolean; onChangeTab: (tab: TabKey) => void }) {
   if (loading) return <LoadingSpinner />;
 
   const balance = user.balance || "0.00";
   const isBlocked = user.status?.toLowerCase().includes("блок");
+
+  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
+
+  const quickActions = [
+    { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: openMikrobill },
+    { icon: "Headphones", label: "Тех. поддержка", color: "var(--neon-green)", action: () => onChangeTab("tickets") },
+    { icon: "ArrowRightLeft", label: "Сменить тариф", color: "var(--neon-purple)", action: () => onChangeTab("tariff") },
+    { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b", action: openMikrobill },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -174,7 +187,7 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
           <p className="text-3xl font-bold text-white font-montserrat mb-3">{balance} ₽</p>
-          <NeonButton variant="blue" className="w-full text-xs py-2">
+          <NeonButton variant="blue" className="w-full text-xs py-2" onClick={openMikrobill}>
             <Icon name="Plus" size={14} />
             Пополнить баланс
           </NeonButton>
@@ -192,7 +205,7 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
           </div>
           <p className="text-xl font-bold text-white font-montserrat">{user.tariff || "—"}</p>
           <p className="text-white/40 text-sm mt-1">{user.speed || ""}</p>
-          <NeonButton variant="outline" className="w-full text-xs py-2 mt-3">
+          <NeonButton variant="outline" className="w-full text-xs py-2 mt-3" onClick={() => onChangeTab("tariff")}>
             <Icon name="ArrowRightLeft" size={14} />
             Сменить тариф
           </NeonButton>
@@ -220,6 +233,7 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
             <p className="text-lg font-bold text-white">{user.status || "—"}</p>
           </div>
           {user.ip && <p className="text-white/40 text-sm">IP: {user.ip}</p>}
+          {user.mac && <p className="text-white/40 text-sm">MAC: {user.mac}</p>}
         </GlassCard>
 
         <GlassCard className="p-5 card-hover">
@@ -232,7 +246,7 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
             </div>
             <span className="text-white/50 text-sm">Следующее списание</span>
           </div>
-          <p className="text-xl font-bold text-white font-montserrat">01.05.2026</p>
+          <p className="text-xl font-bold text-white font-montserrat">{user.work_until || "—"}</p>
           {user.credit ? (
             <p className="text-white/40 text-sm mt-1">Кредит: {user.credit} ₽</p>
           ) : (
@@ -247,14 +261,10 @@ function TabMain({ user, loading }: { user: UserData; loading: boolean }) {
           Быстрые действия
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)" },
-            { icon: "Headphones", label: "Тех. поддержка", color: "var(--neon-green)" },
-            { icon: "ArrowRightLeft", label: "Сменить тариф", color: "var(--neon-purple)" },
-            { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b" },
-          ].map((action) => (
+          {quickActions.map((action) => (
             <button
               key={action.label}
+              onClick={action.action}
               className="flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-300 hover:scale-[1.04] active:scale-[0.96]"
               style={{
                 background: "rgba(255, 255, 255, 0.03)",
@@ -309,6 +319,8 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
   const balance = user.balance || "0.00";
   const payList = payments || [];
 
+  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -320,11 +332,11 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
             </p>
           </div>
           <div className="flex gap-3">
-            <NeonButton variant="blue">
+            <NeonButton variant="blue" onClick={openMikrobill}>
               <Icon name="Plus" size={16} />
               Пополнить баланс
             </NeonButton>
-            <NeonButton variant="outline">
+            <NeonButton variant="outline" onClick={openMikrobill}>
               <Icon name="HandCoins" size={16} />
               Обещанный платёж
             </NeonButton>
@@ -372,6 +384,8 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
 function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
   if (loading) return <LoadingSpinner />;
 
+  const openMikrobill = () => window.open("http://lk.arttele.ru", "_blank");
+
   const tariffs = [
     { name: "Старт 100", speed: "100 Мбит/с", price: 390 },
     { name: "Турбо 500", speed: "500 Мбит/с", price: 650 },
@@ -394,6 +408,9 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
             <p className="text-white/40 text-sm">{user.speed || ""}</p>
           </div>
         </div>
+        {user.group && (
+          <p className="text-white/40 text-sm mt-3">Сетевая группа: {user.group}</p>
+        )}
       </GlassCard>
 
       {user.address && (
@@ -447,7 +464,7 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
                     Подключён
                   </div>
                 ) : (
-                  <NeonButton variant="outline" className="w-full">
+                  <NeonButton variant="outline" className="w-full" onClick={openMikrobill}>
                     Подключить
                   </NeonButton>
                 )}
@@ -605,6 +622,14 @@ function TabSettings({ user }: { user: UserData }) {
   const [phone, setPhone] = useState(user.phone || "");
   const [email, setEmail] = useState(user.email || "");
 
+  const handleChangePassword = () => {
+    toast.info("Для изменения пароля обратитесь в поддержку: 8-800-444-24-90");
+  };
+
+  const handleSaveContacts = () => {
+    toast.info("Для изменения контактных данных обратитесь в поддержку: 8-800-444-24-90");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -637,7 +662,7 @@ function TabSettings({ user }: { user: UserData }) {
             onChange={setConfirmPass}
             placeholder="Повторите новый пароль"
           />
-          <NeonButton variant="blue">
+          <NeonButton variant="blue" onClick={handleChangePassword}>
             <Icon name="Save" size={16} />
             Сменить пароль
           </NeonButton>
@@ -665,7 +690,7 @@ function TabSettings({ user }: { user: UserData }) {
             onChange={setEmail}
             placeholder="your@email.com"
           />
-          <NeonButton variant="green">
+          <NeonButton variant="green" onClick={handleSaveContacts}>
             <Icon name="Save" size={16} />
             Сохранить
           </NeonButton>
@@ -710,7 +735,7 @@ export default function DashboardPage() {
       });
   }, [navigate]);
 
-  const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":""}');
+  const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":"","mac":"","group":"","work_until":""}');
 
   const handleLogout = () => {
     localStorage.removeItem("lk_user");
@@ -725,6 +750,11 @@ export default function DashboardPage() {
     }
     setActiveTab(key);
     setSidebarOpen(false);
+  };
+
+  const handleChangeTab = (tab: TabKey) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const tabTitles: Record<TabKey, string> = {
@@ -888,7 +918,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {activeTab === "main" && <TabMain user={user} loading={loading} />}
+          {activeTab === "main" && <TabMain user={user} loading={loading} onChangeTab={handleChangeTab} />}
           {activeTab === "balance" && <TabBalance user={user} payments={userData?.payments} loading={loading} />}
           {activeTab === "tariff" && <TabTariff user={user} loading={loading} />}
           {activeTab === "stats" && <TabStats traffic={userData?.traffic} loading={loading} />}
