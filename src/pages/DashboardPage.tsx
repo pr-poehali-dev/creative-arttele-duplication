@@ -393,7 +393,7 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
                   Связаться с нами
                 </a>
                 <a
-                  href="tel:88004442490"
+                  href="tel:+79024048850"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                   style={{
                     background: "transparent",
@@ -402,7 +402,7 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
                   }}
                 >
                   <Icon name="PhoneCall" size={16} />
-                  8-800-444-24-90
+                  +7 (902) 404-88-50
                 </a>
               </div>
             </div>
