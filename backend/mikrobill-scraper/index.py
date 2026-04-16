@@ -1,11 +1,10 @@
 import json
+import os
 import re
 import requests
 from bs4 import BeautifulSoup
 
 KASSA_URL = "https://lk.arttele.ru/kassa"
-KASSA_LOGIN = "LK/180888"
-KASSA_PASS = "ArtTel180888Art!"
 
 
 def handler(event, context):
@@ -40,7 +39,10 @@ def kassa_session():
     s = requests.Session()
     s.post(
         KASSA_URL + '/index.php',
-        data={'chaiserlogin': KASSA_LOGIN, 'chaiserpassword': KASSA_PASS},
+        data={
+            'chaiserlogin': os.environ.get('KASSA_LOGIN', ''),
+            'chaiserpassword': os.environ.get('KASSA_PASS', ''),
+        },
         timeout=10,
     )
     return s
@@ -156,13 +158,19 @@ def build_user_data(login, found, info):
 
 
 def handle_auth(event, cors):
-    try:
-        body = json.loads(event.get('body', '{}'))
-    except Exception:
-        body = {}
+    raw = event.get('body') or '{}'
+    if isinstance(raw, dict):
+        body = raw
+    else:
+        try:
+            body = json.loads(str(raw))
+            if not isinstance(body, dict):
+                body = {}
+        except Exception:
+            body = {}
 
-    login = body.get('login', '').strip()
-    password = body.get('password', '').strip()
+    login = (body.get('login', '') or '').strip()
+    password = (body.get('password', '') or '').strip()
 
     if not login or not password:
         return {'statusCode': 400, 'headers': cors, 'body': json.dumps({'error': 'Введите логин и пароль'})}
