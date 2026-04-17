@@ -110,7 +110,12 @@ export default function AiChatPanel({
       toast.error("Укажите имя и телефон");
       return;
     }
-    if (!formCity.trim() || !formAddress.trim()) {
+    if (mode === "dashboard") {
+      if (!formAddress.trim()) {
+        toast.error("Укажите адрес");
+        return;
+      }
+    } else if (!formCity.trim() || !formAddress.trim()) {
       toast.error("Укажите населённый пункт и адрес");
       return;
     }
@@ -150,7 +155,7 @@ export default function AiChatPanel({
           : `Спасибо, ${formName}! Заявка по теме «${formTopic}» принята. Менеджер свяжется с вами в течение 15 минут по номеру ${formPhone}.`;
         setMessages(prev => [
           ...prev,
-          { role: "user", content: `📝 Оформил заявку: ${formTopic}\nНас. пункт: ${formCity}\nАдрес: ${formAddress}${formMessage ? `\n${formMessage}` : ""}` },
+          { role: "user", content: `📝 Оформил заявку: ${formTopic}${formCity ? `\nНас. пункт: ${formCity}` : ""}\nАдрес: ${formAddress}${formMessage ? `\n${formMessage}` : ""}` },
           { role: "assistant", content: confirmText },
         ]);
         setShowForm(false);
@@ -262,15 +267,17 @@ export default function AiChatPanel({
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs text-white/50 mb-1.5">Населённый пункт</label>
-              <input
-                value={formCity}
-                onChange={e => setFormCity(e.target.value)}
-                placeholder="Напр. Оазис, Натухай, Энем"
-                className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
-              />
-            </div>
+            {mode !== "dashboard" && (
+              <div>
+                <label className="block text-xs text-white/50 mb-1.5">Населённый пункт</label>
+                <input
+                  value={formCity}
+                  onChange={e => setFormCity(e.target.value)}
+                  placeholder="Напр. Оазис, Натухай, Энем"
+                  className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-xs text-white/50 mb-1.5">Адрес установки</label>
