@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import PageBackground from "@/components/PageBackground";
@@ -1121,6 +1121,8 @@ export default function DashboardPage() {
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const fetchRef = useRef<((initial: boolean) => void) | null>(null);
 
   useEffect(() => {
     const credsStr = localStorage.getItem("lk_creds");
@@ -1141,7 +1143,8 @@ export default function DashboardPage() {
     let cancelled = false;
 
     const fetchUserData = (initial: boolean) => {
-      fetch(`${url}?action=user_info&login=${encodeURIComponent(creds.login)}&password=${encodeURIComponent(creds.password)}`)
+      const ts = Date.now();
+      fetch(`${url}?action=user_info&login=${encodeURIComponent(creds.login)}&password=${encodeURIComponent(creds.password)}&_=${ts}`, { cache: "no-store" })
         .then((r) => r.json())
         .then((data) => {
           if (cancelled) return;
@@ -1152,15 +1155,18 @@ export default function DashboardPage() {
             /* ignore */
           }
           if (initial) setLoading(false);
+          setRefreshing(false);
         })
         .catch(() => {
           if (initial && !cancelled) setLoading(false);
+          setRefreshing(false);
         });
     };
 
+    fetchRef.current = fetchUserData;
     fetchUserData(true);
 
-    const intervalId = window.setInterval(() => fetchUserData(false), 60_000);
+    const intervalId = window.setInterval(() => fetchUserData(false), 15_000);
     const onFocus = () => fetchUserData(false);
     const onVisibility = () => {
       if (document.visibilityState === "visible") fetchUserData(false);
@@ -1179,6 +1185,13 @@ export default function DashboardPage() {
   const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":"","mac":"","group":"","work_until":""}');
 
   const isBlocked = (user.status || "").toLowerCase().includes("блок");
+
+  const handleRefresh = () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    fetchRef.current?.(false);
+    toast.info("Обновляю данные с биллинга...");
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("lk_user");
@@ -1289,6 +1302,15 @@ export default function DashboardPage() {
           >
             <Icon name="User" size={18} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? "#ef4444" : "var(--neon-blue)" }} />
           </div>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 text-white/40 hover:text-white/80 text-sm transition-colors disabled:opacity-50"
+            title="Обновить данные с биллинга"
+          >
+            <Icon name="RefreshCw" size={16} className={refreshing ? "animate-spin" : ""} />
+            <span className="hidden sm:inline">Обновить</span>
+          </button>
           <button
             onClick={handleLogout}
             className="hidden sm:flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm transition-colors"
