@@ -81,13 +81,15 @@ def kassa_get_user_info(session, login):
         tds = tr.find_all('td')
         i = 0
         while i < len(tds) - 1:
-            label = tds[i].get_text(strip=True).rstrip(':').lower()
-            value = tds[i + 1].get_text(strip=True)
+            label = tds[i].get_text(' ', strip=True).rstrip(':').lower()
+            value = tds[i + 1].get_text(' ', strip=True)
             if label and value:
                 data[label] = value
             i += 2
 
     print(f"[MIKROBILL] user={login} info_keys={list(data.keys())}")
+    for k, v in data.items():
+        print(f"[MIKROBILL] info[{k!r}] = {v!r}")
     return data
 
 
@@ -144,15 +146,28 @@ WORK_UNTIL_KEYS = [
 def extract_work_until_from_dates(raw):
     """Из поля 'даты' вытаскивает финальную дату (работает до).
 
-    MikroBill кладёт туда несколько дат подряд (регистрация, активация, работает до...).
-    Берём ПОСЛЕДНЮЮ дату, которая в будущем или близко к сегодня — это и есть 'работает до'.
+    В поле MikroBill обычно несколько дат (регистрация / активация / работает до).
+    Берём МАКСИМАЛЬНУЮ (самую позднюю) — это и есть срок действия услуги.
     """
     if not raw:
         return ''
-    dates = re.findall(r'(\d{2}[./-]\d{2}[./-]\d{2,4})', raw)
+    import datetime as _dt
+    dates = re.findall(r'(\d{1,2})[./\-\s](\d{1,2})[./\-\s](\d{2,4})', raw)
     if not dates:
         return ''
-    return dates[-1]
+    parsed = []
+    for d, m, y in dates:
+        try:
+            dd, mm, yy = int(d), int(m), int(y)
+            if yy < 100:
+                yy += 2000
+            parsed.append((_dt.date(yy, mm, dd), f"{dd:02d}.{mm:02d}.{yy:04d}"))
+        except Exception:
+            continue
+    if not parsed:
+        return ''
+    parsed.sort(key=lambda x: x[0])
+    return parsed[-1][1]
 
 
 def pick_first(info, keys):
