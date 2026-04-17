@@ -531,18 +531,23 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
               />
             </div>
             <div>
-              <p className="text-white/50 text-sm mb-1">Текущего баланса хватит до</p>
+              <p className="text-white/50 text-sm mb-1">
+                {forecast.source === "real"
+                  ? "Услуга действует до"
+                  : "Текущего баланса хватит примерно до"}
+              </p>
               <p
                 className="text-3xl sm:text-4xl font-bold font-montserrat"
                 style={{ color: accent }}
               >
+                {forecast.source === "calculated" && forecast.untilDate ? "≈ " : ""}
                 {forecast.untilDate || "—"}
               </p>
               {forecast.daysLeft !== null && (
                 <p className="text-white/60 text-sm mt-1.5">
                   Осталось ≈ <span className="font-semibold text-white">{forecast.daysLeft} {getDaysWord(forecast.daysLeft)}</span>
                   {forecast.source === "calculated" && (
-                    <span className="text-white/35"> · расчёт по тарифу</span>
+                    <span className="text-white/35"> · ориентировочно, по тарифу</span>
                   )}
                 </p>
               )}
