@@ -1108,6 +1108,8 @@ export default function DashboardPage() {
 
   const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":"","mac":"","group":"","work_until":""}');
 
+  const isBlocked = (user.status || "").toLowerCase().includes("блок");
+
   const handleLogout = () => {
     localStorage.removeItem("lk_user");
     localStorage.removeItem("lk_creds");
@@ -1207,10 +1209,15 @@ export default function DashboardPage() {
             <p className="text-white/40 text-xs">{user.account ? `Договор №${user.account}` : user.login}</p>
           </div>
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.2))", border: "1px solid rgba(0,212,255,0.2)" }}
+            className={`w-9 h-9 rounded-full flex items-center justify-center ${isBlocked ? "pulse-red-card" : ""}`}
+            style={{
+              background: isBlocked
+                ? "linear-gradient(135deg, rgba(239,68,68,0.25), rgba(239,68,68,0.15))"
+                : "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.2))",
+              border: isBlocked ? "1px solid rgba(239,68,68,0.4)" : "1px solid rgba(0,212,255,0.2)",
+            }}
           >
-            <Icon name="User" size={18} style={{ color: "var(--neon-blue)" }} />
+            <Icon name="User" size={18} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? "#ef4444" : "var(--neon-blue)" }} />
           </div>
           <button
             onClick={handleLogout}
@@ -1256,6 +1263,7 @@ export default function DashboardPage() {
             }
 
             const isActive = activeTab === item.key;
+            const highlightRed = isBlocked && item.key === "balance";
             return (
               <button
                 key={item.key}
@@ -1264,9 +1272,15 @@ export default function DashboardPage() {
                   isActive
                     ? "font-semibold"
                     : "text-white/50 hover:text-white/80 hover:bg-white/[0.03]"
-                }`}
+                } ${highlightRed ? "pulse-red-card" : ""}`}
                 style={
-                  isActive
+                  highlightRed
+                    ? {
+                        background: "rgba(239, 68, 68, 0.1)",
+                        color: "#ef4444",
+                        border: "1px solid rgba(239, 68, 68, 0.25)",
+                      }
+                    : isActive
                     ? {
                         background: "rgba(0, 212, 255, 0.1)",
                         color: "var(--neon-blue)",
@@ -1279,7 +1293,8 @@ export default function DashboardPage() {
                 <Icon
                   name={item.icon}
                   size={20}
-                  style={isActive ? { color: "var(--neon-blue)" } : undefined}
+                  className={highlightRed ? "pulse-red-icon" : ""}
+                  style={highlightRed ? { color: "#ef4444" } : isActive ? { color: "var(--neon-blue)" } : undefined}
                 />
                 <span>{item.label}</span>
               </button>
@@ -1290,10 +1305,14 @@ export default function DashboardPage() {
         <div className="p-4 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
           <div className="flex items-center gap-3 sm:hidden">
             <div
-              className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.2))" }}
+              className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${isBlocked ? "pulse-red-card" : ""}`}
+              style={{
+                background: isBlocked
+                  ? "linear-gradient(135deg, rgba(239,68,68,0.25), rgba(239,68,68,0.15))"
+                  : "linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,245,122,0.2))",
+              }}
             >
-              <Icon name="User" size={16} style={{ color: "var(--neon-blue)" }} />
+              <Icon name="User" size={16} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? "#ef4444" : "var(--neon-blue)" }} />
             </div>
             <div className="min-w-0">
               <p className="text-white text-sm font-semibold truncate">{user.name || "Абонент"}</p>
@@ -1301,7 +1320,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-white/30 text-xs">
-            <Icon name="Shield" size={14} />
+            <Icon name="Shield" size={14} className={isBlocked ? "pulse-red-icon" : ""} style={isBlocked ? { color: "#ef4444" } : undefined} />
             <span>Личный кабинет v2.0</span>
           </div>
         </div>
@@ -1322,6 +1341,39 @@ export default function DashboardPage() {
               {activeTab === "settings" && "Настройки учётной записи"}
             </p>
           </div>
+
+          {isBlocked && (
+            <div
+              className="pulse-red-card mb-6 p-4 rounded-2xl flex items-start gap-3 animate-fade-in"
+              style={{
+                background: "linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05))",
+              }}
+            >
+              <div
+                className="pulse-red-card shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(239, 68, 68, 0.18)" }}
+              >
+                <Icon name="AlertTriangle" size={20} className="pulse-red-icon" style={{ color: "#ef4444" }} />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-bold text-sm">Услуга заблокирована</p>
+                <p className="text-white/70 text-xs mt-0.5">
+                  Пополните баланс, чтобы восстановить доступ к интернету.
+                </p>
+              </div>
+              <button
+                onClick={() => handleChangeTab("balance")}
+                className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-[1.05]"
+                style={{
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  color: "#fff",
+                  boxShadow: "0 0 20px rgba(239, 68, 68, 0.4)",
+                }}
+              >
+                Пополнить
+              </button>
+            </div>
+          )}
 
           {activeTab === "main" && <TabMain user={user} loading={loading} onChangeTab={handleChangeTab} />}
           {activeTab === "balance" && <TabBalance user={user} payments={userData?.payments} loading={loading} />}
