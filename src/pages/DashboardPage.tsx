@@ -304,7 +304,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <GlassCard className="p-5 card-hover">
+        <GlassCard className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -324,7 +324,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           </NeonButton>
         </GlassCard>
 
-        <GlassCard className="p-5 card-hover">
+        <GlassCard className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -345,7 +345,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           </NeonButton>
         </GlassCard>
 
-        <GlassCard className="p-5 card-hover">
+        <GlassCard className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}>
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -400,13 +400,13 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
         </GlassCard>
 
         <GlassCard
-          className="p-5 card-hover"
+          className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}
           style={
             (isUrgent || isBlocked)
               ? {
                   background: "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.06))",
-                  border: "1px solid rgba(239, 68, 68, 0.25)",
-                  boxShadow: "0 0 30px rgba(239, 68, 68, 0.06)",
+                  border: isBlocked ? undefined : "1px solid rgba(239, 68, 68, 0.25)",
+                  boxShadow: isBlocked ? undefined : "0 0 30px rgba(239, 68, 68, 0.06)",
                 }
               : undefined
           }

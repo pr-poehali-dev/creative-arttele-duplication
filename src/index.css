@@ -184,6 +184,31 @@
   transform-origin: center;
 }
 
+/* Red pulse for whole cards when blocked */
+@keyframes pulseRedCard {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.35),
+      0 0 20px rgba(239, 68, 68, 0.25),
+      inset 0 0 0 1px rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(239, 68, 68, 0),
+      0 0 45px rgba(239, 68, 68, 0.7),
+      inset 0 0 0 1px rgba(239, 68, 68, 0.6);
+    border-color: rgba(239, 68, 68, 0.75);
+  }
+}
+
+.pulse-red-card {
+  animation: pulseRedCard 1.1s ease-in-out infinite;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 16px;
+}
+
 /* Gradient mesh background */
 .mesh-bg {
   background:
