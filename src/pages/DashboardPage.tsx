@@ -1169,7 +1169,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen relative" style={{ background: "var(--dark-bg)" }}>
+    <div className={`min-h-screen relative ${isBlocked ? "dashboard-blocked" : ""}`} style={{ background: "var(--dark-bg)" }}>
       <PageBackground />
 
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
