@@ -6,7 +6,7 @@ import AiChatPanel from "@/components/AiChatPanel";
 import { toast } from "sonner";
 import funcUrls from "../../backend/func2url.json";
 
-type TabKey = "main" | "balance" | "tariff" | "stats" | "tickets" | "assistant" | "settings";
+type TabKey = "main" | "balance" | "tariff" | "stats" | "assistant" | "settings";
 
 const LOGO_URL =
   "https://cdn.poehali.dev/projects/5573dd0c-764b-4bc3-951f-74ecfdbb396f/files/eab6cd5f-932d-4520-b6dc-7b7f9fa0ff47.jpg";
@@ -16,16 +16,9 @@ const menuItems: { key: TabKey | "logout"; label: string; icon: string }[] = [
   { key: "balance", label: "Баланс и оплата", icon: "Wallet" },
   { key: "tariff", label: "Мой тариф", icon: "Wifi" },
   { key: "stats", label: "Статистика", icon: "BarChart3" },
-  { key: "tickets", label: "Заявки", icon: "MessageSquare" },
   { key: "assistant", label: "Чат с сотрудником", icon: "MessageCircle" },
   { key: "settings", label: "Настройки", icon: "Settings" },
   { key: "logout", label: "Выход", icon: "LogOut" },
-];
-
-const tickets = [
-  { id: "TK-20241", topic: "Низкая скорость интернета", date: "10.04.2026", status: "В работе" },
-  { id: "TK-20198", topic: "Перенос точки подключения", date: "28.03.2026", status: "Решена" },
-  { id: "TK-20187", topic: "Настройка роутера", date: "15.03.2026", status: "Решена" },
 ];
 
 interface UserData {
@@ -302,7 +295,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
 
   const quickActions = [
     { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: () => onChangeTab("balance") },
-    { icon: "Headphones", label: "Тех. поддержка", color: "var(--neon-green)", action: () => onChangeTab("tickets") },
+    { icon: "MessageCircle", label: "Чат с сотрудником", color: "var(--neon-green)", action: () => onChangeTab("assistant") },
     { icon: "ArrowRightLeft", label: "Сменить тариф", color: "var(--neon-purple)", action: () => onChangeTab("tariff") },
     { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b", action: () => onChangeTab("balance") },
   ];
@@ -957,95 +950,6 @@ function TabStats({ traffic, loading }: { traffic: UserData["traffic"]; loading:
   );
 }
 
-function TabTickets() {
-  const [showForm, setShowForm] = useState(false);
-  const [ticketTopic, setTicketTopic] = useState("");
-  const [ticketDesc, setTicketDesc] = useState("");
-
-  const statusColors: Record<string, { bg: string; text: string }> = {
-    "Решена": { bg: "rgba(0, 245, 122, 0.1)", text: "var(--neon-green)" },
-    "В работе": { bg: "rgba(245, 158, 11, 0.1)", text: "#f59e0b" },
-    "Новая": { bg: "rgba(0, 212, 255, 0.1)", text: "var(--neon-blue)" },
-  };
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <h3 className="text-lg font-bold text-white font-montserrat">Мои заявки</h3>
-        <NeonButton variant="blue" onClick={() => setShowForm(!showForm)}>
-          <Icon name={showForm ? "X" : "Plus"} size={16} />
-          {showForm ? "Отмена" : "Создать заявку"}
-        </NeonButton>
-      </div>
-
-      {showForm && (
-        <GlassCard className="p-6 animate-fade-in">
-          <h4 className="text-white font-bold mb-4">Новая заявка</h4>
-          <div className="space-y-4">
-            <InputField
-              label="Тема"
-              icon="FileText"
-              value={ticketTopic}
-              onChange={setTicketTopic}
-              placeholder="Опишите тему обращения"
-            />
-            <div>
-              <label className="block text-sm text-white/60 mb-2 font-medium">Описание</label>
-              <textarea
-                value={ticketDesc}
-                onChange={(e) => setTicketDesc(e.target.value)}
-                placeholder="Подробно опишите проблему..."
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl text-white placeholder-white/25 outline-none transition-all duration-200 text-sm resize-none focus:border-[rgba(0,212,255,0.4)] focus:shadow-[0_0_20px_rgba(0,212,255,0.1)]"
-                style={{
-                  background: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                }}
-              />
-            </div>
-            <NeonButton variant="green">
-              <Icon name="Send" size={16} />
-              Отправить заявку
-            </NeonButton>
-          </div>
-        </GlassCard>
-      )}
-
-      <div className="space-y-3">
-        {tickets.map((t) => {
-          const sc = statusColors[t.status] || statusColors["Новая"];
-          return (
-            <GlassCard key={t.id} className="p-5 card-hover">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(0, 212, 255, 0.1)", border: "1px solid rgba(0, 212, 255, 0.15)" }}
-                  >
-                    <Icon name="MessageSquare" size={18} style={{ color: "var(--neon-blue)" }} />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-sm">{t.topic}</p>
-                    <p className="text-white/40 text-xs mt-1">
-                      {t.id} &middot; {t.date}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 w-fit"
-                  style={{ background: sc.bg, color: sc.text }}
-                >
-                  {t.status}
-                </span>
-              </div>
-            </GlassCard>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function TabSettings({ user }: { user: UserData }) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -1220,7 +1124,6 @@ export default function DashboardPage() {
     balance: "Баланс и оплата",
     tariff: "Мой тариф",
     stats: "Статистика",
-    tickets: "Заявки",
     assistant: "Чат с сотрудником",
     settings: "Настройки",
   };
@@ -1406,7 +1309,6 @@ export default function DashboardPage() {
               {activeTab === "balance" && "Управление балансом и история платежей"}
               {activeTab === "tariff" && "Управление тарифным планом"}
               {activeTab === "stats" && "Статистика использования интернета"}
-              {activeTab === "tickets" && "Обращения в техническую поддержку"}
               {activeTab === "assistant" && "Задайте вопрос или оформите заявку на ремонт — сотрудник примет её в работу"}
               {activeTab === "settings" && "Настройки учётной записи"}
             </p>
@@ -1416,7 +1318,6 @@ export default function DashboardPage() {
           {activeTab === "balance" && <TabBalance user={user} payments={userData?.payments} loading={loading} />}
           {activeTab === "tariff" && <TabTariff user={user} loading={loading} />}
           {activeTab === "stats" && <TabStats traffic={userData?.traffic} loading={loading} />}
-          {activeTab === "tickets" && <TabTickets />}
           {activeTab === "assistant" && (
             <div
               className="rounded-2xl overflow-hidden animate-fade-in"
