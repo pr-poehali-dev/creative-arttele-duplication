@@ -239,53 +239,66 @@ function computeBalanceForecast(user: UserData): BalanceForecast {
     : findTariffPrice(user.tariff);
   const dailyFee = monthlyFee ? +(monthlyFee / 30).toFixed(2) : null;
 
-  const realDate = parseDateSafe(user.work_until);
-  if (realDate) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return {
-      untilDate: formatDateRu(realDate),
-      daysLeft: Math.max(0, daysBetween(today, realDate)),
-      monthlyFee,
-      dailyFee,
-      source: "real",
-    };
-  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
-  if (isFinite(balanceNum) && monthlyFee && monthlyFee > 0 && dailyFee && dailyFee > 0) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const hasBalance = isFinite(balanceNum) && !!monthlyFee && monthlyFee > 0 && !!dailyFee && dailyFee > 0;
 
+  // 1. Считаем прогноз по балансу: сегодня + баланс/суточная_плата
+  let calcDate: Date | null = null;
+  let calcDays: number | null = null;
+  if (hasBalance) {
     if (balanceNum <= 0) {
-      return {
-        untilDate: formatDateRu(today),
-        daysLeft: 0,
-        monthlyFee,
-        dailyFee,
-        source: "calculated",
-      };
+      calcDate = new Date(today);
+      calcDays = 0;
+    } else {
+      calcDays = Math.floor(balanceNum / (dailyFee as number));
+      calcDate = new Date(today);
+      calcDate.setDate(calcDate.getDate() + calcDays);
     }
+  }
 
-    const daysLeft = Math.floor(balanceNum / dailyFee);
-    const untilDate = new Date(today);
-    untilDate.setDate(untilDate.getDate() + daysLeft);
+  // 2. Дата от провайдера (work_until) — используем как «не раньше этой»
+  const realDate = parseDateSafe(user.work_until);
+  const realDays = realDate ? Math.max(0, daysBetween(today, realDate)) : null;
 
-    return {
-      untilDate: formatDateRu(untilDate),
-      daysLeft,
-      monthlyFee,
-      dailyFee,
-      source: "calculated",
-    };
+  // Берём МАКСИМУМ из двух прогнозов, чтобы после пополнения дата сразу сдвигалась
+  // (провайдер обновляет work_until не моментально)
+  let finalDate: Date | null = null;
+  let finalDays: number | null = null;
+  let source: "real" | "calculated" | "unknown" = "unknown";
+
+  if (calcDate && realDate) {
+    if ((calcDays as number) >= (realDays as number)) {
+      finalDate = calcDate;
+      finalDays = calcDays;
+      source = "calculated";
+    } else {
+      finalDate = realDate;
+      finalDays = realDays;
+      source = "real";
+    }
+  } else if (calcDate) {
+    finalDate = calcDate;
+    finalDays = calcDays;
+    source = "calculated";
+  } else if (realDate) {
+    finalDate = realDate;
+    finalDays = realDays;
+    source = "real";
+  }
+
+  if (!finalDate) {
+    return { untilDate: null, daysLeft: null, monthlyFee, dailyFee, source: "unknown" };
   }
 
   return {
-    untilDate: null,
-    daysLeft: null,
+    untilDate: formatDateRu(finalDate),
+    daysLeft: finalDays,
     monthlyFee,
     dailyFee,
-    source: "unknown",
+    source,
   };
 }
 
