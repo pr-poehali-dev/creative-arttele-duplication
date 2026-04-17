@@ -617,31 +617,55 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
             </div>
             <div>
               <p className="text-white/50 text-sm mb-1">
-                {forecast.source === "real"
+                {forecast.daysLeft === 0
+                  ? "Баланс исчерпан"
+                  : forecast.source === "real"
                   ? "Услуга действует до"
                   : "Баланса хватит до"}
               </p>
-              <p
-                className="text-3xl sm:text-4xl font-bold font-montserrat"
-                style={{ color: accent }}
-              >
-                {forecast.untilDate || "—"}
-              </p>
-              {forecast.daysLeft !== null && (
-                <p className="text-white/60 text-sm mt-1.5">
-                  Осталось ≈{" "}
-                  <span className="font-semibold text-white">
-                    {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
-                  </span>
-                  {forecast.source === "calculated" && (
-                    <span className="text-white/35"> · расчёт по балансу</span>
+              {forecast.daysLeft === 0 ? (
+                <>
+                  <p
+                    className="text-3xl sm:text-4xl font-bold font-montserrat"
+                    style={{ color: "#ef4444" }}
+                  >
+                    Пополните счёт
+                  </p>
+                  <p className="text-white/60 text-sm mt-1.5">
+                    Баланс: <span className="font-semibold text-white">{user.balance || "0"} ₽</span>
+                    {forecast.monthlyFee && (
+                      <span className="text-white/35"> · нужно {forecast.monthlyFee} ₽/мес</span>
+                    )}
+                  </p>
+                  <p className="text-white/40 text-xs mt-1">
+                    Если вы уже оплатили — зачисление может занять до 15 минут
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p
+                    className="text-3xl sm:text-4xl font-bold font-montserrat"
+                    style={{ color: accent }}
+                  >
+                    {forecast.untilDate || "—"}
+                  </p>
+                  {forecast.daysLeft !== null && (
+                    <p className="text-white/60 text-sm mt-1.5">
+                      Осталось ≈{" "}
+                      <span className="font-semibold text-white">
+                        {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
+                      </span>
+                      {forecast.source === "calculated" && (
+                        <span className="text-white/35"> · расчёт по балансу</span>
+                      )}
+                    </p>
                   )}
-                </p>
-              )}
-              {forecast.source === "unknown" && (
-                <p className="text-white/50 text-sm mt-1.5">
-                  Недостаточно данных для расчёта
-                </p>
+                  {forecast.source === "unknown" && (
+                    <p className="text-white/50 text-sm mt-1.5">
+                      Недостаточно данных для расчёта
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
