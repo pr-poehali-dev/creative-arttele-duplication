@@ -219,15 +219,23 @@ def build_user_data(login, found, info, session=None):
         m = re.search(r'(\d+[.,]?\d*)', price_raw)
         if m:
             price_val = m.group(1).replace(',', '.')
-    if (not price_val or float(price_val or 0) <= 0) and session is not None:
+    try:
+        price_num = float(price_val) if price_val else 0.0
+    except Exception:
+        price_num = 0.0
+    if price_num <= 0 and session is not None:
         got = kassa_get_tariff_price(session, tariff)
         if got:
             m = re.search(r'(\d+[.,]?\d*)', got)
             if m:
                 price_val = m.group(1).replace(',', '.')
+    if price_val in ('0', '0.0', '0.00'):
+        price_val = ''
 
     work_until_raw = pick_first(info, WORK_UNTIL_KEYS)
-    work_until = extract_work_until_from_dates(work_until_raw) or work_until_raw
+    work_until = extract_work_until_from_dates(work_until_raw)
+    if not work_until and work_until_raw and re.search(r'\d', work_until_raw):
+        work_until = work_until_raw
 
     print(
         f"[MIKROBILL] built: login={login} tariff={tariff!r} balance={balance_val} "

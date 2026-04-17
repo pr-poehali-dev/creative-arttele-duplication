@@ -162,23 +162,37 @@ function LoadingSpinner() {
   );
 }
 
-const HOME_TARIFFS: { name: string; speed: string; price: number }[] = [
-  { name: "Лайт", speed: "30 Мбит/с", price: 500 },
-  { name: "Базовый", speed: "50 Мбит/с", price: 800 },
-  { name: "Комфорт", speed: "100 Мбит/с", price: 1000 },
-  { name: "Старт", speed: "200 Мбит/с", price: 1300 },
-  { name: "Оптима", speed: "300 Мбит/с", price: 1500 },
-  { name: "Премиум", speed: "500 Мбит/с", price: 1700 },
-  { name: "Ультра", speed: "600 Мбит/с", price: 1900 },
-  { name: "Максимум", speed: "1 Гбит/с", price: 2700 },
-  { name: "Гигабит+", speed: "2.5 Гбит/с", price: 5000 },
+const HOME_TARIFFS: { name: string; speed: string; price: number; mbps: number }[] = [
+  { name: "Лайт", speed: "30 Мбит/с", price: 500, mbps: 30 },
+  { name: "Базовый", speed: "50 Мбит/с", price: 800, mbps: 50 },
+  { name: "Комфорт", speed: "100 Мбит/с", price: 1000, mbps: 100 },
+  { name: "Классик-шейк", speed: "150 Мбит/с", price: 1250, mbps: 150 },
+  { name: "Старт", speed: "200 Мбит/с", price: 1300, mbps: 200 },
+  { name: "Оптима", speed: "300 Мбит/с", price: 1500, mbps: 300 },
+  { name: "Премиум", speed: "500 Мбит/с", price: 1700, mbps: 500 },
+  { name: "Ультра", speed: "600 Мбит/с", price: 1900, mbps: 600 },
+  { name: "Максимум", speed: "1 Гбит/с", price: 2700, mbps: 1000 },
+  { name: "Гигабит+", speed: "2.5 Гбит/с", price: 5000, mbps: 2500 },
 ];
 
 function findTariffPrice(tariffName?: string): number | null {
   if (!tariffName) return null;
   const lower = tariffName.toLowerCase();
-  const found = HOME_TARIFFS.find((t) => lower.includes(t.name.toLowerCase()));
-  return found ? found.price : null;
+  const byName = HOME_TARIFFS.find((t) => lower.includes(t.name.toLowerCase()));
+  if (byName) return byName.price;
+  const speedMatch = lower.match(/(\d+)\s*(мбит|гбит)/);
+  if (speedMatch) {
+    let mbps = parseInt(speedMatch[1], 10);
+    if (speedMatch[2].startsWith("гбит")) mbps *= 1000;
+    const bySpeed = HOME_TARIFFS.find((t) => t.mbps === mbps)
+      || HOME_TARIFFS.reduce<{ t: typeof HOME_TARIFFS[number]; diff: number } | null>((acc, t) => {
+        const diff = Math.abs(t.mbps - mbps);
+        if (!acc || diff < acc.diff) return { t, diff };
+        return acc;
+      }, null)?.t;
+    if (bySpeed && "price" in bySpeed) return bySpeed.price;
+  }
+  return null;
 }
 
 function parseDateSafe(raw?: string): Date | null {
