@@ -260,14 +260,23 @@ function computeBalanceForecast(user: UserData): BalanceForecast {
   }
 
   const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
-  if (isFinite(balanceNum) && dailyFee && dailyFee > 0) {
-    const daysLeft = Math.max(0, Math.floor(balanceNum / dailyFee));
-    const until = new Date();
-    until.setHours(0, 0, 0, 0);
-    until.setDate(until.getDate() + daysLeft);
+  if (isFinite(balanceNum) && monthlyFee && monthlyFee > 0) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const nextFirst = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    if (balanceNum >= monthlyFee) {
+      const daysLeft = daysBetween(today, nextFirst);
+      return {
+        untilDate: formatDateRu(nextFirst),
+        daysLeft,
+        monthlyFee,
+        dailyFee,
+        source: "calculated",
+      };
+    }
     return {
-      untilDate: formatDateRu(until),
-      daysLeft,
+      untilDate: formatDateRu(nextFirst),
+      daysLeft: 0,
       monthlyFee,
       dailyFee,
       source: "calculated",
@@ -534,20 +543,22 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
               <p className="text-white/50 text-sm mb-1">
                 {forecast.source === "real"
                   ? "Услуга действует до"
-                  : "Текущего баланса хватит примерно до"}
+                  : "Следующее списание"}
               </p>
               <p
                 className="text-3xl sm:text-4xl font-bold font-montserrat"
                 style={{ color: accent }}
               >
-                {forecast.source === "calculated" && forecast.untilDate ? "≈ " : ""}
                 {forecast.untilDate || "—"}
               </p>
               {forecast.daysLeft !== null && (
                 <p className="text-white/60 text-sm mt-1.5">
-                  Осталось ≈ <span className="font-semibold text-white">{forecast.daysLeft} {getDaysWord(forecast.daysLeft)}</span>
+                  {forecast.source === "real" ? "Осталось" : "Через"} ≈{" "}
+                  <span className="font-semibold text-white">
+                    {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
+                  </span>
                   {forecast.source === "calculated" && (
-                    <span className="text-white/35"> · ориентировочно, по тарифу</span>
+                    <span className="text-white/35"> · списание 1-го числа</span>
                   )}
                 </p>
               )}
