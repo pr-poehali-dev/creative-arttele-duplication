@@ -293,11 +293,12 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
   const forecast = computeBalanceForecast(user);
   const isUrgent = forecast.daysLeft !== null && forecast.daysLeft <= 5;
 
+  const RED = "#ef4444";
   const quickActions = [
-    { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: () => onChangeTab("balance") },
-    { icon: "MessageCircle", label: "Чат с сотрудником", color: "var(--neon-green)", action: () => onChangeTab("assistant") },
-    { icon: "ArrowRightLeft", label: "Сменить тариф", color: "var(--neon-purple)", action: () => onChangeTab("tariff") },
-    { icon: "HandCoins", label: "Обещанный платёж", color: "#f59e0b", action: () => onChangeTab("balance") },
+    { icon: "CreditCard", label: "Пополнить", color: isBlocked ? RED : "var(--neon-blue)", action: () => onChangeTab("balance") },
+    { icon: "MessageCircle", label: "Чат с сотрудником", color: isBlocked ? RED : "var(--neon-green)", action: () => onChangeTab("assistant") },
+    { icon: "ArrowRightLeft", label: "Сменить тариф", color: isBlocked ? RED : "var(--neon-purple)", action: () => onChangeTab("tariff") },
+    { icon: "HandCoins", label: "Обещанный платёж", color: isBlocked ? RED : "#f59e0b", action: () => onChangeTab("balance") },
   ];
 
   return (
@@ -307,9 +308,12 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(0, 212, 255, 0.12)", border: "1px solid rgba(0, 212, 255, 0.2)" }}
+              style={{
+                background: isBlocked ? "rgba(239, 68, 68, 0.12)" : "rgba(0, 212, 255, 0.12)",
+                border: isBlocked ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(0, 212, 255, 0.2)",
+              }}
             >
-              <Icon name="Wallet" size={20} style={{ color: "var(--neon-blue)" }} />
+              <Icon name="Wallet" size={20} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
             </div>
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
@@ -324,9 +328,12 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(0, 245, 122, 0.12)", border: "1px solid rgba(0, 245, 122, 0.2)" }}
+              style={{
+                background: isBlocked ? "rgba(239, 68, 68, 0.12)" : "rgba(0, 245, 122, 0.12)",
+                border: isBlocked ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(0, 245, 122, 0.2)",
+              }}
             >
-              <Icon name="Wifi" size={20} style={{ color: "var(--neon-green)" }} />
+              <Icon name="Wifi" size={20} style={{ color: isBlocked ? RED : "var(--neon-green)" }} />
             </div>
             <span className="text-white/50 text-sm">Тариф</span>
           </div>
@@ -394,7 +401,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
         <GlassCard
           className="p-5 card-hover"
           style={
-            isUrgent
+            (isUrgent || isBlocked)
               ? {
                   background: "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.06))",
                   border: "1px solid rgba(239, 68, 68, 0.25)",
@@ -407,26 +414,26 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{
-                background: isUrgent ? "rgba(239, 68, 68, 0.15)" : "rgba(168, 85, 247, 0.12)",
-                border: isUrgent ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(168, 85, 247, 0.2)",
+                background: (isUrgent || isBlocked) ? "rgba(239, 68, 68, 0.15)" : "rgba(168, 85, 247, 0.12)",
+                border: (isUrgent || isBlocked) ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(168, 85, 247, 0.2)",
               }}
             >
               <Icon
                 name="CalendarClock"
                 size={20}
-                style={{ color: isUrgent ? "#ef4444" : "var(--neon-purple)" }}
+                style={{ color: (isUrgent || isBlocked) ? RED : "var(--neon-purple)" }}
               />
             </div>
             <span className="text-white/50 text-sm">Баланса хватит до</span>
           </div>
           <p
             className="text-xl font-bold font-montserrat"
-            style={{ color: isUrgent ? "#ef4444" : "#fff" }}
+            style={{ color: (isUrgent || isBlocked) ? RED : "#fff" }}
           >
             {forecast.untilDate || "—"}
           </p>
           {forecast.daysLeft !== null ? (
-            <p className="text-sm mt-1" style={{ color: isUrgent ? "#fca5a5" : "rgba(255,255,255,0.5)" }}>
+            <p className="text-sm mt-1" style={{ color: (isUrgent || isBlocked) ? "#fca5a5" : "rgba(255,255,255,0.5)" }}>
               Осталось ≈ {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
             </p>
           ) : user.credit ? (
@@ -439,7 +446,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
 
       <GlassCard className="p-6">
         <h3 className="text-lg font-bold text-white font-montserrat mb-4 flex items-center gap-2">
-          <Icon name="Zap" size={20} style={{ color: "var(--neon-blue)" }} />
+          <Icon name="Zap" size={20} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
           Быстрые действия
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
