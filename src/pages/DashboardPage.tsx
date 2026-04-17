@@ -160,11 +160,117 @@ function LoadingSpinner() {
   );
 }
 
+const HOME_TARIFFS: { name: string; speed: string; price: number }[] = [
+  { name: "Лайт", speed: "30 Мбит/с", price: 500 },
+  { name: "Базовый", speed: "50 Мбит/с", price: 800 },
+  { name: "Комфорт", speed: "100 Мбит/с", price: 1000 },
+  { name: "Старт", speed: "200 Мбит/с", price: 1300 },
+  { name: "Оптима", speed: "300 Мбит/с", price: 1500 },
+  { name: "Премиум", speed: "500 Мбит/с", price: 1700 },
+  { name: "Ультра", speed: "600 Мбит/с", price: 1900 },
+  { name: "Максимум", speed: "1 Гбит/с", price: 2700 },
+  { name: "Гигабит+", speed: "2.5 Гбит/с", price: 5000 },
+];
+
+function findTariffPrice(tariffName?: string): number | null {
+  if (!tariffName) return null;
+  const lower = tariffName.toLowerCase();
+  const found = HOME_TARIFFS.find((t) => lower.includes(t.name.toLowerCase()));
+  return found ? found.price : null;
+}
+
+function parseDateSafe(raw?: string): Date | null {
+  if (!raw) return null;
+  const s = raw.trim();
+  const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{2,4})/);
+  if (m) {
+    const d = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10) - 1;
+    let y = parseInt(m[3], 10);
+    if (y < 100) y += 2000;
+    const dt = new Date(y, mo, d);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+  const iso = new Date(s);
+  return isNaN(iso.getTime()) ? null : iso;
+}
+
+function formatDateRu(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}.${mm}.${d.getFullYear()}`;
+}
+
+function daysBetween(from: Date, to: Date): number {
+  const ms = to.getTime() - from.getTime();
+  return Math.floor(ms / (1000 * 60 * 60 * 24));
+}
+
+function getDaysWord(n: number): string {
+  const abs = Math.abs(n);
+  const mod10 = abs % 10;
+  const mod100 = abs % 100;
+  if (mod10 === 1 && mod100 !== 11) return "день";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "дня";
+  return "дней";
+}
+
+interface BalanceForecast {
+  untilDate: string | null;
+  daysLeft: number | null;
+  monthlyFee: number | null;
+  dailyFee: number | null;
+  source: "real" | "calculated" | "unknown";
+}
+
+function computeBalanceForecast(user: UserData): BalanceForecast {
+  const monthlyFee = findTariffPrice(user.tariff);
+  const dailyFee = monthlyFee ? +(monthlyFee / 30).toFixed(2) : null;
+
+  const realDate = parseDateSafe(user.work_until);
+  if (realDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      untilDate: formatDateRu(realDate),
+      daysLeft: Math.max(0, daysBetween(today, realDate)),
+      monthlyFee,
+      dailyFee,
+      source: "real",
+    };
+  }
+
+  const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
+  if (isFinite(balanceNum) && dailyFee && dailyFee > 0 && balanceNum > 0) {
+    const daysLeft = Math.floor(balanceNum / dailyFee);
+    const until = new Date();
+    until.setHours(0, 0, 0, 0);
+    until.setDate(until.getDate() + daysLeft);
+    return {
+      untilDate: formatDateRu(until),
+      daysLeft,
+      monthlyFee,
+      dailyFee,
+      source: "calculated",
+    };
+  }
+
+  return {
+    untilDate: null,
+    daysLeft: null,
+    monthlyFee,
+    dailyFee,
+    source: "unknown",
+  };
+}
+
 function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: boolean; onChangeTab: (tab: TabKey) => void }) {
   if (loading) return <LoadingSpinner />;
 
   const balance = user.balance || "0.00";
   const isBlocked = user.status?.toLowerCase().includes("блок");
+  const forecast = computeBalanceForecast(user);
+  const isUrgent = forecast.daysLeft !== null && forecast.daysLeft <= 5;
 
   const quickActions = [
     { icon: "CreditCard", label: "Пополнить", color: "var(--neon-blue)", action: () => onChangeTab("balance") },
@@ -236,21 +342,48 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           {user.mac && <p className="text-white/40 text-sm">MAC: {user.mac}</p>}
         </GlassCard>
 
-        <GlassCard className="p-5 card-hover">
+        <GlassCard
+          className="p-5 card-hover"
+          style={
+            isUrgent
+              ? {
+                  background: "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.06))",
+                  border: "1px solid rgba(239, 68, 68, 0.25)",
+                  boxShadow: "0 0 30px rgba(239, 68, 68, 0.06)",
+                }
+              : undefined
+          }
+        >
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "rgba(168, 85, 247, 0.12)", border: "1px solid rgba(168, 85, 247, 0.2)" }}
+              style={{
+                background: isUrgent ? "rgba(239, 68, 68, 0.15)" : "rgba(168, 85, 247, 0.12)",
+                border: isUrgent ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(168, 85, 247, 0.2)",
+              }}
             >
-              <Icon name="CalendarClock" size={20} style={{ color: "var(--neon-purple)" }} />
+              <Icon
+                name="CalendarClock"
+                size={20}
+                style={{ color: isUrgent ? "#ef4444" : "var(--neon-purple)" }}
+              />
             </div>
-            <span className="text-white/50 text-sm">Следующее списание</span>
+            <span className="text-white/50 text-sm">Баланса хватит до</span>
           </div>
-          <p className="text-xl font-bold text-white font-montserrat">{user.work_until || "—"}</p>
-          {user.credit ? (
-            <p className="text-white/40 text-sm mt-1">Кредит: {user.credit} ₽</p>
+          <p
+            className="text-xl font-bold font-montserrat"
+            style={{ color: isUrgent ? "#ef4444" : "#fff" }}
+          >
+            {forecast.untilDate || "—"}
+          </p>
+          {forecast.daysLeft !== null ? (
+            <p className="text-sm mt-1" style={{ color: isUrgent ? "#fca5a5" : "rgba(255,255,255,0.5)" }}>
+              Осталось ≈ {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
+            </p>
+          ) : user.credit ? (
+            <p className="text-white/40 text-sm mt-1">Обещанный платёж: {user.credit} ₽</p>
           ) : (
-            <p className="text-white/40 text-sm mt-1">{user.account ? `Договор: ${user.account}` : ""}</p>
+            <p className="text-white/40 text-sm mt-1">{user.account ? `Договор: ${user.account}` : "—"}</p>
           )}
         </GlassCard>
       </div>
@@ -320,6 +453,9 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
 
   const balance = user.balance || "0.00";
   const payList = payments || [];
+  const forecast = computeBalanceForecast(user);
+  const isUrgent = forecast.daysLeft !== null && forecast.daysLeft <= 5;
+  const accent = isUrgent ? "#ef4444" : "var(--neon-blue)";
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -343,6 +479,98 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
           </div>
         </div>
       </GlassCard>
+
+      <div
+        className="relative rounded-2xl p-6 sm:p-7 overflow-hidden"
+        style={{
+          background: isUrgent
+            ? "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.05))"
+            : "linear-gradient(135deg, rgba(0,212,255,0.08), rgba(168,85,247,0.05))",
+          border: `1px solid ${isUrgent ? "rgba(239,68,68,0.25)" : "rgba(0,212,255,0.22)"}`,
+          boxShadow: isUrgent ? "0 0 50px rgba(239,68,68,0.08)" : "0 0 50px rgba(0,212,255,0.06)",
+        }}
+      >
+        <div
+          className="absolute top-0 right-0 w-72 h-72 rounded-full opacity-10 blur-[80px]"
+          style={{ background: isUrgent ? "#ef4444" : "var(--neon-blue)" }}
+        />
+
+        <div className="relative flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
+          <div className="flex items-start gap-4">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: isUrgent ? "rgba(239,68,68,0.18)" : "rgba(0,212,255,0.15)",
+                border: `1px solid ${isUrgent ? "rgba(239,68,68,0.3)" : "rgba(0,212,255,0.3)"}`,
+                boxShadow: `0 0 25px ${isUrgent ? "rgba(239,68,68,0.15)" : "rgba(0,212,255,0.15)"}`,
+              }}
+            >
+              <Icon
+                name={isUrgent ? "AlertTriangle" : "CalendarClock"}
+                size={28}
+                style={{ color: accent }}
+              />
+            </div>
+            <div>
+              <p className="text-white/50 text-sm mb-1">Текущего баланса хватит до</p>
+              <p
+                className="text-3xl sm:text-4xl font-bold font-montserrat"
+                style={{ color: accent }}
+              >
+                {forecast.untilDate || "—"}
+              </p>
+              {forecast.daysLeft !== null && (
+                <p className="text-white/60 text-sm mt-1.5">
+                  Осталось ≈ <span className="font-semibold text-white">{forecast.daysLeft} {getDaysWord(forecast.daysLeft)}</span>
+                  {forecast.source === "calculated" && (
+                    <span className="text-white/35"> · расчёт по тарифу</span>
+                  )}
+                </p>
+              )}
+              {forecast.source === "unknown" && (
+                <p className="text-white/50 text-sm mt-1.5">
+                  Недостаточно данных для расчёта
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div
+            className="grid grid-cols-2 gap-4 sm:gap-6 lg:border-l lg:pl-6"
+            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <div>
+              <p className="text-white/45 text-xs uppercase tracking-wider mb-1.5">Оплата по тарифу</p>
+              <p className="text-xl font-bold text-white font-montserrat">
+                {forecast.monthlyFee !== null ? `${forecast.monthlyFee} ₽` : "—"}
+              </p>
+              <p className="text-white/40 text-xs mt-0.5">в месяц</p>
+            </div>
+            <div>
+              <p className="text-white/45 text-xs uppercase tracking-wider mb-1.5">В день</p>
+              <p className="text-xl font-bold text-white font-montserrat">
+                {forecast.dailyFee !== null ? `${forecast.dailyFee} ₽` : "—"}
+              </p>
+              <p className="text-white/40 text-xs mt-0.5">списание</p>
+            </div>
+          </div>
+        </div>
+
+        {isUrgent && (
+          <div
+            className="relative mt-5 p-3 rounded-xl flex items-start gap-2.5"
+            style={{
+              background: "rgba(239,68,68,0.08)",
+              border: "1px solid rgba(239,68,68,0.18)",
+            }}
+          >
+            <Icon name="Info" size={16} style={{ color: "#ef4444" }} className="shrink-0 mt-0.5" />
+            <p className="text-sm text-white/70">
+              Скоро потребуется пополнение. Пополните баланс, чтобы избежать отключения услуги.
+            </p>
+          </div>
+        )}
+      </div>
 
       {showPayBanner && (
         <div
@@ -464,6 +692,9 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
     { name: "Гигабит+", speed: "2.5 Гбит/с", price: 5000 },
   ];
 
+  const forecast = computeBalanceForecast(user);
+  const isUrgent = forecast.daysLeft !== null && forecast.daysLeft <= 5;
+
   return (
     <div className="space-y-6 animate-fade-in">
       <GlassCard className="p-6">
@@ -484,6 +715,60 @@ function TabTariff({ user, loading }: { user: UserData; loading: boolean }) {
           <p className="text-white/40 text-sm mt-3">Сетевая группа: {user.group}</p>
         )}
       </GlassCard>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon name="Wallet" size={16} style={{ color: "var(--neon-blue)" }} />
+            <span className="text-white/50 text-xs uppercase tracking-wider">Оплата по тарифу</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-montserrat">
+            {forecast.monthlyFee !== null ? `${forecast.monthlyFee} ₽` : "—"}
+          </p>
+          <p className="text-white/40 text-xs mt-1">в месяц</p>
+        </GlassCard>
+        <GlassCard className="p-5">
+          <div className="flex items-center gap-2 mb-2">
+            <Icon name="Timer" size={16} style={{ color: "var(--neon-green)" }} />
+            <span className="text-white/50 text-xs uppercase tracking-wider">Списание в день</span>
+          </div>
+          <p className="text-2xl font-bold text-white font-montserrat">
+            {forecast.dailyFee !== null ? `${forecast.dailyFee} ₽` : "—"}
+          </p>
+          <p className="text-white/40 text-xs mt-1">≈ {forecast.monthlyFee ? "месяц / 30" : "нет данных"}</p>
+        </GlassCard>
+        <GlassCard
+          className="p-5"
+          style={
+            isUrgent
+              ? {
+                  background: "linear-gradient(135deg, rgba(239,68,68,0.10), rgba(245,158,11,0.05))",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                }
+              : undefined
+          }
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Icon
+              name="CalendarClock"
+              size={16}
+              style={{ color: isUrgent ? "#ef4444" : "var(--neon-purple)" }}
+            />
+            <span className="text-white/50 text-xs uppercase tracking-wider">Баланса хватит до</span>
+          </div>
+          <p
+            className="text-2xl font-bold font-montserrat"
+            style={{ color: isUrgent ? "#ef4444" : "#fff" }}
+          >
+            {forecast.untilDate || "—"}
+          </p>
+          <p className="text-white/40 text-xs mt-1">
+            {forecast.daysLeft !== null
+              ? `≈ ${forecast.daysLeft} ${getDaysWord(forecast.daysLeft)}`
+              : "нет данных"}
+          </p>
+        </GlassCard>
+      </div>
 
       {user.address && (
         <GlassCard className="p-6">
