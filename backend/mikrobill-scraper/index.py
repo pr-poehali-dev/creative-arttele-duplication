@@ -250,10 +250,24 @@ def build_user_data(login, found, info, session=None):
     if price_val in ('0', '0.0', '0.00'):
         price_val = ''
 
-    work_until_raw = pick_first(info, WORK_UNTIL_KEYS)
-    work_until = extract_work_until_from_dates(work_until_raw)
-    if not work_until and work_until_raw and re.search(r'\d', work_until_raw):
-        work_until = work_until_raw
+    work_until = ''
+    candidates = []
+    for k in WORK_UNTIL_KEYS:
+        v = info.get(k)
+        if v:
+            candidates.append(v)
+    for key, val in info.items():
+        if not val:
+            continue
+        for k in WORK_UNTIL_KEYS:
+            if k in key:
+                candidates.append(val)
+                break
+    for raw in candidates:
+        got = extract_work_until_from_dates(raw)
+        if got:
+            work_until = got
+            break
 
     print(
         f"[MIKROBILL] built: login={login} tariff={tariff!r} balance={balance_val} "
