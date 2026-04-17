@@ -67,6 +67,8 @@ export default function AiChatPanel({
   const [formTopic, setFormTopic] = useState(topicList[0]);
   const [formName, setFormName] = useState(context?.name || "");
   const [formPhone, setFormPhone] = useState(context?.phone || "");
+  const [formCity, setFormCity] = useState("");
+  const [formAddress, setFormAddress] = useState(context?.address || "");
   const [formMessage, setFormMessage] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -108,6 +110,10 @@ export default function AiChatPanel({
       toast.error("Укажите имя и телефон");
       return;
     }
+    if (!formCity.trim() || !formAddress.trim()) {
+      toast.error("Укажите населённый пункт и адрес");
+      return;
+    }
     setSending(true);
     try {
       const url = (funcUrls as Record<string, string>)["send-contact"];
@@ -115,7 +121,6 @@ export default function AiChatPanel({
         ? [
             context.login ? `Логин: ${context.login}` : "",
             context.tariff ? `Тариф: ${context.tariff}` : "",
-            context.address ? `Адрес: ${context.address}` : "",
             context.balance ? `Баланс: ${context.balance} ₽` : "",
             context.status ? `Статус: ${context.status}` : "",
           ].filter(Boolean).join("\n")
@@ -131,6 +136,8 @@ export default function AiChatPanel({
           mode: "ticket",
           name: formName.trim(),
           phone: formPhone.trim(),
+          city: formCity.trim(),
+          address: formAddress.trim(),
           topic: formTopic,
           message: fullMessage,
         }),
@@ -143,11 +150,12 @@ export default function AiChatPanel({
           : `Спасибо, ${formName}! Заявка по теме «${formTopic}» принята. Менеджер свяжется с вами в течение 15 минут по номеру ${formPhone}.`;
         setMessages(prev => [
           ...prev,
-          { role: "user", content: `📝 Оформил заявку: ${formTopic}${formMessage ? `\n${formMessage}` : ""}` },
+          { role: "user", content: `📝 Оформил заявку: ${formTopic}\nНас. пункт: ${formCity}\nАдрес: ${formAddress}${formMessage ? `\n${formMessage}` : ""}` },
           { role: "assistant", content: confirmText },
         ]);
         setShowForm(false);
         setFormMessage("");
+        setFormCity("");
       } else {
         toast.error(data.error || "Не удалось отправить заявку");
       }
@@ -252,6 +260,26 @@ export default function AiChatPanel({
                   className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Населённый пункт</label>
+              <input
+                value={formCity}
+                onChange={e => setFormCity(e.target.value)}
+                placeholder="Напр. Оазис, Натухай, Энем"
+                className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-white/50 mb-1.5">Адрес установки</label>
+              <input
+                value={formAddress}
+                onChange={e => setFormAddress(e.target.value)}
+                placeholder="Улица, дом, квартира"
+                className="w-full rounded-lg px-3 py-2 bg-white/5 border border-white/10 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
             </div>
 
             <div>
