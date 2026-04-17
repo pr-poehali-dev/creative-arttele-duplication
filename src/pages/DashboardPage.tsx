@@ -260,8 +260,8 @@ function computeBalanceForecast(user: UserData): BalanceForecast {
   }
 
   const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
-  if (isFinite(balanceNum) && dailyFee && dailyFee > 0 && balanceNum > 0) {
-    const daysLeft = Math.floor(balanceNum / dailyFee);
+  if (isFinite(balanceNum) && dailyFee && dailyFee > 0) {
+    const daysLeft = Math.max(0, Math.floor(balanceNum / dailyFee));
     const until = new Date();
     until.setHours(0, 0, 0, 0);
     until.setDate(until.getDate() + daysLeft);
@@ -1111,15 +1111,42 @@ export default function DashboardPage() {
     }
 
     const url = funcUrls["mikrobill-scraper"];
-    fetch(`${url}?action=user_info&login=${encodeURIComponent(creds.login)}&password=${encodeURIComponent(creds.password)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setUserData(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    let cancelled = false;
+
+    const fetchUserData = (initial: boolean) => {
+      fetch(`${url}?action=user_info&login=${encodeURIComponent(creds.login)}&password=${encodeURIComponent(creds.password)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (cancelled) return;
+          setUserData(data);
+          try {
+            localStorage.setItem("lk_user", JSON.stringify(data));
+          } catch {
+            /* ignore */
+          }
+          if (initial) setLoading(false);
+        })
+        .catch(() => {
+          if (initial && !cancelled) setLoading(false);
+        });
+    };
+
+    fetchUserData(true);
+
+    const intervalId = window.setInterval(() => fetchUserData(false), 60_000);
+    const onFocus = () => fetchUserData(false);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") fetchUserData(false);
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [navigate]);
 
   const user: UserData = userData || JSON.parse(localStorage.getItem("lk_user") || '{"login":"","name":"","balance":"","tariff":"","speed":"","status":"","account":"","address":"","phone":"","email":"","credit":"","ip":"","mac":"","group":"","work_until":""}');
