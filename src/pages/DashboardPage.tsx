@@ -318,10 +318,24 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
           <p className="text-3xl font-bold text-white font-montserrat mb-3">{balance} ₽</p>
-          <NeonButton variant="blue" className="w-full text-xs py-2" onClick={() => onChangeTab("balance")}>
-            <Icon name="Plus" size={14} />
-            Пополнить баланс
-          </NeonButton>
+          {isBlocked ? (
+            <button
+              onClick={() => onChangeTab("balance")}
+              className="pulse-red-card w-full text-xs py-2 px-5 rounded-xl font-bold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] flex items-center justify-center gap-2"
+              style={{
+                background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                color: "#fff",
+              }}
+            >
+              <Icon name="Plus" size={14} className="pulse-red-icon" />
+              Пополнить баланс
+            </button>
+          ) : (
+            <NeonButton variant="blue" className="w-full text-xs py-2" onClick={() => onChangeTab("balance")}>
+              <Icon name="Plus" size={14} />
+              Пополнить баланс
+            </NeonButton>
+          )}
         </GlassCard>
 
         <GlassCard className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}>
@@ -339,10 +353,25 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
           </div>
           <p className="text-xl font-bold text-white font-montserrat">{user.tariff || "—"}</p>
           <p className="text-white/40 text-sm mt-1">{user.speed || ""}</p>
-          <NeonButton variant="outline" className="w-full text-xs py-2 mt-3" onClick={() => onChangeTab("tariff")}>
-            <Icon name="ArrowRightLeft" size={14} />
-            Сменить тариф
-          </NeonButton>
+          {isBlocked ? (
+            <button
+              onClick={() => onChangeTab("tariff")}
+              className="pulse-red-card w-full text-xs py-2 px-5 mt-3 rounded-xl font-bold transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] flex items-center justify-center gap-2"
+              style={{
+                background: "transparent",
+                color: "#ef4444",
+                border: "1px solid rgba(239, 68, 68, 0.4)",
+              }}
+            >
+              <Icon name="ArrowRightLeft" size={14} className="pulse-red-icon" />
+              Сменить тариф
+            </button>
+          ) : (
+            <NeonButton variant="outline" className="w-full text-xs py-2 mt-3" onClick={() => onChangeTab("tariff")}>
+              <Icon name="ArrowRightLeft" size={14} />
+              Сменить тариф
+            </NeonButton>
+          )}
         </GlassCard>
 
         <GlassCard className={`p-5 card-hover ${isBlocked ? "pulse-red-card" : ""}`}>
@@ -1253,32 +1282,48 @@ export default function DashboardPage() {
                 <button
                   key={item.key}
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 text-white/40 hover:text-white/70 hover:bg-white/[0.03] mt-4 border-t pt-5"
-                  style={{ borderColor: "rgba(255,255,255,0.06)" }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 mt-4 border-t pt-5 ${
+                    isBlocked
+                      ? "pulse-red-card"
+                      : "text-white/40 hover:text-white/70 hover:bg-white/[0.03]"
+                  }`}
+                  style={
+                    isBlocked
+                      ? {
+                          borderColor: "rgba(239, 68, 68, 0.3)",
+                          background: "rgba(239, 68, 68, 0.08)",
+                          color: "#ef4444",
+                        }
+                      : { borderColor: "rgba(255,255,255,0.06)" }
+                  }
                 >
-                  <Icon name={item.icon} size={20} />
+                  <Icon
+                    name={item.icon}
+                    size={20}
+                    className={isBlocked ? "pulse-red-icon" : ""}
+                    style={isBlocked ? { color: "#ef4444" } : undefined}
+                  />
                   <span>{item.label}</span>
                 </button>
               );
             }
 
             const isActive = activeTab === item.key;
-            const highlightRed = isBlocked && item.key === "balance";
             return (
               <button
                 key={item.key}
                 onClick={() => handleMenuClick(item.key)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all duration-200 ${
-                  isActive
+                  isActive || isBlocked
                     ? "font-semibold"
                     : "text-white/50 hover:text-white/80 hover:bg-white/[0.03]"
-                } ${highlightRed ? "pulse-red-card" : ""}`}
+                } ${isBlocked ? "pulse-red-card" : ""}`}
                 style={
-                  highlightRed
+                  isBlocked
                     ? {
-                        background: "rgba(239, 68, 68, 0.1)",
+                        background: isActive ? "rgba(239, 68, 68, 0.18)" : "rgba(239, 68, 68, 0.08)",
                         color: "#ef4444",
-                        border: "1px solid rgba(239, 68, 68, 0.25)",
+                        border: `1px solid ${isActive ? "rgba(239, 68, 68, 0.45)" : "rgba(239, 68, 68, 0.25)"}`,
                       }
                     : isActive
                     ? {
@@ -1293,8 +1338,8 @@ export default function DashboardPage() {
                 <Icon
                   name={item.icon}
                   size={20}
-                  className={highlightRed ? "pulse-red-icon" : ""}
-                  style={highlightRed ? { color: "#ef4444" } : isActive ? { color: "var(--neon-blue)" } : undefined}
+                  className={isBlocked ? "pulse-red-icon" : ""}
+                  style={isBlocked ? { color: "#ef4444" } : isActive ? { color: "var(--neon-blue)" } : undefined}
                 />
                 <span>{item.label}</span>
               </button>
@@ -1357,21 +1402,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex-1">
                 <p className="text-white font-bold text-sm">Услуга заблокирована</p>
-                <p className="text-white/70 text-xs mt-0.5">
-                  Пополните баланс, чтобы восстановить доступ к интернету.
-                </p>
               </div>
-              <button
-                onClick={() => handleChangeTab("balance")}
-                className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-all hover:scale-[1.05]"
-                style={{
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  color: "#fff",
-                  boxShadow: "0 0 20px rgba(239, 68, 68, 0.4)",
-                }}
-              >
-                Пополнить
-              </button>
             </div>
           )}
 
