@@ -173,6 +173,8 @@ def handle_ticket(body: dict) -> dict:
     phone = body.get("phone", "").strip()
     topic = body.get("topic", "").strip()
     message = body.get("message", "").strip()
+    city = body.get("city", "").strip()
+    address = body.get("address", "").strip()
 
     if not name or not phone:
         return {
@@ -183,13 +185,19 @@ def handle_ticket(body: dict) -> dict:
 
     ai_text = call_vsegpt([
         {"role": "system", "content": SYSTEM_PROMPTS["ticket"]},
-        {"role": "user", "content": f"Имя: {name}\nТелефон: {phone}\nТема: {topic or '—'}\nСообщение: {message or '—'}"},
+        {"role": "user", "content": (
+            f"Имя: {name}\nТелефон: {phone}\n"
+            f"Населённый пункт: {city or '—'}\nАдрес: {address or '—'}\n"
+            f"Тема: {topic or '—'}\nСообщение: {message or '—'}"
+        )},
     ], max_tokens=300)
 
     tg_text = (
         f"<b>🔔 Новая заявка с сайта</b>\n"
         f"<b>Имя:</b> {name}\n"
         f"<b>Телефон:</b> {phone}\n"
+        f"<b>Населённый пункт:</b> {city or '—'}\n"
+        f"<b>Адрес:</b> {address or '—'}\n"
         f"<b>Тема:</b> {topic or '—'}\n"
         f"<b>Сообщение:</b> {message or '—'}"
     )

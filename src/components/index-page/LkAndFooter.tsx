@@ -1,11 +1,53 @@
 import { useState } from "react";
 import Icon from "@/components/ui/icon";
+import { toast } from "sonner";
+import funcUrls from "../../../backend/func2url.json";
 
 export default function LkAndFooter() {
   const [lkTab, setLkTab] = useState<"dashboard" | "bills" | "support">("dashboard");
   const [lkOpen, setLkOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({ login: "", pass: "" });
+
+  const [ticket, setTicket] = useState({
+    name: "",
+    phone: "",
+    city: "",
+    address: "",
+    topic: "Подключение интернета",
+    message: "",
+  });
+  const [sending, setSending] = useState(false);
+
+  const submitTicket = async () => {
+    if (!ticket.name.trim() || !ticket.phone.trim()) {
+      toast.error("Укажите имя и телефон");
+      return;
+    }
+    if (!ticket.city.trim() || !ticket.address.trim()) {
+      toast.error("Укажите населённый пункт и адрес");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch(funcUrls["send-contact"], {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "ticket", ...ticket }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || "Не удалось отправить заявку");
+        return;
+      }
+      toast.success("Заявка отправлена! Мы свяжемся с вами в ближайшее время.");
+      setTicket({ name: "", phone: "", city: "", address: "", topic: "Подключение интернета", message: "" });
+    } catch {
+      toast.error("Ошибка сети, попробуйте ещё раз");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <>
@@ -45,35 +87,35 @@ export default function LkAndFooter() {
               <div className="space-y-4">
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Ваше имя</label>
-                  <input type="text" placeholder="Алексей Смирнов" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <input type="text" value={ticket.name} onChange={(e) => setTicket({ ...ticket, name: e.target.value })} placeholder="Алексей Смирнов" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
                 </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Телефон</label>
-                  <input type="tel" placeholder="+7 (999) 000-00-00" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <input type="tel" value={ticket.phone} onChange={(e) => setTicket({ ...ticket, phone: e.target.value })} placeholder="+7 (999) 000-00-00" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
                 </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Населённый пункт</label>
-                  <input type="text" placeholder="Напр. Оазис, Натухай, Энем" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <input type="text" value={ticket.city} onChange={(e) => setTicket({ ...ticket, city: e.target.value })} placeholder="Напр. Оазис, Натухай, Энем" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
                 </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Адрес установки</label>
-                  <input type="text" placeholder="Улица, дом, квартира" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <input type="text" value={ticket.address} onChange={(e) => setTicket({ ...ticket, address: e.target.value })} placeholder="Улица, дом, квартира" className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
                 </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Тема</label>
-                  <select className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                    <option value="" style={{ background: "#111827" }}>Подключение интернета</option>
-                    <option value="support" style={{ background: "#111827" }}>Техническая поддержка</option>
-                    <option value="billing" style={{ background: "#111827" }}>Вопрос по счёту</option>
-                    <option value="other" style={{ background: "#111827" }}>Другое</option>
+                  <select value={ticket.topic} onChange={(e) => setTicket({ ...ticket, topic: e.target.value })} className="w-full px-4 py-3 rounded-xl text-white text-sm focus:outline-none transition-colors" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <option value="Подключение интернета" style={{ background: "#111827" }}>Подключение интернета</option>
+                    <option value="Техническая поддержка" style={{ background: "#111827" }}>Техническая поддержка</option>
+                    <option value="Вопрос по счёту" style={{ background: "#111827" }}>Вопрос по счёту</option>
+                    <option value="Другое" style={{ background: "#111827" }}>Другое</option>
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-white/40 mb-1.5 block">Сообщение</label>
-                  <textarea rows={3} placeholder="Опишите ваш вопрос..." className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors resize-none" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
+                  <textarea rows={3} value={ticket.message} onChange={(e) => setTicket({ ...ticket, message: e.target.value })} placeholder="Опишите ваш вопрос..." className="w-full px-4 py-3 rounded-xl text-white text-sm placeholder-white/20 focus:outline-none transition-colors resize-none" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} />
                 </div>
-                <button className="w-full py-3.5 rounded-xl text-[#0b0e17] font-bold text-sm neon-glow-btn" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}>
-                  Отправить заявку
+                <button onClick={submitTicket} disabled={sending} className="w-full py-3.5 rounded-xl text-[#0b0e17] font-bold text-sm neon-glow-btn disabled:opacity-60 disabled:cursor-not-allowed" style={{ background: "linear-gradient(135deg, var(--neon-blue), var(--neon-green))" }}>
+                  {sending ? "Отправка..." : "Отправить заявку"}
                 </button>
               </div>
             </div>
