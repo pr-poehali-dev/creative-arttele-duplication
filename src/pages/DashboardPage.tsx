@@ -313,7 +313,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
                 border: isBlocked ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(0, 212, 255, 0.2)",
               }}
             >
-              <Icon name="Wallet" size={20} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
+              <Icon name="Wallet" size={20} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
             </div>
             <span className="text-white/50 text-sm">Баланс</span>
           </div>
@@ -333,7 +333,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
                 border: isBlocked ? "1px solid rgba(239, 68, 68, 0.2)" : "1px solid rgba(0, 245, 122, 0.2)",
               }}
             >
-              <Icon name="Wifi" size={20} style={{ color: isBlocked ? RED : "var(--neon-green)" }} />
+              <Icon name="Wifi" size={20} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? RED : "var(--neon-green)" }} />
             </div>
             <span className="text-white/50 text-sm">Тариф</span>
           </div>
@@ -357,6 +357,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
               <Icon
                 name={isBlocked ? "XCircle" : "CheckCircle"}
                 size={20}
+                className={isBlocked ? "pulse-red-icon" : ""}
                 style={{ color: isBlocked ? "#ef4444" : "var(--neon-green)" }}
               />
             </div>
@@ -421,6 +422,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
               <Icon
                 name="CalendarClock"
                 size={20}
+                className={isBlocked ? "pulse-red-icon" : ""}
                 style={{ color: (isUrgent || isBlocked) ? RED : "var(--neon-purple)" }}
               />
             </div>
@@ -446,7 +448,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
 
       <GlassCard className="p-6">
         <h3 className="text-lg font-bold text-white font-montserrat mb-4 flex items-center gap-2">
-          <Icon name="Zap" size={20} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
+          <Icon name="Zap" size={20} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? RED : "var(--neon-blue)" }} />
           Быстрые действия
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -467,7 +469,7 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
                   border: `1px solid ${action.color}30`,
                 }}
               >
-                <Icon name={action.icon} size={22} style={{ color: action.color }} />
+                <Icon name={action.icon} size={22} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: action.color }} />
               </div>
               <span className="text-white/70 text-xs font-medium">{action.label}</span>
             </button>

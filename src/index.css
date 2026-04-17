@@ -141,6 +141,44 @@
   transform: translateY(-2px);
 }
 
+/* Red pulse for blocked status */
+@keyframes pulseRed {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(239, 68, 68, 0.5),
+      0 0 10px rgba(239, 68, 68, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(239, 68, 68, 0),
+      0 0 22px rgba(239, 68, 68, 0.55);
+    transform: scale(1.06);
+  }
+}
+
+.pulse-red {
+  animation: pulseRed 1.6s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+@keyframes pulseRedGlow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+    opacity: 1;
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.95));
+    opacity: 0.85;
+  }
+}
+
+.pulse-red-icon {
+  animation: pulseRedGlow 1.4s ease-in-out infinite;
+}
+
 /* Gradient mesh background */
 .mesh-bg {
   background:
