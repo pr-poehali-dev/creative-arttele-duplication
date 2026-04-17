@@ -227,8 +227,11 @@ function getDaysWord(n: number): string {
 interface BalanceForecast {
   untilDate: string | null;
   daysLeft: number | null;
+  hoursLeft: number | null;
   monthlyFee: number | null;
   dailyFee: number | null;
+  balanceNum: number | null;
+  topUpNeeded: number | null;
   source: "real" | "calculated" | "unknown";
 }
 
@@ -245,59 +248,82 @@ function computeBalanceForecast(user: UserData): BalanceForecast {
   const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
   const hasBalance = isFinite(balanceNum) && !!monthlyFee && monthlyFee > 0 && !!dailyFee && dailyFee > 0;
 
-  // 1. Считаем прогноз по балансу: сегодня + баланс/суточная_плата
+  const topUpNeeded = hasBalance && balanceNum < (monthlyFee as number)
+    ? Math.ceil((monthlyFee as number) - balanceNum)
+    : 0;
+
+  // 1. Считаем прогноз по балансу (дробные дни)
   let calcDate: Date | null = null;
   let calcDays: number | null = null;
+  let calcDaysFloat = 0;
   if (hasBalance) {
     if (balanceNum <= 0) {
       calcDate = new Date(today);
       calcDays = 0;
+      calcDaysFloat = 0;
     } else {
-      calcDays = Math.floor(balanceNum / (dailyFee as number));
+      calcDaysFloat = balanceNum / (dailyFee as number);
+      calcDays = Math.floor(calcDaysFloat);
       calcDate = new Date(today);
-      calcDate.setDate(calcDate.getDate() + calcDays);
+      const addMs = calcDaysFloat * 24 * 60 * 60 * 1000;
+      calcDate = new Date(today.getTime() + addMs);
     }
   }
 
-  // 2. Дата от провайдера (work_until) — используем как «не раньше этой»
+  // 2. Дата от провайдера (work_until)
   const realDate = parseDateSafe(user.work_until);
   const realDays = realDate ? Math.max(0, daysBetween(today, realDate)) : null;
 
-  // Берём МАКСИМУМ из двух прогнозов, чтобы после пополнения дата сразу сдвигалась
-  // (провайдер обновляет work_until не моментально)
+  // Берём МАКСИМУМ из двух прогнозов
   let finalDate: Date | null = null;
   let finalDays: number | null = null;
+  let finalDaysFloat = 0;
   let source: "real" | "calculated" | "unknown" = "unknown";
 
   if (calcDate && realDate) {
-    if ((calcDays as number) >= (realDays as number)) {
+    if (calcDaysFloat >= (realDays as number)) {
       finalDate = calcDate;
       finalDays = calcDays;
+      finalDaysFloat = calcDaysFloat;
       source = "calculated";
     } else {
       finalDate = realDate;
       finalDays = realDays;
+      finalDaysFloat = realDays as number;
       source = "real";
     }
   } else if (calcDate) {
     finalDate = calcDate;
     finalDays = calcDays;
+    finalDaysFloat = calcDaysFloat;
     source = "calculated";
   } else if (realDate) {
     finalDate = realDate;
     finalDays = realDays;
+    finalDaysFloat = realDays as number;
     source = "real";
   }
 
   if (!finalDate) {
-    return { untilDate: null, daysLeft: null, monthlyFee, dailyFee, source: "unknown" };
+    return {
+      untilDate: null, daysLeft: null, hoursLeft: null,
+      monthlyFee, dailyFee,
+      balanceNum: isFinite(balanceNum) ? balanceNum : null,
+      topUpNeeded: null,
+      source: "unknown",
+    };
   }
+
+  const hoursLeft = Math.max(0, Math.floor(finalDaysFloat * 24));
 
   return {
     untilDate: formatDateRu(finalDate),
     daysLeft: finalDays,
+    hoursLeft,
     monthlyFee,
     dailyFee,
+    balanceNum: isFinite(balanceNum) ? balanceNum : null,
+    topUpNeeded,
     source,
   };
 }
@@ -617,55 +643,43 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
             </div>
             <div>
               <p className="text-white/50 text-sm mb-1">
-                {forecast.daysLeft === 0
-                  ? "Баланс исчерпан"
-                  : forecast.source === "real"
+                {forecast.source === "real"
                   ? "Услуга действует до"
                   : "Баланса хватит до"}
               </p>
-              {forecast.daysLeft === 0 ? (
-                <>
-                  <p
-                    className="text-3xl sm:text-4xl font-bold font-montserrat"
-                    style={{ color: "#ef4444" }}
-                  >
-                    Пополните счёт
-                  </p>
-                  <p className="text-white/60 text-sm mt-1.5">
-                    Баланс: <span className="font-semibold text-white">{user.balance || "0"} ₽</span>
-                    {forecast.monthlyFee && (
-                      <span className="text-white/35"> · нужно {forecast.monthlyFee} ₽/мес</span>
-                    )}
-                  </p>
-                  <p className="text-white/40 text-xs mt-1">
-                    Если вы уже оплатили — зачисление может занять до 15 минут
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p
-                    className="text-3xl sm:text-4xl font-bold font-montserrat"
-                    style={{ color: accent }}
-                  >
-                    {forecast.untilDate || "—"}
-                  </p>
-                  {forecast.daysLeft !== null && (
-                    <p className="text-white/60 text-sm mt-1.5">
-                      Осталось ≈{" "}
-                      <span className="font-semibold text-white">
-                        {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
-                      </span>
-                      {forecast.source === "calculated" && (
-                        <span className="text-white/35"> · расчёт по балансу</span>
-                      )}
-                    </p>
+              <p
+                className="text-3xl sm:text-4xl font-bold font-montserrat"
+                style={{ color: accent }}
+              >
+                {forecast.untilDate || "—"}
+              </p>
+              {forecast.daysLeft !== null && (
+                <p className="text-white/60 text-sm mt-1.5">
+                  Осталось ≈{" "}
+                  <span className="font-semibold text-white">
+                    {forecast.daysLeft > 0
+                      ? `${forecast.daysLeft} ${getDaysWord(forecast.daysLeft)}`
+                      : forecast.hoursLeft && forecast.hoursLeft > 0
+                      ? `${forecast.hoursLeft} ч`
+                      : "менее часа"}
+                  </span>
+                  {forecast.source === "calculated" && (
+                    <span className="text-white/35"> · расчёт по балансу</span>
                   )}
-                  {forecast.source === "unknown" && (
-                    <p className="text-white/50 text-sm mt-1.5">
-                      Недостаточно данных для расчёта
-                    </p>
-                  )}
-                </>
+                </p>
+              )}
+              {forecast.topUpNeeded !== null && forecast.topUpNeeded > 0 && (
+                <p className="text-white/60 text-xs mt-1.5">
+                  До полного месяца нужно ещё{" "}
+                  <span className="font-semibold" style={{ color: "#ef4444" }}>
+                    {forecast.topUpNeeded} ₽
+                  </span>
+                </p>
+              )}
+              {forecast.source === "unknown" && (
+                <p className="text-white/50 text-sm mt-1.5">
+                  Недостаточно данных для расчёта
+                </p>
               )}
             </div>
           </div>
