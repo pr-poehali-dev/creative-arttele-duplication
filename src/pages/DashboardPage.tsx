@@ -1317,15 +1317,6 @@ export default function DashboardPage() {
             <Icon name="User" size={18} className={isBlocked ? "pulse-red-icon" : ""} style={{ color: isBlocked ? "#ef4444" : "var(--neon-blue)" }} />
           </div>
           <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="flex items-center gap-1.5 text-white/40 hover:text-white/80 text-sm transition-colors disabled:opacity-50"
-            title="Обновить данные с биллинга"
-          >
-            <Icon name="RefreshCw" size={16} className={refreshing ? "animate-spin" : ""} />
-            <span className="hidden sm:inline">Обновить</span>
-          </button>
-          <button
             onClick={handleLogout}
             className="hidden sm:flex items-center gap-1.5 text-white/40 hover:text-white/70 text-sm transition-colors"
           >
