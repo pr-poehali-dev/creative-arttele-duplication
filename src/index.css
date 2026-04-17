@@ -146,37 +146,42 @@
   0%,
   100% {
     box-shadow:
-      0 0 0 0 rgba(239, 68, 68, 0.5),
-      0 0 10px rgba(239, 68, 68, 0.25);
+      0 0 0 0 rgba(239, 68, 68, 0.85),
+      0 0 18px rgba(239, 68, 68, 0.55);
     transform: scale(1);
   }
   50% {
     box-shadow:
-      0 0 0 8px rgba(239, 68, 68, 0),
-      0 0 22px rgba(239, 68, 68, 0.55);
-    transform: scale(1.06);
+      0 0 0 16px rgba(239, 68, 68, 0),
+      0 0 42px rgba(239, 68, 68, 0.95);
+    transform: scale(1.14);
   }
 }
 
 .pulse-red {
-  animation: pulseRed 1.6s ease-in-out infinite;
+  animation: pulseRed 0.9s ease-in-out infinite;
   border-radius: 12px;
 }
 
 @keyframes pulseRedGlow {
   0%,
   100% {
-    filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6));
+    filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.95))
+      drop-shadow(0 0 14px rgba(239, 68, 68, 0.6));
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.95));
-    opacity: 0.85;
+    filter: drop-shadow(0 0 22px rgba(239, 68, 68, 1))
+      drop-shadow(0 0 34px rgba(239, 68, 68, 0.85));
+    opacity: 0.7;
+    transform: scale(1.18);
   }
 }
 
 .pulse-red-icon {
-  animation: pulseRedGlow 1.4s ease-in-out infinite;
+  animation: pulseRedGlow 0.8s ease-in-out infinite;
+  transform-origin: center;
 }
 
 /* Gradient mesh background */
