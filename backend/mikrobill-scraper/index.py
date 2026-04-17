@@ -127,15 +127,30 @@ def kassa_get_tariff_price(session, tariff_name):
 
 PRICE_KEYS = [
     'персональная оплата', 'персональная плата', 'персональный тариф',
-    'абонплата', 'абон. плата', 'абонентская плата', 'стоимость', 'стоимость тарифа',
-    'цена', 'цена тарифа', 'сумма', 'месячная плата', 'плата', 'тариф руб', 'руб/мес',
+    'абон.плата', 'абон. плата', 'абонплата', 'абонентская плата',
+    'стоимость', 'стоимость тарифа', 'цена', 'цена тарифа', 'сумма',
+    'месячная плата', 'плата', 'тариф руб', 'руб/мес',
 ]
 
 WORK_UNTIL_KEYS = [
     'работает до', 'действует до', 'оплачено до', 'дата окончания', 'дата след. списания',
     'действителен до', 'активен до', 'подключен до', 'заблокирован после', 'расчётная дата',
-    'следующее списание', 'след. списание',
+    'следующее списание', 'след. списание', 'даты',
 ]
+
+
+def extract_work_until_from_dates(raw):
+    """Из поля 'даты' вытаскивает финальную дату (работает до).
+
+    MikroBill кладёт туда несколько дат подряд (регистрация, активация, работает до...).
+    Берём ПОСЛЕДНЮЮ дату, которая в будущем или близко к сегодня — это и есть 'работает до'.
+    """
+    if not raw:
+        return ''
+    dates = re.findall(r'(\d{2}[./-]\d{2}[./-]\d{2,4})', raw)
+    if not dates:
+        return ''
+    return dates[-1]
 
 
 def pick_first(info, keys):
@@ -204,14 +219,15 @@ def build_user_data(login, found, info, session=None):
         m = re.search(r'(\d+[.,]?\d*)', price_raw)
         if m:
             price_val = m.group(1).replace(',', '.')
-    if not price_val and session is not None:
+    if (not price_val or float(price_val or 0) <= 0) and session is not None:
         got = kassa_get_tariff_price(session, tariff)
         if got:
             m = re.search(r'(\d+[.,]?\d*)', got)
             if m:
                 price_val = m.group(1).replace(',', '.')
 
-    work_until = pick_first(info, WORK_UNTIL_KEYS)
+    work_until_raw = pick_first(info, WORK_UNTIL_KEYS)
+    work_until = extract_work_until_from_dates(work_until_raw) or work_until_raw
 
     print(
         f"[MIKROBILL] built: login={login} tariff={tariff!r} balance={balance_val} "
