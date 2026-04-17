@@ -87,7 +87,66 @@ def kassa_get_user_info(session, login):
                 data[label] = value
             i += 2
 
+    print(f"[MIKROBILL] user={login} info_keys={list(data.keys())}")
     return data
+
+
+def kassa_get_tariff_price(session, tariff_name):
+    """Пытается получить цену тарифа из списка тарифов MikroBill."""
+    if not tariff_name:
+        return ''
+    try:
+        r = session.get(KASSA_URL + '/api.php?action=GET_TARIFFS', timeout=10)
+        r.encoding = 'utf-8'
+        text = r.text
+        for line in text.split('\n'):
+            if tariff_name.lower() in line.lower():
+                nums = re.findall(r'(\d+[.,]?\d*)', line)
+                if nums:
+                    price = nums[-1].replace(',', '.')
+                    print(f"[MIKROBILL] tariff_price: {tariff_name} = {price} (from GET_TARIFFS)")
+                    return price
+    except Exception as e:
+        print(f"[MIKROBILL] GET_TARIFFS error: {e}")
+    try:
+        r = session.get(KASSA_URL + '/tariff.php', timeout=10)
+        r.encoding = 'utf-8'
+        soup = BeautifulSoup(r.text, 'html.parser')
+        for tr in soup.find_all('tr'):
+            row_text = tr.get_text(' ', strip=True)
+            if tariff_name.lower() in row_text.lower():
+                nums = re.findall(r'(\d{3,5}(?:[.,]\d+)?)', row_text)
+                if nums:
+                    price = nums[-1].replace(',', '.')
+                    print(f"[MIKROBILL] tariff_price: {tariff_name} = {price} (from tariff.php)")
+                    return price
+    except Exception as e:
+        print(f"[MIKROBILL] tariff.php error: {e}")
+    return ''
+
+
+PRICE_KEYS = [
+    'абонплата', 'абон. плата', 'абонентская плата', 'стоимость', 'стоимость тарифа',
+    'цена', 'цена тарифа', 'сумма', 'месячная плата', 'плата', 'тариф руб', 'руб/мес',
+]
+
+WORK_UNTIL_KEYS = [
+    'работает до', 'действует до', 'оплачено до', 'дата окончания', 'дата след. списания',
+    'действителен до', 'активен до', 'подключен до', 'заблокирован после', 'расчётная дата',
+    'следующее списание', 'след. списание',
+]
+
+
+def pick_first(info, keys):
+    for k in keys:
+        v = info.get(k)
+        if v:
+            return v
+    for key, val in info.items():
+        for k in keys:
+            if k in key and val:
+                return val
+    return ''
 
 
 def kassa_get_payments(session, login):
@@ -125,7 +184,7 @@ def kassa_get_payments(session, login):
     return payments[:50]
 
 
-def build_user_data(login, found, info):
+def build_user_data(login, found, info, session=None):
     speed = ''
     tariff = found.get('tariff', '') or info.get('тариф', '')
     speed_match = re.search(r'(\d+)', tariff)
@@ -137,6 +196,26 @@ def build_user_data(login, found, info):
     balance_raw = found.get('balance', '') or info.get('баланс', '')
     balance = re.search(r'(-?\d+[.,]?\d*)', balance_raw)
     balance_val = balance.group(1).replace(',', '.') if balance else '0'
+
+    price_raw = pick_first(info, PRICE_KEYS)
+    price_val = ''
+    if price_raw:
+        m = re.search(r'(\d+[.,]?\d*)', price_raw)
+        if m:
+            price_val = m.group(1).replace(',', '.')
+    if not price_val and session is not None:
+        got = kassa_get_tariff_price(session, tariff)
+        if got:
+            m = re.search(r'(\d+[.,]?\d*)', got)
+            if m:
+                price_val = m.group(1).replace(',', '.')
+
+    work_until = pick_first(info, WORK_UNTIL_KEYS)
+
+    print(
+        f"[MIKROBILL] built: login={login} tariff={tariff!r} balance={balance_val} "
+        f"price={price_val!r} work_until={work_until!r}"
+    )
 
     return {
         'login': login,
@@ -153,7 +232,9 @@ def build_user_data(login, found, info):
         'mac': info.get('mac', ''),
         'group': info.get('группа', ''),
         'credit': info.get('обещ. плат.', ''),
-        'work_until': info.get('работает до', ''),
+        'work_until': work_until,
+        'price': price_val,
+        'raw_info': info,
     }
 
 
@@ -200,7 +281,7 @@ def handle_auth(event, cors):
         return {'statusCode': 401, 'headers': cors, 'body': json.dumps({'error': 'Неверный логин или пароль'})}
 
     info = kassa_get_user_info(session, login)
-    user = build_user_data(login, found, info)
+    user = build_user_data(login, found, info, session)
 
     return {'statusCode': 200, 'headers': cors, 'body': json.dumps({'success': True, 'user': user}, ensure_ascii=False)}
 
@@ -237,7 +318,7 @@ def handle_user_info(event, cors):
         return {'statusCode': 404, 'headers': cors, 'body': json.dumps({'error': 'User not found'})}
 
     info = kassa_get_user_info(session, login)
-    user = build_user_data(login, found, info)
+    user = build_user_data(login, found, info, session)
     user['payments'] = kassa_get_payments(session, login)
 
     return {'statusCode': 200, 'headers': cors, 'body': json.dumps(user, ensure_ascii=False)}

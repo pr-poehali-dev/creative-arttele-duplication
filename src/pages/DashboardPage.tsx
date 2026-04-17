@@ -44,6 +44,8 @@ interface UserData {
   mac: string;
   group: string;
   work_until: string;
+  price?: string;
+  raw_info?: Record<string, string>;
   payments?: { date?: string; amount?: string; comment?: string }[];
   traffic?: { date?: string; incoming?: string; outgoing?: string }[];
 }
@@ -224,7 +226,10 @@ interface BalanceForecast {
 }
 
 function computeBalanceForecast(user: UserData): BalanceForecast {
-  const monthlyFee = findTariffPrice(user.tariff);
+  const realPrice = parseFloat((user.price || "").replace(/\s/g, "").replace(",", "."));
+  const monthlyFee = isFinite(realPrice) && realPrice > 0
+    ? realPrice
+    : findTariffPrice(user.tariff);
   const dailyFee = monthlyFee ? +(monthlyFee / 30).toFixed(2) : null;
 
   const realDate = parseDateSafe(user.work_until);
