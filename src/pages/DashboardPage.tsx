@@ -253,23 +253,27 @@ function computeBalanceForecast(user: UserData): BalanceForecast {
   }
 
   const balanceNum = parseFloat((user.balance || "0").replace(/\s/g, "").replace(",", "."));
-  if (isFinite(balanceNum) && monthlyFee && monthlyFee > 0) {
+  if (isFinite(balanceNum) && monthlyFee && monthlyFee > 0 && dailyFee && dailyFee > 0) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const nextFirst = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    if (balanceNum >= monthlyFee) {
-      const daysLeft = daysBetween(today, nextFirst);
+
+    if (balanceNum <= 0) {
       return {
-        untilDate: formatDateRu(nextFirst),
-        daysLeft,
+        untilDate: formatDateRu(today),
+        daysLeft: 0,
         monthlyFee,
         dailyFee,
         source: "calculated",
       };
     }
+
+    const daysLeft = Math.floor(balanceNum / dailyFee);
+    const untilDate = new Date(today);
+    untilDate.setDate(untilDate.getDate() + daysLeft);
+
     return {
-      untilDate: formatDateRu(nextFirst),
-      daysLeft: 0,
+      untilDate: formatDateRu(untilDate),
+      daysLeft,
       monthlyFee,
       dailyFee,
       source: "calculated",
@@ -602,7 +606,7 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
               <p className="text-white/50 text-sm mb-1">
                 {forecast.source === "real"
                   ? "Услуга действует до"
-                  : "Следующее списание"}
+                  : "Баланса хватит до"}
               </p>
               <p
                 className="text-3xl sm:text-4xl font-bold font-montserrat"
@@ -612,12 +616,12 @@ function TabBalance({ user, payments, loading }: { user: UserData; payments: Use
               </p>
               {forecast.daysLeft !== null && (
                 <p className="text-white/60 text-sm mt-1.5">
-                  {forecast.source === "real" ? "Осталось" : "Через"} ≈{" "}
+                  Осталось ≈{" "}
                   <span className="font-semibold text-white">
                     {forecast.daysLeft} {getDaysWord(forecast.daysLeft)}
                   </span>
                   {forecast.source === "calculated" && (
-                    <span className="text-white/35"> · списание 1-го числа</span>
+                    <span className="text-white/35"> · расчёт по балансу</span>
                   )}
                 </p>
               )}
