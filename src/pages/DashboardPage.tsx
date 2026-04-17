@@ -366,8 +366,36 @@ function TabMain({ user, loading, onChangeTab }: { user: UserData; loading: bool
             <span className={`w-2.5 h-2.5 rounded-full ${isBlocked ? "bg-red-500" : "bg-[#00f57a] animate-pulse"}`} />
             <p className="text-lg font-bold text-white">{user.status || "—"}</p>
           </div>
-          {user.ip && <p className="text-white/40 text-sm">IP: {user.ip}</p>}
-          {user.mac && <p className="text-white/40 text-sm">MAC: {user.mac}</p>}
+          {user.ip && (
+            <div className="text-white/40 text-sm">
+              <span className="text-white/50">IP: </span>
+              {user.ip
+                .split(/#br#|[;,\n]/)
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((v, i, arr) => (
+                  <span key={i} className="font-mono">
+                    {v}
+                    {i < arr.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+            </div>
+          )}
+          {user.mac && (
+            <div className="text-white/40 text-sm mt-0.5">
+              <span className="text-white/50">MAC: </span>
+              {user.mac
+                .split(/#br#|[;,\n]/)
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((v, i, arr) => (
+                  <span key={i} className="font-mono">
+                    {v.toUpperCase()}
+                    {i < arr.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+            </div>
+          )}
         </GlassCard>
 
         <GlassCard
