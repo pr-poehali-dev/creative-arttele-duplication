@@ -198,7 +198,7 @@ function findTariffPrice(tariffName?: string): number | null {
 function parseDateSafe(raw?: string): Date | null {
   if (!raw) return null;
   const s = raw.trim();
-  const m = s.match(/^(\d{2})[./-](\d{2})[./-](\d{2,4})/);
+  const m = s.match(/(\d{1,2})[./\-\s](\d{1,2})[./\-\s](\d{2,4})/);
   if (m) {
     const d = parseInt(m[1], 10);
     const mo = parseInt(m[2], 10) - 1;
