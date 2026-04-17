@@ -68,14 +68,9 @@ def kassa_find_user(session, login):
     }
 
 
-def kassa_get_user_info(session, login):
-    r = session.get(
-        KASSA_URL + '/api.php?action=GET_USER_INFO&value=' + requests.utils.quote(login) + '&value2=1',
-        timeout=10,
-    )
-    r.encoding = 'utf-8'
-    soup = BeautifulSoup(r.text, 'html.parser')
-
+def _parse_kv_from_html(html):
+    """Парсит таблицу ключ-значение из HTML ответа MikroBill."""
+    soup = BeautifulSoup(html, 'html.parser')
     data = {}
     for tr in soup.find_all('tr'):
         tds = tr.find_all('td')
@@ -86,11 +81,51 @@ def kassa_get_user_info(session, login):
             if label and value:
                 data[label] = value
             i += 2
-
-    print(f"[MIKROBILL] user={login} info_keys={list(data.keys())}")
-    for k, v in data.items():
-        print(f"[MIKROBILL] info[{k!r}] = {v!r}")
     return data
+
+
+def kassa_get_user_info(session, login):
+    """Забирает карточку абонента из MikroBill.
+
+    Сначала пробуем value2=0 (полная расширенная карточка со сроком действия услуги),
+    потом value2=1 как резерв. Результаты объединяем.
+    """
+    merged = {}
+
+    for value2 in ('0', '1', '2'):
+        try:
+            r = session.get(
+                KASSA_URL + '/api.php?action=GET_USER_INFO&value=' + requests.utils.quote(login) + '&value2=' + value2,
+                timeout=10,
+            )
+            r.encoding = 'utf-8'
+            data = _parse_kv_from_html(r.text)
+            for k, v in data.items():
+                if k not in merged or not merged.get(k):
+                    merged[k] = v
+            print(f"[MIKROBILL] user={login} value2={value2} keys={list(data.keys())}")
+        except Exception as e:
+            print(f"[MIKROBILL] GET_USER_INFO value2={value2} error: {e}")
+
+    # Дополнительно — usrstat.php, там часто есть «Хватит до» / «Оплачено по»
+    try:
+        r = session.get(
+            KASSA_URL + '/usrstat.php?client=' + requests.utils.quote(login),
+            timeout=10,
+        )
+        r.encoding = 'utf-8'
+        stat_data = _parse_kv_from_html(r.text)
+        for k, v in stat_data.items():
+            if k not in merged or not merged.get(k):
+                merged[k] = v
+        print(f"[MIKROBILL] usrstat keys={list(stat_data.keys())}")
+    except Exception as e:
+        print(f"[MIKROBILL] usrstat error: {e}")
+
+    print(f"[MIKROBILL] user={login} merged_keys={list(merged.keys())}")
+    for k, v in merged.items():
+        print(f"[MIKROBILL] info[{k!r}] = {v!r}")
+    return merged
 
 
 def kassa_get_tariff_price(session, tariff_name):
@@ -137,7 +172,9 @@ PRICE_KEYS = [
 ]
 
 WORK_UNTIL_KEYS = [
-    'работает до', 'действует до', 'оплачено до', 'дата окончания', 'дата след. списания',
+    'баланса хватит до', 'хватит до', 'прогноз баланса', 'прогноз',
+    'работает до', 'действует до', 'оплачено до', 'оплачено по',
+    'дата окончания', 'дата след. списания',
     'действителен до', 'активен до', 'подключен до', 'заблокирован после', 'расчётная дата',
     'следующее списание', 'след. списание', 'даты',
     'примеч. 1', 'примечание 1', 'примеч.1', 'примечание',
