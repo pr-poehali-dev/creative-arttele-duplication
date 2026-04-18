@@ -4,8 +4,22 @@ import re
 import smtplib
 import urllib.request
 import urllib.error
+from datetime import datetime, timezone, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+
+STATS = {
+    "date": "",
+    "cache_hits": 0,
+    "ai_calls": 0,
+    "report_sent": False,
+}
+
+
+def _today_key() -> str:
+    tz = timezone(timedelta(hours=3))
+    return datetime.now(tz).strftime("%Y-%m-%d")
 
 
 QUICK_REPLIES = [
@@ -294,6 +308,37 @@ CORS = {
 }
 
 
+def track_stats(hit_type: str) -> None:
+    """Считаем попадания в кеш и вызовы ИИ, раз в сутки шлём отчёт в Telegram."""
+    today = _today_key()
+    if STATS["date"] != today:
+        if STATS["date"] and (STATS["cache_hits"] or STATS["ai_calls"]) and not STATS["report_sent"]:
+            _send_stats_report(STATS["date"], STATS["cache_hits"], STATS["ai_calls"])
+        STATS["date"] = today
+        STATS["cache_hits"] = 0
+        STATS["ai_calls"] = 0
+        STATS["report_sent"] = False
+
+    if hit_type == "cache":
+        STATS["cache_hits"] += 1
+    elif hit_type == "ai":
+        STATS["ai_calls"] += 1
+
+
+def _send_stats_report(date: str, cache_hits: int, ai_calls: int) -> None:
+    total = cache_hits + ai_calls
+    saved_pct = (cache_hits * 100 // total) if total else 0
+    text = (
+        f"<b>📊 Статистика чата за {date}</b>\n"
+        f"Всего сообщений: <b>{total}</b>\n"
+        f"Из кеша (без ИИ): <b>{cache_hits}</b>\n"
+        f"Вызовов ИИ: <b>{ai_calls}</b>\n"
+        f"Экономия: <b>{saved_pct}%</b> вычислительного времени"
+    )
+    send_telegram(text)
+    STATS["report_sent"] = True
+
+
 def handle_chat(body: dict) -> dict:
     mode = body.get("mode", "site")
     system = SYSTEM_PROMPTS["dashboard"] if mode == "dashboard" else SYSTEM_PROMPTS["site"]
@@ -326,12 +371,14 @@ def handle_chat(body: dict) -> dict:
         quick = find_quick_reply(last_user_msg)
         if quick:
             print(f"[CACHE] Быстрый ответ на: {last_user_msg[:60]!r}")
+            track_stats("cache")
             return {
                 "statusCode": 200,
                 "headers": CORS,
                 "body": json.dumps({"reply": quick, "cached": True}, ensure_ascii=False),
             }
 
+    track_stats("ai")
     reply = call_vsegpt(messages)
     if not reply:
         return {
