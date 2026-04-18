@@ -19,6 +19,7 @@ import CloudCabinetPage from "./pages/CloudCabinetPage";
 import CloudLoginPage from "./pages/CloudLoginPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import AdminStatsPage from "./pages/AdminStatsPage";
 import NotFound from "./pages/NotFound";
 import ChatWidget from "./components/ChatWidget";
 
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/video/login" element={<CloudLoginPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/stats" element={<AdminStatsPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
