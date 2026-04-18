@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS chat_stats (
+    stat_date DATE PRIMARY KEY,
+    cache_hits INTEGER NOT NULL DEFAULT 0,
+    ai_calls INTEGER NOT NULL DEFAULT 0,
+    report_sent BOOLEAN NOT NULL DEFAULT FALSE,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

@@ -9,14 +9,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-STATS = {
-    "date": "",
-    "cache_hits": 0,
-    "ai_calls": 0,
-    "report_sent": False,
-}
-
-
 def _today_key() -> str:
     tz = timezone(timedelta(hours=3))
     return datetime.now(tz).strftime("%Y-%m-%d")
@@ -311,18 +303,39 @@ CORS = {
 def track_stats(hit_type: str) -> None:
     """Считаем попадания в кеш и вызовы ИИ, раз в сутки шлём отчёт в Telegram."""
     today = _today_key()
-    if STATS["date"] != today:
-        if STATS["date"] and (STATS["cache_hits"] or STATS["ai_calls"]) and not STATS["report_sent"]:
-            _send_stats_report(STATS["date"], STATS["cache_hits"], STATS["ai_calls"])
-        STATS["date"] = today
-        STATS["cache_hits"] = 0
-        STATS["ai_calls"] = 0
-        STATS["report_sent"] = False
+    column = "cache_hits" if hit_type == "cache" else "ai_calls"
 
-    if hit_type == "cache":
-        STATS["cache_hits"] += 1
-    elif hit_type == "ai":
-        STATS["ai_calls"] += 1
+    dsn = os.environ.get("DATABASE_URL")
+    if not dsn:
+        return
+
+    try:
+        import psycopg2
+        with psycopg2.connect(dsn) as conn:
+            conn.autocommit = True
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"INSERT INTO chat_stats (stat_date, {column}) "
+                    f"VALUES ('{today}', 1) "
+                    f"ON CONFLICT (stat_date) DO UPDATE "
+                    f"SET {column} = chat_stats.{column} + 1, updated_at = NOW()"
+                )
+                cur.execute(
+                    "SELECT stat_date::text, cache_hits, ai_calls "
+                    "FROM chat_stats "
+                    f"WHERE stat_date < '{today}' AND report_sent = FALSE "
+                    "ORDER BY stat_date ASC LIMIT 1"
+                )
+                row = cur.fetchone()
+                if row:
+                    prev_date, prev_cache, prev_ai = row
+                    _send_stats_report(prev_date, prev_cache, prev_ai)
+                    cur.execute(
+                        "UPDATE chat_stats SET report_sent = TRUE "
+                        f"WHERE stat_date = '{prev_date}'"
+                    )
+    except Exception as e:
+        print(f"[STATS] Ошибка: {type(e).__name__}: {str(e)[:200]}")
 
 
 def _send_stats_report(date: str, cache_hits: int, ai_calls: int) -> None:
@@ -336,7 +349,6 @@ def _send_stats_report(date: str, cache_hits: int, ai_calls: int) -> None:
         f"Экономия: <b>{saved_pct}%</b> вычислительного времени"
     )
     send_telegram(text)
-    STATS["report_sent"] = True
 
 
 def handle_chat(body: dict) -> dict:
