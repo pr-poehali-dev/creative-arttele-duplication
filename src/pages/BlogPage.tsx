@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import PageHero from "@/components/ui/PageHero";
+import Icon from "@/components/ui/icon";
 import blog from "@/data/blog";
 
 export default function BlogPage() {
