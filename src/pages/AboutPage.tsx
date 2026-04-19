@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import PageHero from "@/components/ui/PageHero";
+import Icon from "@/components/ui/icon";
 import { aboutInfo, stats, advantages, team } from "@/data/about";
 
 export default function AboutPage() {
