@@ -20,6 +20,7 @@ import CloudLoginPage from "./pages/CloudLoginPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminStatsPage from "./pages/AdminStatsPage";
+import RequisitesPage from "./pages/RequisitesPage";
 import NotFound from "./pages/NotFound";
 import ChatWidget from "./components/ChatWidget";
 
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin/stats" element={<AdminStatsPage />} />
+          <Route path="/requisites" element={<RequisitesPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
