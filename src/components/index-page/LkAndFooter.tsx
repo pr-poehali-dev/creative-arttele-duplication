@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import { toast } from "sonner";
 import funcUrls from "../../../backend/func2url.json";
@@ -170,7 +171,7 @@ export default function LkAndFooter() {
                 <div className="text-white/70 font-semibold text-sm mb-4">{col.title}</div>
                 <ul className="space-y-2">
                   {col.links.map(link => (
-                    <li key={link.label}><a href={link.href} className="text-white/30 text-sm hover:text-[#00d4ff] transition-colors">{link.label}</a></li>
+                    <li key={link.label}><Link to={link.href} className="text-white/30 text-sm hover:text-[#00d4ff] transition-colors">{link.label}</Link></li>
                   ))}
                 </ul>
               </div>
@@ -184,7 +185,7 @@ export default function LkAndFooter() {
                 { label: "Публичная оферта", href: "/offer" },
                 { label: "Реквизиты", href: "/requisites" },
               ].map(t => (
-                <a key={t.label} href={t.href} className="hover:text-white/50 transition-colors">{t.label}</a>
+                <Link key={t.label} to={t.href} className="hover:text-white/50 transition-colors">{t.label}</Link>
               ))}
             </div>
           </div>
