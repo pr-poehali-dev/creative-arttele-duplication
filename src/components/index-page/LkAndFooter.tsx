@@ -156,12 +156,14 @@ export default function LkAndFooter() {
                 { label: "Блог", href: "/blog" },
                 { label: "Контакты", href: "/contacts" },
                 { label: "Реквизиты", href: "/requisites" },
+                { label: "Публичная оферта", href: "/offer" },
               ] },
               { title: "Поддержка", links: [
                 { label: "Личный кабинет", href: "/login" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Тех. поддержка", href: "/contacts" },
-                { label: "Документы", href: "/requisites" },
+                { label: "Реквизиты", href: "/requisites" },
+                { label: "Оферта", href: "/offer" },
               ] },
             ].map((col, i) => (
               <div key={i}>
@@ -177,9 +179,12 @@ export default function LkAndFooter() {
           <div className="section-divider mb-6" />
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/20">
             <span>© 2026 АртТелеком Юг. Все права защищены.</span>
-            <div className="flex gap-6">
-              {["Политика конфиденциальности", "Пользовательское соглашение", "Оферта"].map(t => (
-                <a key={t} href="#" className="hover:text-white/50 transition-colors">{t}</a>
+            <div className="flex gap-6 flex-wrap justify-center">
+              {[
+                { label: "Публичная оферта", href: "/offer" },
+                { label: "Реквизиты", href: "/requisites" },
+              ].map(t => (
+                <a key={t.label} href={t.href} className="hover:text-white/50 transition-colors">{t.label}</a>
               ))}
             </div>
           </div>
