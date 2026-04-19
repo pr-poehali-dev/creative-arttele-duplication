@@ -133,7 +133,7 @@ export default function LkAndFooter() {
                   <Icon name="Wifi" size={16} className="text-[#0b0e17]" />
                 </div>
                 <span className="font-montserrat font-black text-xl">
-                  <span style={{ color: "var(--neon-blue)" }}>Связь</span><span className="text-white">Про</span>
+                  <span style={{ color: "var(--neon-blue)" }}>АртТелеком</span><span className="text-white"> Юг</span>
                 </span>
               </div>
               <p className="text-white/30 text-sm leading-relaxed mb-4">Быстрый интернет и надёжная связь для дома и бизнеса с 2012 года.</p>
@@ -144,15 +144,31 @@ export default function LkAndFooter() {
               </div>
             </div>
             {[
-              { title: "Услуги", links: ["Домашний интернет", "Бизнес-интернет", "Цифровое ТВ", "IP-телефония", "Антивирус"] },
-              { title: "Компания", links: ["О нас", "Блог", "Вакансии", "Пресс-центр", "Партнёрам"] },
-              { title: "Поддержка", links: ["Личный кабинет", "FAQ", "Тех. поддержка", "Оплата", "Документы"] },
+              { title: "Услуги", links: [
+                { label: "Домашний интернет", href: "/tariffs" },
+                { label: "Бизнес-интернет", href: "/business" },
+                { label: "Видеонаблюдение", href: "/video" },
+                { label: "Проверка скорости", href: "/speedtest" },
+                { label: "Зоны покрытия", href: "/locations" },
+              ] },
+              { title: "Компания", links: [
+                { label: "О нас", href: "/about" },
+                { label: "Блог", href: "/blog" },
+                { label: "Контакты", href: "/contacts" },
+                { label: "Реквизиты", href: "/requisites" },
+              ] },
+              { title: "Поддержка", links: [
+                { label: "Личный кабинет", href: "/login" },
+                { label: "FAQ", href: "/faq" },
+                { label: "Тех. поддержка", href: "/contacts" },
+                { label: "Документы", href: "/requisites" },
+              ] },
             ].map((col, i) => (
               <div key={i}>
                 <div className="text-white/70 font-semibold text-sm mb-4">{col.title}</div>
                 <ul className="space-y-2">
                   {col.links.map(link => (
-                    <li key={link}><a href="#" className="text-white/30 text-sm hover:text-[#00d4ff] transition-colors">{link}</a></li>
+                    <li key={link.label}><a href={link.href} className="text-white/30 text-sm hover:text-[#00d4ff] transition-colors">{link.label}</a></li>
                   ))}
                 </ul>
               </div>
