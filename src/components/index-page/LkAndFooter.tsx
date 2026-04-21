@@ -163,8 +163,6 @@ export default function LkAndFooter() {
                 { label: "Личный кабинет", href: "/login" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Тех. поддержка", href: "/contacts" },
-                { label: "Реквизиты", href: "/requisites" },
-                { label: "Оферта", href: "/offer" },
               ] },
             ].map((col, i) => (
               <div key={i}>
