@@ -156,7 +156,6 @@ export default function LkAndFooter() {
                 { label: "О нас", href: "/about" },
                 { label: "Блог", href: "/blog" },
                 { label: "Контакты", href: "/contacts" },
-                { label: "Реквизиты", href: "/requisites" },
                 { label: "Публичная оферта", href: "/offer" },
               ] },
               { title: "Поддержка", links: [
@@ -181,7 +180,6 @@ export default function LkAndFooter() {
             <div className="flex gap-6 flex-wrap justify-center">
               {[
                 { label: "Публичная оферта", href: "/offer" },
-                { label: "Реквизиты", href: "/requisites" },
               ].map(t => (
                 <Link key={t.label} to={t.href} className="hover:text-white/50 transition-colors">{t.label}</Link>
               ))}
